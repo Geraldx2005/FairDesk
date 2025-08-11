@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fairdesk - client form</title>
+    <link rel="icon" href="/assets/fairfavicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/selectize/dist/css/selectize.default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/choices.min.css">
+    <!-- <link rel="stylesheet" href="/css/ratecalculator.css" /> -->
+    <link rel="stylesheet" href="/css/common.css" />
+    <% if (CSS) { %>
+        <link rel="stylesheet" href="/css/<%= CSS %>">
+    <% } %>
+  </head>
+  <body>
+    <nav>
+      <h1>Fairdesk</h1>
+    </nav>
+    <div class="contain">
+      <!-- Navigation bar -->
+      <div class="side-nav nav-panel-toggle">
+        <div title="Expand" class="nav-items nav-toggle">
+          <i class="fa-solid fa-bars" style="color: #ffffff"></i>
+          <p class="nav-items-para">Navigation</p>
+        </div>
+        <div title="Client Data" class="<%= title === 'Client Form' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/client'">
+          <i class="fa-solid fa-user" style="color: #ffffff"></i>
+          <p class="nav-items-para">Client Data</p>
+        </div>
+
+        <div class="nav-opt-wrap">
+          <div title="Datasheet" class="datasheet-toggle nav-items">
+            <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
+            <p class="nav-items-para">Datasheet</p>
+          </div>
+
+          <div class="nav-labels-opt">
+            <div title="Labels" class="<%= title === 'Labels' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/labels'">
+              <i class="fa-solid fa-address-card" style="color: #ffffff"></i>
+              <p class="nav-items-para">Labels</p>
+            </div>
+            <div title="TTR" class="<%= title === 'TTR' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/ttr'">
+              <i class="fa-solid fa-ribbon" style="color: #ffffff"></i>
+              <p class="nav-items-para">TTR</p>
+            </div>
+            <div title="Tape" class="<%= title === 'Tape' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/tape'">
+              <i class="fa-solid fa-tape" style="color: #ffffff"></i>
+              <p class="nav-items-para">Tape</p>
+            </div>
+          </div>
+        </div>
+
+        <div title="Block Master" class="nav-items" onclick="window.location.href = '/fairdesk/form/block'">
+          <i class="fa-solid fa-cube" style="color: #ffffff;"></i>
+          <p class="nav-items-para">Block Master</p>
+        </div>        
+
+        <div title="Die Master" class="nav-items" onclick="window.location.href = '/fairdesk/form/die'">
+          <i class="fa-solid fa-brush" style="color: #ffffff;"></i>
+          <p class="nav-items-para">Die Master</p>
+        </div>        
+
+        <!-- <div class="nav-opt-wrap">
+          <div title="Care" class="care-toggle nav-items">
+            <i class="fa-solid fa-circle-chevron-down" style="color: #ffffff"></i>
+            <p class="nav-items-para">Care</p>
+          </div>
+
+          <div class="nav-care-opt">
+            <div title="System ID" class="nav-items" onclick="window.location.href = '/fairdesk/form/systemid'">
+              <i class="fa-solid fa-id-badge" style="color: #ffffff"></i>
+              <p class="nav-items-para">System ID</p>
+            </div>
+            <div title="Care Call Report" class="nav-items" onclick="window.location.href = '/fairdesk/form/carecallreport'" >
+              <i class="fa-solid fa-file" style="color: #ffffff"></i>
+              <p class="nav-items-para">Call Report</p>
+            </div>
+            <div title="Care Workshop Report" class="nav-items" onclick="window.location.href = '/fairdesk/form/careworkshopreport'">
+              <i class="fa-solid fa-shop" style="color: #ffffff"></i>
+              <p class="nav-items-para">Workshop Report</p>
+            </div>
+            <div title="Carelead" class="nav-items" onclick="window.location.href = '/fairdesk/form/carelead'">
+              <i class="fa-solid fa-notes-medical" style="color: #ffffff"></i>
+              <p class="nav-items-para">Lead</p>
+            </div>
+            <div title="Care Quote" class="nav-items" onclick="window.location.href = '/fairdesk/form/carequote'">
+              <i class="fa-solid fa-quote-left" style="color: #ffffff"></i>
+              <p class="nav-items-para">Quote</p>
+            </div>
+          </div>
+        </div> -->
+        <!-- <div title="Rate Calculator" class="nav-items" onclick="window.location.href = '/fairdesk/form/ratecalculator'">
+          <i class="fa-solid fa-calculator" style="color: #ffffff"></i>
+          <p class="nav-items-para">Rate Calculator</p>
+        </div> -->
+
+        <!-- <div class="nav-opt-wrap"> -->
+          <!-- <div title="Rate Calculator" class="calc-toggle nav-items">
+            <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
+            <p class="nav-items-para">Rate Calculator</p>
+          </div> -->
+
+          <!-- <div class="nav-calc-opt">
+            <div title="Sales Calculator" class="nav-items" onclick="window.location.href = '/fairdesk/form/salescalc'">
+              <i class="fa-solid fa-money-bill-transfer" style="color: #ffffff"></i>
+              <p class="nav-items-para">Sales Calculator</p>
+            </div>
+          </div> -->
+          
+          <div title="Production Calculator" class="nav-items" onclick="window.location.href = '/fairdesk/form/prodcalc'">
+            <i class="fa-solid fa-industry" style="color: #ffffff"></i>
+            <p class="nav-items-para">Production Calculator</p>
+          </div>
+        <!-- </div> -->
+      </div>
+
+      <!--- Loading Content --->
+      <%- body -%>
+    </div>
+
+    <script src="/js/common.js" defer></script>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/BTStrap.js" defer></script>
+    <script src="/js/choices.min.js"></script>
+    <% if(JS) { %>
+    <script src="/js/<%= JS %>" defer></script>
+    <% } %>
+  </body>
+</html>
