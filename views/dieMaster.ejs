@@ -12,7 +12,7 @@
       <input type="date" id="die-flat-date" class="form-control input-tag" name="dieFlatDate" required />
     </div>
     <div class="span-six">
-      <label for="die-flat-type">Die Type</label>
+      <label for="die-type">Die Type</label>
        <select name="dieType" id="die-type">
         <option value="" disabled selected hidden>Select</option>
         <option value="ROTTARY">ROTTARY</option>
@@ -38,9 +38,9 @@
       <input type="text" id="die-flat-die-no" class="form-control input-tag" name="dieFlatDieNo" placeholder="Enter Die No" required />
     </div>
 
-    <div class="span-five">
+    <div class="span-five" id="mag-teeth-div" >
       <label for="die-flat-teeth">Magnetic Teeth</label>
-      <input type="text" id="die-flat-teeth" class="form-control input-tag" name="dieFlatTeeth" placeholder="Enter Teeth" required />
+      <input type="text" id="die-mag-teeth" class="form-control input-tag" name="dieFlatTeeth" placeholder="Enter Teeth" required />
     </div>
 
     <div class="span-four">
@@ -53,24 +53,24 @@
       <input type="text" id="die-flat-height" class="form-control input-tag" name="dieFlatHeight" placeholder="Enter Height" required />
     </div>
 
-    <div class="span-five">
-      <label for="die-flat-across-gap">Across Gap</label>
-      <input type="text" id="die-flat-across-gap" class="form-control input-tag" name="dieFlatAcrossGap" placeholder="Enter Across Gap" />
+    <div class="span-five" id="die-across-gap-div">
+      <label for="die-across-gap">Across Gap</label>
+      <input type="text" id="die-across-gap" class="form-control input-tag" name="dieFlatAcrossGap" placeholder="Enter Across Gap" />
     </div>
 
-    <div class="span-five">
-      <label for="die-flat-rep-gap">Repeat Gap</label>
-      <input type="text" id="die-flat-rep-gap" class="form-control input-tag" name="dieFlatrepGap" placeholder="Enter Repeat Gap" />
+    <div class="span-five" id="die-rep-gap-div">
+      <label for="die-rep-gap">Repeat Gap</label>
+      <input type="text" id="die-rep-gap" class="form-control input-tag" name="dieFlatrepGap" placeholder="Enter Repeat Gap" />
     </div>
 
-    <div class="span-five">
-      <label for="die-flat-across">Across Ups</label>
-      <input type="text" id="die-flat-across" class="form-control input-tag" name="dieFlatAcross" placeholder="Enter Across" />
+    <div class="span-five" id="die-across-ups-div">
+      <label for="die-across-ups">Across Ups</label>
+      <input type="text" id="die-across-ups" class="form-control input-tag" name="dieFlatAcross" placeholder="Enter Across" />
     </div>
 
-    <div class="span-four">
-      <label for="die-flat-down">Down Ups</label>
-      <input type="text" id="die-flat-down" class="form-control input-tag" name="dieFlatDown" placeholder="Enter Down" />
+    <div class="span-four" id="die-down-ups-div">
+      <label for="die-down-ups">Down Ups</label>
+      <input type="text" id="die-down-ups" class="form-control input-tag" name="dieFlatDown" placeholder="Enter Down" />
     </div>
 
     <div class="span-seven">
@@ -97,14 +97,19 @@
           </select>
     </div>
 
-    <div class="span-seven">
-      <label for="die-flat-owned">Owned By</label>
-      <input type="text" id="die-flat-owned" class="form-control input-tag" name="dieFlatOwnedBy" placeholder="Enter Owned By" />
+    <div class="span-seven" id="die-owned-div">
+      <label for="die-owned">Owned By</label>
+      <!-- <input type="text" id="die-rep-gap" class="form-control input-tag" name="dieFlatOwnedBy" placeholder="Enter Owned By" /> -->
+       <select name="dieOwnedBy" id="die-owned">
+        <option value="" selected disabled hidden>Select</option>
+        <option value="US">US</option>
+        <option value="CLIENT">CLIENT</option>
+       </select>
     </div>
 
-    <div class="span-half">
-      <label for="die-flat-client-name">Client Name</label>
-      <select name="clientName" id="die-flat-client-name">
+    <div class="span-half" id="die-client-name-div">
+      <label for="die-client-name">Client Name</label>
+      <select name="clientName" id="die-client-name">
         <option value="" disabled selected hidden>Search</option>        
         <% for (client of clients) { %>
           <option value="<%= client %>"><%= client %></option>
@@ -112,9 +117,9 @@
       </select>
     </div> 
 
-    <div class="span-half">
-      <label for="die-flat-remark">Remark</label>
-      <input type="text" id="die-flat-remark" class="form-control input-tag" name="dieFlatRemark" placeholder="Enter Remark" />
+    <div class="span-half" id="die-remark-div">
+      <label for="die-remark">Remark</label>
+      <input type="text" id="die-remark" class="form-control input-tag" name="dieFlatRemark" placeholder="Enter Remark" />
     </div>
 
     <div class="span-full btn-grp">
@@ -127,22 +132,41 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
     <script>
-      let rottaryBtn = document.querySelector(".rottary-switch");
-      let flatbedBtn = document.querySelector(".flatbed-switch");
+      let dieType = document.getElementById("die-type");
+      let magTeeth = document.getElementById("mag-teeth-div");
+      let acrossGap = document.getElementById("die-across-gap-div");
+      let repGap = document.getElementById("die-rep-gap-div");
+      let acrossUps = document.getElementById("die-across-ups-div");
+      let downUps = document.getElementById("die-down-ups-div");
 
-      let rottaryContent = document.querySelector(".rottary-content");
-      let flatbedContent = document.querySelector(".flatbed-content");
-
-      rottaryBtn.addEventListener("click", () => {
-        rottaryBtn.classList.add("active");
-        flatbedBtn.classList.remove("active");
-        rottaryContent.style.display = "grid";
-        flatbedContent.style.display = "none";
+      dieType.addEventListener("change", function() {
+        if (this.value === "FLATBED") {
+          magTeeth.style.display = "none";
+          acrossGap.style.gridColumn = "span 6";
+          repGap.style.gridColumn = "span 6";
+          acrossUps.style.gridColumn = "span 6";
+          downUps.style.gridColumn = "span 6";
+        } else if (this.value === "ROTTARY") {
+          magTeeth.style.display = "grid";
+          acrossGap.style.gridColumn = "span 5";
+          repGap.style.gridColumn = "span 5";
+          acrossUps.style.gridColumn = "span 5";
+          downUps.style.gridColumn = "span 4";
+        }
       });
-      flatbedBtn.addEventListener("click", () => {
-        rottaryBtn.classList.remove("active");
-        flatbedBtn.classList.add("active");
-        rottaryContent.style.display = "none";
-        flatbedContent.style.display = "grid";
+
+      let OwnedBy = document.getElementById("die-owned");
+      let clientName = document.getElementById("die-client-name-div");
+      let remark = document.getElementById("die-remark-div");
+
+      OwnedBy.addEventListener("change", function() {
+        if (this.value === "US") {
+          clientName.style.display = "none";
+          remark.style.gridColumn = "span 32";
+        } else if (this.value === "CLIENT") {
+          clientName.style.display = "flex";
+          remark.classList.add("span-half");
+          remark.style.gridColumn = "span 16"; 
+        }
       });
     </script>
