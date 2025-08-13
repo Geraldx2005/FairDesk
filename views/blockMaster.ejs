@@ -135,7 +135,7 @@
             <h1></h1>
           </div>            
         
-          <div id class="span-penta">
+          <div id class="span-dual">
             <label for="varnish">Varnish</label>
              <select name="blockVarnish" id="varnish">
               <option value="NO">NO</option>
@@ -145,21 +145,29 @@
              </select>
           </div>
 
-          <div class="span-hexa">
+          <div class="span-dual">
             <label for="block-foil-no">No of Foil</label>
             <input type="text" id="block-foil-no" class="form-control" name="blockFoilNo" value="0" placeholder="Enter No of Foil" required />
           </div>          
 
-          <div class="span-penta">
+          <div class="span-dual">
             <label for="block-lamination">Lamination</label>
-            <!-- <input type="number" id="block-lamination" class="form-control" name="BlockLamination" placeholder="Enter Lamination" required /> -->
             <select name="blockLamination" id="block-lamination">
               <option value="" selected disabled hidden>Select</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
              </select>
-          </div>          
+          </div>
 
+          <div class="span-dual">
+            <label for="block-plate-thickness">Plate Thickness</label>
+            <select name="blockPlateThickness" id="block-plate-thickness">
+              <option value="" selected disabled hidden>Select</option>
+              <option value="1.7">1.7</option>
+              <option value="2.5">2.5</option>
+             </select>
+          </div>
+          
           <input type="hidden" name="userId" id="user-id">          
 
           <div class="btn-grp span-full">
@@ -178,15 +186,6 @@
 
     dateInput.value = `${yyyy}-${mm}-${dd}`;
   });
-
-  // document.addEventListener('DOMContentLoaded', () => {
-  //   const fruitSelect = document.getElementById('block-client-name');
-  //   new Choices(fruitSelect, {
-  //     removeItemButton: true,
-  //     searchEnabled: true,
-  //     placeholder: true,
-  //   });
-  // });
 
 document.getElementById('front-color').addEventListener('input', function() {
     const count = parseInt(this.value) || 0;

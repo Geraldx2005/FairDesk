@@ -20,6 +20,7 @@ let blockSchema = new mongoose.Schema({
     blockVarnish: { type: String, required: true },
     blockFoilNo: { type: String, required: true },
     blockLamination: { type: String, required: true },
+    blockPlateThickness: { type: String, required: true },
 
     frontColDet: { type: Array, required: false },
     backColDet: { type: Array, required: false },
