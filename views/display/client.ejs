@@ -1,0 +1,28 @@
+<!--- Link to boilerplate.ejs -->
+<% layout('/layout/boilerplate') -%>
+
+<div class="main-content">
+    <div class="span-full form-heading">
+      <h1>Clients</h1>
+    </div>
+
+    <div class="span-full" style="display: flex; width: 100%; padding: 0; margin-top: 10px;">
+        <div class="span-full" style="background-color: #1a1a2e; color: white; font-size: 15px; border: none; width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+            <div class="items w-100 h-100" style="padding: 0 10px">Client ID</div>
+            <div class="items w-100 h-100" style="padding: 0 10px">Client Name</div>
+            <div class="items w-100 h-100" style="padding: 0 10px">Client Type</div>
+            <div class="items w-100 h-100" style="padding: 0 10px">Location</div>
+            <div class="items w-100 h-100" style="padding: 0 10px">Status</div>
+        </div>
+        <% for (client of clients) { %>
+            <% console.log(client); %>
+        <div class="span-full" style="border: none; width: 100%; font-size: 14px; display: grid; grid-template-columns: repeat(5, 1fr);">
+            <div class="items w-100 h-100 px-10px" style="padding: 0 10px"><%= client.clientId %></div>
+            <div class="items w-100 h-100" style="padding: 0 10px;"><%= client.clientName %></div>
+            <div class="items w-100 h-100" style="padding: 0 10px;"><%= client.clientType %></div>
+            <div class="items w-100 h-100" style="padding: 0 10px;"><%= client.hoLocation %></div>
+            <div class="items w-100 h-100" style="padding: 0 10px;"><%= client.clientStatus %></div>
+        </div>
+        <% } %>
+    </div>
+</div>

@@ -1,7 +1,7 @@
 <% layout('/layout/boilerplate') %>
       <!-- The main content -->
       <div class="main-content">
-        <form action="/fairdesk/form/   " method="post" class="needs-validation" autocomplete="off" novalidate>
+        <form action="/fairdesk/form/block" method="post" class="needs-validation" autocomplete="off" novalidate>
           <div class="span-full form-heading">
             <h1>Block Master</h1>
           </div>
@@ -21,7 +21,7 @@
           </div>
            <div id="client-name-div" class="span-five">
             <label for="block-machine-no">Machine No</label>
-            <input type="number" name="blockMachineNo" id="block-machine-no" class="form-control" placeholder="Enter Machine No" required>
+            <input type="text" name="blockMachineNo" id="block-machine-no" class="form-control" placeholder="Enter Machine No" required>
           </div>
            <div class="span-four">
             <label for="block-Make">Block Make</label>
@@ -29,11 +29,11 @@
           </div> 
            <div class="span-five">
             <label for="block-artwork-no">Artwork No</label>
-            <input type="number" name="blockArtworkNo" id="block-artwork-no" class="form-control" placeholder="Enter Artwork No" required>
+            <input type="text" name="blockArtworkNo" id="block-artwork-no" class="form-control" placeholder="Enter Artwork No" required>
           </div> 
           <div class="span-four">
             <label for="block-no">Block No</label>
-            <input type="number" name="blockNo" id="block-no" class="form-control" placeholder="Enter Block No" required>
+            <input type="text" name="blockNo" id="block-no" class="form-control" placeholder="Enter Block No" required>
           </div>                    
           <div id="client-location-div" class="span-five">
             <label for="block-version">Version</label>
@@ -58,7 +58,7 @@
           </div>
           <div class="span-four">
             <label for="repeat-pass">RePass</label>
-            <input type="text" id="repeat-pass" class="form-control" name="repeatPass" placeholder="Enter Repass" required />
+            <input type="text" id="repeat-pass" class="form-control" name="blockRepass" placeholder="Enter Repass" required />
           </div>           
 
           <!-- <div class="span-four">
@@ -98,9 +98,10 @@
            <div class="color-count span-half" style="grid-column: span 32;">
             <label>Color</label>
             <div class="color-count" style="width: 100%; display: flex; justify-content: space-between; gap: 10px;">
-            <input type="number" id="front-color" class="form-control" name="blockFrontColor" placeholder="Enter Front"/>              
-            <input type="number" id="back-color" class="form-control" name="blockBackColor" placeholder="Enter Back" />
-            </div> 
+            <input type="text" id="front-color" class="form-control" name="blockFrontColor" placeholder="Enter Front"/>              
+            <input type="text" id="back-color" class="form-control" name="blockBackColor" placeholder="Enter Back" />
+            </div>`
+
             </div>
               <div class="color-headings" style="margin-bottom: 0px; grid-column: span 32; background-color: #1a1a2e; color: white; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;"> 
                 <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">Pantone Code</span>
@@ -128,7 +129,7 @@
                 <input type="text" id="pantone-code" class="form-control" name="pantoneCode" placeholder="Enter Color Name" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
                 <input type="text" id="pantone-code" class="form-control" name="pantoneCode" placeholder="Enter Anilox No" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
               </div>
-          </div>   
+          </div>
 
           <div class="span-full form-subheading">
             <h1></h1>
@@ -146,7 +147,7 @@
 
           <div class="span-hexa">
             <label for="block-foil-no">No of Foil</label>
-            <input type="number" id="block-foil-no" class="form-control" name="BlockFoilNo" value="0" placeholder="Enter No of Foil" required />
+            <input type="text" id="block-foil-no" class="form-control" name="blockFoilNo" value="0" placeholder="Enter No of Foil" required />
           </div>          
 
           <div class="span-penta">
@@ -198,39 +199,35 @@ document.getElementById('front-color').addEventListener('input', function() {
         // Create empty state div
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'color-headings';
-        emptyDiv.style = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
+        emptyDiv.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
         
         emptyDiv.innerHTML = `
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
         `;
-        
         container.appendChild(emptyDiv);
     } else {
         // Create new divs based on the input count
-        for (let i = 1; i <= count; i++) {
+        for (let i = 0; i < count; i++) {
             const div = document.createElement('div');
             div.className = 'color-headings';
-            div.style = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
+            div.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
             
             div.innerHTML = `
-                <h4 style="margin: 0;">${i}</h4>
-                <input type="text" class="form-control" name="pantoneCode" placeholder="Enter Pantone Code" style="flex: 1; border: 1px solid #1a1a2e;" />
-                <input type="text" class="form-control" name="colorName" placeholder="Enter Color Name" style="flex: 1; border: 1px solid #1a1a2e;" />
-                <input type="text" class="form-control" name="aniloxNo" placeholder="Enter Anilox No" style="flex: 1; border: 1px solid #1a1a2e;" />
+                <h4 style="margin: 0;">${i + 1}</h4>
+                <input type="text" name="frontColDet[${i}][pantoneCode]" class="form-control" placeholder="Pantone Code" style="flex: 1; border: 1px solid #1a1a2e;">
+                <input type="text" name="frontColDet[${i}][colorName]" class="form-control" placeholder="Color Name" style="flex: 1; border: 1px solid #1a1a2e;">
+                <input type="text" name="frontColDet[${i}][aniloxNo]" class="form-control" placeholder="Anilox No" style="flex: 1; border: 1px solid #1a1a2e;">
             `;
-            
             container.appendChild(div);
         }
     }
 });
 
 // Initialize on page load
-window.addEventListener('DOMContentLoaded', function() {
-    const frontColor = document.getElementById('front-color');
-    // Trigger the input event to set initial state
-    frontColor.dispatchEvent(new Event('input'));
+window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('front-color').dispatchEvent(new Event('input'));
 });
 
 document.getElementById('back-color').addEventListener('input', function() {
@@ -244,38 +241,34 @@ document.getElementById('back-color').addEventListener('input', function() {
         // Create empty state div
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'color-headings';
-        emptyDiv.style = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
+        emptyDiv.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
         
         emptyDiv.innerHTML = `
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
         `;
-        
         container.appendChild(emptyDiv);
     } else {
         // Create new divs based on the input count
-        for (let i = 1; i <= count; i++) {
+        for (let i = 0; i < count; i++) {
             const div = document.createElement('div');
             div.className = 'color-headings';
-            div.style = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
+            div.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
             
             div.innerHTML = `
-                <h4 style="margin: 0;">${i}</h4>
-                <input type="text" class="form-control" name="pantoneCode" placeholder="Enter Pantone Code" style="flex: 1; border: 1px solid #1a1a2e;" />
-                <input type="text" class="form-control" name="colorName" placeholder="Enter Color Name" style="flex: 1; border: 1px solid #1a1a2e;" />
-                <input type="text" class="form-control" name="aniloxNo" placeholder="Enter Anilox No" style="flex: 1; border: 1px solid #1a1a2e;" />
+                <h4 style="margin: 0;">${i + 1}</h4>
+                <input type="text" name="backColDet[${i}][pantoneCode]" class="form-control" placeholder="Pantone Code" style="flex: 1; border: 1px solid #1a1a2e;">
+                <input type="text" name="backColDet[${i}][colorName]" class="form-control" placeholder="Color Name" style="flex: 1; border: 1px solid #1a1a2e;">
+                <input type="text" name="backColDet[${i}][aniloxNo]" class="form-control" placeholder="Anilox No" style="flex: 1; border: 1px solid #1a1a2e;">
             `;
-            
             container.appendChild(div);
         }
     }
 });
 
 // Initialize on page load
-window.addEventListener('DOMContentLoaded', function() {
-    const backColor = document.getElementById('back-color');
-    // Trigger the input event to set initial state
-    backColor.dispatchEvent(new Event('input'));
+window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('back-color').dispatchEvent(new Event('input'));
 });
 </script>

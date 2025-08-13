@@ -10,7 +10,7 @@ const app = express();
 const port = 3000;
 
 // Configuring environment variables.
-configDotenv();
+configDotenv({ quiet: true });
 // Connecting to the database.
 connectDB();
 

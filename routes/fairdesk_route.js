@@ -9,6 +9,7 @@ import SystemId from "../models/systemId.js";
 import Carelead from "../models/carelead.js";
 import Calculator from "../models/calculator.js";
 import Block from "../models/block_model.js";
+import Die from "../models/die_model.js";
 const router = express.Router();
 
 // ----------------------------------RateCalculator---------------------------------->
@@ -43,7 +44,8 @@ router.post("/form/client", async (req, res) => {
   let formData = req.body;
 
   await Client.create(formData);
-  res.send("client created successfully!");
+  res.render("miscellaneous/message.ejs", { message: "Client created successfully!", url: "/fairdesk/form/client", title: "Client Created" });
+  // res.send("client created successfully!");
 });
 
 router.get("/form/client/:name", async (req, res) => {
@@ -291,9 +293,17 @@ router.get("/form/die", async (req, res) => {
 
 // Route to handle systemid form submission.
 router.post("/form/die", async (req, res) => {
-  let savedBlockData = await Block.create(req.body);
-  console.log(savedBlockData);
-  res.send("die created successfully!");
+  let savedDieData = await Die.create(req.body);
+  console.log(savedDieData);
+  res.send("Die created successfully!");
+});
+
+// ----------------------------------client display---------------------------------->
+// route for systemid form.
+router.get("/disp/client", async (req, res) => {
+  let clients = await Client.find();
+  console.log(clients);
+  res.render("display/client.ejs", { CSS: false, title: "Client Display", JS: false, clients });
 });
 
 export default router;
