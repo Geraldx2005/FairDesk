@@ -6,6 +6,9 @@ import AppError from "./utils/AppError.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
+
+import session from "express-session";
+import flash from "connect-flash";
 const app = express();
 const port = 3000;
 
@@ -13,6 +16,14 @@ const port = 3000;
 configDotenv({ quiet: true });
 // Connecting to the database.
 connectDB();
+
+app.use(session({
+    secret: "yoursecretkey",
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.use(flash());
 
 // Getting the current file and directory names.
 let file_name = fileURLToPath(import.meta.url);
@@ -47,6 +58,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send(message);
 });
 
+// IP Address: "192.168.10.119", -----! put this before the port below
 app.listen(port, () => {
   console.log(`server started at port: ${port}`);
 });

@@ -10,7 +10,7 @@ let labelSchema = new mongoose.Schema({
 //   jobDetail: { type: String, required: true },
   frontColor: { type: String },
   backColor: { type: String },
-  instructions: { type: String, required: true },
+  instructions: { type: String },
   varnish: { type: String, required: true },
   foilNo: { type: String, required: true },
   paperType: { type: String, required: true },

@@ -14,8 +14,52 @@
     <% if (CSS) { %>
         <link rel="stylesheet" href="/css/<%= CSS %>">
     <% } %>
+    
+<style>
+    .toast-notification {
+        position: fixed;
+        bottom: 20px;
+        right: -300px; /* start off-screen */
+        background-color: #d1e7dd; /* match sidebar dark */
+        color: #0a3646;
+        padding: 12px 40px 12px 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+        z-index: 9999;
+        font-family: Arial, sans-serif;
+        font-size: 18px;
+        border-left: 4px solid #0a3646; /* green accent */
+        animation: slideIn 0.5s forwards;
+    }
+
+    .toast-close {
+        position: absolute;
+        right: 12px;
+        top: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        color: #0a3646;
+    }
+
+    @keyframes slideIn {
+        from { right: -300px; opacity: 0; }
+        to { right: 20px; opacity: 1; }
+    }
+
+    @keyframes slideOut {
+        from { right: 20px; opacity: 1; }
+        to { right: -300px; opacity: 0; }
+    }
+</style>
   </head>
   <body>
+<% if (notification && notification.length > 0) { %>
+<div class="toast-notification" id="toast">
+    <span><%= notification[0] %></span>
+    <span class="toast-close" onclick="hideToast()">×</span>
+</div>
+<% } %>
     <nav>
       <h1>Fairdesk</h1>
     </nav>
@@ -128,5 +172,20 @@
     <% if(JS) { %>
     <script src="/js/<%= JS %>" defer></script>
     <% } %>
+<script>
+    const toast = document.getElementById("toast");
+
+    function hideToast() {
+        toast.style.animation = "slideOut 0.5s forwards";
+        setTimeout(() => {
+            toast.style.display = "none";
+        }, 500);
+    }
+
+    // Auto hide after 5 seconds
+    if (toast) {
+        setTimeout(hideToast, 5000);
+    }
+</script>   
   </body>
 </html>
