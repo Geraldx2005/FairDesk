@@ -47,6 +47,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send(message);
 });
 
-app.listen(port, () => {
+app.listen(port, "192.168.10.119", () => {
   console.log(`server started at port: ${port}`);
 });
