@@ -96,8 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update contact and location
     if (record) {
         console.log(record._id);
-      userContactEl.value = record.clientContact || "";
-      clientLocationEl.value = record.location || "";
+      userContactEl.value = record.userContact || "";
+      clientLocationEl.value = record.userLocation || "";
       userIdEl.value = record._id;
     }
   });

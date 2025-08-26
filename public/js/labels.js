@@ -79,8 +79,8 @@ function handleUsernameChange() {
   const record = findMatchingRecord(clientName, userName);
 
   if (record) {
-    elements.userContact.value = record.clientContact;
-    elements.clientLocation.value = record.location;
+    elements.userContact.value = record.userContact;
+    elements.clientLocation.value = record.userLocation;
     elements.userObjId.value = record._id;
   }
 }

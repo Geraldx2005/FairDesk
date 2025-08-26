@@ -14,7 +14,7 @@ let labelSchema = new mongoose.Schema({
   varnish: { type: String, required: true },
   foilNo: { type: String, required: true },
   paperType: { type: String, required: true },
-  paperCode: { type: String, required: true },
+  // paperCode: { type: String, required: true },
   labelWidth: { type: String, required: true },
   labelHeight: { type: String, required: true },
   labelGap: { type: String, required: true },

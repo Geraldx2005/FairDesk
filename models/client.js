@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 let clientSchema = new mongoose.Schema({
-    clientId: { type: String, required: true },
+    clientId: { type: String, required: true, unique: true },
     clientName: { type: String, required: true },
     clientType: { type: String, required: true },
     clientStatus: { type: String, required: true },

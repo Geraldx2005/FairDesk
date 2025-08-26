@@ -58,11 +58,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send(message);
 });
 
-<<<<<<< HEAD
 // IP Address: "192.168.10.119", -----! put this before the port below
 app.listen(port, () => {
-=======
-app.listen(port, "192.168.10.119", () => {
->>>>>>> 2ec56e1b86268b7c20363c7be81fb08390149d15
   console.log(`server started at port: ${port}`);
 });

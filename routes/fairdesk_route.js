@@ -34,7 +34,15 @@ router.get("/form/client", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let userCount = await Username.countDocuments();
   let clientCount = clients.length;
-  res.render("clientForm.ejs", { JS: "clientForm.js", CSS: "tabOpt.css", title: "Client Form", clientCount, userCount, clients, notification: req.flash("notification") });
+  res.render("clientForm.ejs", {
+    JS: "clientForm.js",
+    CSS: "tabOpt.css",
+    title: "Client Form",
+    clientCount,
+    userCount,
+    clients,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle CLIENT form submission
@@ -64,7 +72,7 @@ router.post("/form/user", async (req, res) => {
   client.users.push(newUser);
   await client.save();
 
-  req.flash("notification", "Username created successfully!");
+  req.flash("notification", "User created successfully!");
   res.redirect("/fairdesk/form/client");
 });
 
@@ -75,7 +83,14 @@ router.get("/form/labels", async (req, res) => {
   let labelsCount = (await Label.countDocuments()) + 1;
   console.log(clients);
 
-  res.render("labels.ejs", { title: "Labels", JS: "labels.js", CSS: false, clients, labelsCount, notification: req.flash("notification") });
+  res.render("labels.ejs", {
+    title: "Labels",
+    JS: "labels.js",
+    CSS: false,
+    clients,
+    labelsCount,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle datasheet form submission.
@@ -88,7 +103,7 @@ router.post("/form/labels", async (req, res) => {
   user.label.push(savedLabel);
   await user.save();
 
-  req.flash("notification", "Client created successfully!");
+  req.flash("notification", "Label created successfully!");
   res.redirect("/fairdesk/form/labels");
 });
 
@@ -178,7 +193,14 @@ router.get("/form/ttr", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let ttrCount = await Ttr.countDocuments();
 
-  res.render("ttr.ejs", { JS: "ttr.js", CSS: false, title: "TTR", clients, ttrCount, notification: req.flash("notification") });
+  res.render("ttr.ejs", {
+    JS: "ttr.js",
+    CSS: false,
+    title: "TTR",
+    clients,
+    ttrCount,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle systemid form submission.
@@ -200,7 +222,14 @@ router.get("/form/tape", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let tapeCount = await Tape.countDocuments();
 
-  res.render("tape.ejs", { JS: "ttr.js", CSS: false, title: "Tape", clients, tapeCount, notification: req.flash("notification") });
+  res.render("tape.ejs", {
+    JS: "ttr.js",
+    CSS: false,
+    title: "Tape",
+    clients,
+    tapeCount,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle systemid form submission.
@@ -250,7 +279,7 @@ router.post("/form/salescalc", async (req, res) => {
 // route for systemid form.
 router.get("/form/prodcalc", async (req, res) => {
   let clients = await Client.distinct("clientName");
-  res.render("prodCalc.ejs", { title: "Production Calculator", CSS: false, JS: "prodCalc.js", clients });
+  res.render("prodCalc.ejs", { title: "Production Calculator", CSS: false, JS: "prodCalc.js", clients, notification: req.flash("notification") });
 });
 
 router.get("/form/prodcalc/data", async (req, res) => {
@@ -274,7 +303,13 @@ router.post("/form/prodcalc", async (req, res) => {
 router.get("/form/block", async (req, res) => {
   let clients = await Client.distinct("clientName");
   console.log(clients);
-  res.render("blockMaster.ejs", { CSS: false,title: "Block Master",JS: false, clients, notification: req.flash("notification") });
+  res.render("blockMaster.ejs", {
+    CSS: false,
+    title: "Block Master",
+    JS: false,
+    clients,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle systemid form submission.
@@ -292,22 +327,73 @@ router.post("/form/block", async (req, res) => {
 router.get("/form/die", async (req, res) => {
   let clients = await Client.distinct("clientName");
   console.log(clients);
-  res.render("dieMaster.ejs", { CSS: "tabOpt.css", title: "Die Master", JS: "clientForm.js", clients,  notification: req.flash("notification") });
+  res.render("dieMaster.ejs", {
+    CSS: "tabOpt.css",
+    title: "Die Master",
+    JS: "clientForm.js",
+    clients,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle systemid form submission.
 router.post("/form/die", async (req, res) => {
   let savedDieData = await Die.create(req.body);
-  console.log(savedDieData);
   req.flash("notification", "Die created successfully!");
-  res.redirect("/fairdesk/form/die");});
+  res.redirect("/fairdesk/form/die");
+});
 
 // ----------------------------------client display---------------------------------->
-// route for systemid form.
+// route for client display page.
 router.get("/disp/client", async (req, res) => {
   let clients = await Client.find();
-  console.log(clients);
-  res.render("display/client.ejs", { CSS: false, title: "Client Display", JS: false, clients });
+  res.render("display/clientDisp.ejs", {
+    CSS: false,
+    title: "Client Display",
+    JS: false,
+    clients,
+    notification: req.flash("notification"),
+  });
+});
+
+// ----------------------------------user display---------------------------------->
+// route for user display page.
+router.get("/disp/user/:id", async (req, res) => {
+  let { id } = req.params;
+  let clientData = await Client.findOne({ _id: id }).populate("users");
+  let users = clientData.users;
+  console.log(users);
+  // res.send(users);
+  res.render("display/userDisp.ejs", {
+    CSS: false,
+    title: "Username Display",
+    JS: false,
+    users,
+    notification: req.flash("notification"),
+  });
+});
+
+// ----------------------------------Details display---------------------------------->
+// route for details page.
+router.get("/disp/details/:id", async (req, res) => {
+  try {
+    const userData = await Username.findById(req.params.id).populate("label").populate("ttr").populate("tape");
+    console.log(userData);
+
+    res.render("display/detailsPage.ejs", { 
+      userData: userData, 
+      labels: userData.label || [], 
+      ttrs: userData.ttr || [], 
+      tapes: userData.tape || [], 
+      CSS: false, 
+      JS: false, 
+      title: "Client Details",
+      notification: req.flash("notification")
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
 });
 
 export default router;
