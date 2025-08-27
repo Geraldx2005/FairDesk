@@ -1,4 +1,4 @@
-import express from "express";
+import express, { json } from "express";
 // import asyncHandler from "express-async-handler";
 import Client from "../models/client.js";
 import Username from "../models/username.js";
@@ -345,9 +345,9 @@ router.post("/form/die", async (req, res) => {
 
 // ----------------------------------client display---------------------------------->
 // route for client display page.
-router.get("/disp/client", async (req, res) => {
+router.get("/edit/client", async (req, res) => {
   let clients = await Client.find();
-  res.render("display/clientDisp.ejs", {
+  res.render("edit/clientDisp.ejs", {
     CSS: false,
     title: "Client Display",
     JS: false,
@@ -358,13 +358,13 @@ router.get("/disp/client", async (req, res) => {
 
 // ----------------------------------user display---------------------------------->
 // route for user display page.
-router.get("/disp/user/:id", async (req, res) => {
+router.get("/edit/user/:id", async (req, res) => {
   let { id } = req.params;
   let clientData = await Client.findOne({ _id: id }).populate("users");
   let users = clientData.users;
   console.log(users);
   // res.send(users);
-  res.render("display/userDisp.ejs", {
+  res.render("edit/userDisp.ejs", {
     CSS: false,
     title: "Username Display",
     JS: false,
@@ -375,12 +375,12 @@ router.get("/disp/user/:id", async (req, res) => {
 
 // ----------------------------------Details display---------------------------------->
 // route for details page.
-router.get("/disp/details/:id", async (req, res) => {
+router.get("/edit/details/:id", async (req, res) => {
   try {
     const userData = await Username.findById(req.params.id).populate("label").populate("ttr").populate("tape");
     console.log(userData);
 
-    res.render("display/detailsPage.ejs", { 
+    res.render("edit/detailsPage.ejs", { 
       userData: userData, 
       labels: userData.label || [], 
       ttrs: userData.ttr || [], 
@@ -394,6 +394,25 @@ router.get("/disp/details/:id", async (req, res) => {
     console.error(err);
     res.status(500).send("Server Error");
   }
+});
+
+// ----------------------------------Details display---------------------------------->
+// route for details page.
+router.get("/disp/master", async (req, res) => {
+  let jsonData = await Username.find();
+
+  let itemsCount = jsonData.map(user => ({
+    labelCount: user.label ? user.label.length : 0,
+    ttrCount: user.ttr ? user.ttr.length : 0,
+    tapeCount: user.tape ? user.tape.length : 0
+  }));
+
+  console.log(itemsCount);
+  
+
+  // jsonData.push(itemsCount);
+  console.log(jsonData);
+  res.render("display/masterDisp.ejs", { jsonData, CSS: false, JS: false, title: "Master Display", notification: req.flash("notification") });
 });
 
 export default router;
