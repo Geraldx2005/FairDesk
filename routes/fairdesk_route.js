@@ -401,18 +401,49 @@ router.get("/edit/details/:id", async (req, res) => {
 router.get("/disp/master", async (req, res) => {
   let jsonData = await Username.find();
 
-  let itemsCount = jsonData.map(user => ({
-    labelCount: user.label ? user.label.length : 0,
-    ttrCount: user.ttr ? user.ttr.length : 0,
-    tapeCount: user.tape ? user.tape.length : 0
-  }));
-
-  console.log(itemsCount);
-  
-
   // jsonData.push(itemsCount);
   console.log(jsonData);
   res.render("display/masterDisp.ejs", { jsonData, CSS: false, JS: false, title: "Master Display", notification: req.flash("notification") });
+});
+
+// ----------------------------------Labels display---------------------------------->
+// route for details page.
+router.get("/disp/labels", async (req, res) => {
+  let jsonData = await Label.find();
+  
+  res.render("display/labelsDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
+});
+
+// ----------------------------------Labels display (individual)---------------------------------->
+// route for details page.
+router.get("/disp/labels/:id", async (req, res) => {
+  console.log(req.params.id);
+  let userData = await Username.findById(req.params.id).populate("label");
+  let jsonData = userData.label;
+
+  console.log(jsonData);
+  res.send("hello");
+  // res.render("display/labelsDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
+});
+
+// ----------------------------------TTR display---------------------------------->
+// route for details page.
+router.get("/disp/ttr", async (req, res) => {
+  let jsonData = await Ttr.find();
+  
+  // jsonData.push(itemsCount);
+  console.log(jsonData);
+  res.render("display/ttrDisp.ejs", { jsonData, CSS: false, JS: false, title: "TTR Display", notification: req.flash("notification") });
+});
+
+// ----------------------------------Tape display---------------------------------->
+// route for details page.
+router.get("/disp/tapes", async (req, res) => {
+  let jsonData = await Tape.find();
+  
+  // jsonData.push(itemsCount);
+  console.log(jsonData);
+  res.render("display/tapeDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
 });
 
 export default router;

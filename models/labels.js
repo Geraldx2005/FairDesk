@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 let labelSchema = new mongoose.Schema({
+  productId: { type: String, required: true },
   clientName: { type: String, required: true },
   userName: { type: String, required: true },
   userContact: { type: String, required: true },

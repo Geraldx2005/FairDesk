@@ -76,6 +76,7 @@
   }
 
   .search-form {
+    /* flex: 1; */
     display: flex;
     gap: 10px;
     align-items: center;
@@ -109,56 +110,87 @@
   }
 
   .tabulator .tabulator-tableholder {
-    overflow-y: auto !important;
+    overflow-y: auto !important; /* show scrollbar only when needed */
   }
 
-  .tabulator .tabulator-header {
-    background-color: #1a1a2e !important;
-  }
+  /* Entire header row */
+.tabulator .tabulator-header {
+  background-color: #1a1a2e !important;  /* Your custom color */
+}
 
-  .tabulator .tabulator-col,
-  .tabulator .tabulator-col-content {
-    background-color: #1a1a2e !important;
-    color: #fff !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    padding: 2px 4px !important;
-  }
+/* Individual header cells */
+.tabulator .tabulator-col,
+.tabulator .tabulator-col-content {
+  background-color: #1a1a2e !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important; 
+  padding: 2px 4px !important;
+}
 
-  .tabulator .tabulator-cell {
-    font-size: 14px;
-    border: 2px solid transparent;
-    padding: 2px 4px !important;
-    transition: all 0.1s ease-in-out;
-  }
 
-  .tabulator .tabulator-cell:hover {
-    border: 2px solid #1a1a2e;
-  }
+/* Apply to every cell in the table */
+.tabulator .tabulator-cell {
+  font-size: 14px;
+  border: 2px solid transparent;
+  padding: 2px 4px !important;
+  transition: all 0.1s ease-in-out;
+}
 
-  .tabulator .tabulator-row {
-    transition: all 0.2s ease-in-out;
-  }
+.tabulator .tabulator-cell:hover {
+  border: 2px solid #1a1a2e; /* subtle border */
+}
 
-  .tabulator .tabulator-row:hover {
-    background-color: rgba(140, 154, 173, 0.3) !important;
-    color: #0f172a !important;
-    cursor: pointer;
-    border: none !important;
-    transition: all 0.2s ease;
-  }
+/* For vertical + horizontal scrollbars inside Tabulator */
+.tabulator .tabulator-tableholder::-webkit-scrollbar {
+  height: 10px;   /* horizontal thickness */
+  width: 10px;    /* vertical thickness */
+}
+
+.tabulator .tabulator-tableholder::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.tabulator .tabulator-tableholder::-webkit-scrollbar-thumb {
+  background-color: #1a1a2e;
+  border-radius: 6px;
+}
+
+.tabulator .tabulator-tableholder::-webkit-scrollbar-thumb:hover {
+  background-color: #1a1a2e;
+}
+
+/* Firefox support */
+.tabulator .tabulator-tableholder {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a2e #f1f1f1;
+}
+
+.tabulator .tabulator-row {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Remove Tabulator's default hover and apply custom */
+.tabulator .tabulator-row:hover {
+  background-color: rgba(140, 154, 173, 0.3) !important;
+  color: #0f172a !important;
+  cursor: pointer;
+  border: none !important;
+  transition: all 0.2s ease;
+}
+
+
 </style>
 </head>
 
 <body>
-  <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
+  <div
+    class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
     <form method="get" action="http://localhost:3000/fairdesk/filter">
       <div class="search-form">
-        <input type="text" name="search" placeholder="Search by Client Name or ID" class="form-control input-tag search-input" />
-        <button type="submit" class="filter-btn">
-          <i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i>
-        </button>
-      </div>
+        <input type="text" name="search" placeholder="Search by Client Name or ID" class="form-control input-tag search-input"  />
+        <button type="submit" class="filter-btn"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
+      </div>      
       <div class="filters-container">
         <div class="filter-group">
           <select class="filter-select" id="departmentFilter" name="department">
@@ -185,7 +217,7 @@
     </form>
 
     <div id="master-table" class="tabulator tabulator-modern"></div>
-  </div>
+</div>
 
   <!-- Tabulator JS -->
   <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
@@ -205,60 +237,36 @@
     // Initialize Tabulator
     new Tabulator("#master-table", {
       data: tableData,
-      layout: "fitDataTable",
-      responsiveLayout: false,
+      layout: "fitDataTable", // expand to fit content + allow horizontal scroll
+      responsiveLayout: false, // prevent auto-hiding of columns
       pagination: "local",
       paginationSize: 30,
       movableColumns: true,
       columns: [
+        { title: "Product ID", field: "productId" },
         { title: "Client Name", field: "clientName" },
-        { title: "Client Type", field: "clientType" },
-        { title: "Head Location", field: "hoLocation" },
-        { title: "Account Head", field: "accountHead" },
         { title: "User Name", field: "userName" },
-        { title: "User Location", field: "userLocation" },
-        { title: "User Department", field: "userDepartment" },
         { title: "User Contact", field: "userContact" },
-        { title: "User Email", field: "userEmail" },
-        { title: "Self Dispatch", field: "SelfDispatch" },
-
-        {
-          title: "Labels",
-          field: "labelCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.labelCount}</div>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            fetch(`labels/${row._id}`);
-          },
-        },
-        {
-          title: "TTR's",
-          field: "ttrCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.ttrCount}</div>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            fetch(`fairdesk/disp/ttr/${row._id}`);
-          },
-        },
-        {
-          title: "Tapes",
-          field: "tapeCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.tapeCount}</div>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            fetch(`fairdesk/disp/tapes/${row._id}`);
-          },
-        },
-      ],
+        { title: "Location", field: "location" },
+        { title: "TTR Type", field: "ttrType" },
+        { title: "TTR Color", field: "ttrColor" },
+        { title: "TTR Material Code", field: "ttrMaterialCode" },
+        { title: "TTR Client Code", field: "ttrClientCode" },
+        { title: "TTR Width", field: "ttrWidth" },
+        { title: "TTR Mtrs", field: "ttrMtrs" },
+        { title: "TTR Mtrs Del", field: "ttrMtrsDel" },
+        { title: "TTR Ink Face", field: "ttrInkFace" },
+        { title: "TTR Core ID", field: "ttrCoreId" },
+        { title: "TTR Core Length", field: "ttrCoreLength" },
+        { title: "TTR Notch", field: "ttrNotch" },
+        { title: "TTR Winding", field: "ttrWinding" },
+        { title: "TTR Rate Per Roll", field: "ttrRatePerRoll" },
+        { title: "TTR Sale Cost", field: "ttrSaleCost" },
+        { title: "TTR Min Qty", field: "ttrMinQty" },
+        { title: "TTR Single Odr Qty", field: "ttrSinOdrQty" },
+        { title: "TTR Odr Freq", field: "ttrOdrFreq" },
+        { title: "TTR Credit Term", field: "ttrCreditTerm" },
+      ]
     });
   </script>
 </body>
