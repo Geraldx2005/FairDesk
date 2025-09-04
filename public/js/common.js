@@ -15,7 +15,7 @@ navToggle.addEventListener("click", () => {
 });
 
 navToggle.addEventListener("click", () => {
-  sideNav.classList.toggle("nav-panel-toggle");
+  sideNav.classList.toggle("nav-panel-toggle");z
 });
 
 let isDatasheetOpen = false;

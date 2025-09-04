@@ -422,8 +422,8 @@ router.get("/disp/labels/:id", async (req, res) => {
   let jsonData = userData.label;
 
   console.log(jsonData);
-  res.send("hello");
-  // res.render("display/labelsDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
+  // res.send("hello");
+  res.render("display/labelsDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
 });
 
 // ----------------------------------TTR display---------------------------------->
