@@ -70,6 +70,11 @@
           <i class="fa-solid fa-bars" style="color: #ffffff"></i>
           <p class="nav-items-para">Navigation</p>
         </div>
+        <div title="Master View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/disp/master'">
+          <i class="fa-solid fa-eye" style="color: #ffffff;"></i>
+          <p class="nav-items-para">Client View</p>
+        </div>
+
         <div title="Client Data" class="<%= title === 'Client Form' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/client'">
           <i class="fa-solid fa-user" style="color: #ffffff"></i>
           <p class="nav-items-para">Client Data</p>

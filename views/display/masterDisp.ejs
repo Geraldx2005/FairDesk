@@ -2,110 +2,32 @@
 <% layout('/layout/boilerplate') -%>
 
 <!-- Tabulator CSS -->
-<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
-<link href="https://unpkg.com/tabulator-tables@5.6.2/dist/css/tabulator_modern.min.css" rel="stylesheet">
+<link
+  href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://unpkg.com/tabulator-tables@5.6.2/dist/css/tabulator_modern.min.css"
+  rel="stylesheet"
+/>
 
 <style>
-  /* Search and filter styles */
-  .search-filters {
-    margin: 20px 0px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.25);
-  }
-
-  .filters-container {
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    min-width: 175px;
-  }
-
-  .filter-select {
-    height: 2.75rem;
-    font-size: 13px;
-  }
-
-  .filter-btn {
-    height: 2.75rem;
-    padding: 8px 12px;
-    background-color: #1a1a2e;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 450;
-    transition: background-color 0.2s;
-  }
-
-  .filter-btn:hover {
-    background-color: #16213e;
-  }
-
-  .filter-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .input-tag {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    font-size: 13px;
-    flex-grow: 1;
-    max-width: 400px;
-  }
-
-  form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .search-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .search-input {
-    min-width: 210px;
-    max-width: 300px;
-    height: 2.75rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #16213e;
-    font-size: 13px;
-  }
-
-  .search-input::placeholder {
-    font-size: 13px;
-  }
-
-  h2 {
-    margin-bottom: 20px;
-    color: #333;
-  }
-
   #master-table {
+    height: 100%;
+    width: 100%;
     border-radius: 8px;
     overflow: hidden;
-    height: 90%;
-    width: 100%;
+  }
+
+  input {
+    height: 20px;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    background-color: #f8f9fa !important;
+    border: 1px solid #ced4da;
+    flex-grow: 1;
+    outline: none;
   }
 
   .tabulator .tabulator-tableholder {
@@ -130,6 +52,7 @@
     border: 2px solid transparent;
     padding: 2px 4px !important;
     transition: all 0.1s ease-in-out;
+    outline: 0.75px solid rgba(128, 128, 128, 0.25);
   }
 
   .tabulator .tabulator-cell:hover {
@@ -148,71 +71,50 @@
     transition: all 0.2s ease;
   }
 
+  .tabulator .tabulator-tableholder,
+  .tabulator .tabulator-table {
+    background-color: #f8f9fa !important;
+  }
+
   /* Target the table scrollbars */
-.tabulator .tabulator-tableholder::-webkit-scrollbar {
-  width: 10px;     /* vertical scrollbar width */
-  height: 10px;    /* horizontal scrollbar height */
-}
+  .tabulator .tabulator-tableholder::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
 
-.tabulator .tabulator-tableholder::-webkit-scrollbar-track {
-  background: #f0f2f5;  /* track background */
-}
+  .tabulator .tabulator-tableholder::-webkit-scrollbar-track {
+    background: #f0f2f5;
+  }
 
-.tabulator .tabulator-tableholder::-webkit-scrollbar-thumb {
-  background: #1a1a2e;   /* thumb color */
-  border-radius: 6px;
-}
+  .tabulator .tabulator-tableholder::-webkit-scrollbar-thumb {
+    background: #1a1a2e;
+    border-radius: 6px;
+  }
 
-.tabulator .tabulator-tableholder::-webkit-scrollbar-thumb:hover {
-  background: #1a1a2e;   /* darker on hover */
-}
+  .tabulator .tabulator-tableholder::-webkit-scrollbar-thumb:hover {
+    background: #1a1a2e;
+  }
 
-/* Firefox */
-.tabulator .tabulator-tableholder {
-  scrollbar-width: thin;              /* auto | thin | none */
-  scrollbar-color: #1a1e2e #f0f2f5;   /* thumb | track */
-}
+  /* Firefox */
+  .tabulator .tabulator-tableholder {
+    scrollbar-width: thin;
+    scrollbar-color: #1a1e2e #f0f2f5;
+  }
 
-.side-nav { transition: transform 1s; }
-.side-nav.animate { will-change: transform; }
-
+  .side-nav {
+    transition: transform 1s;
+  }
+  .side-nav.animate {
+    will-change: transform;
+  }
 </style>
 </head>
 
 <body>
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
-    <form method="get" action="http://localhost:3000/fairdesk/filter">
-      <div class="search-form">
-        <input type="text" name="search" placeholder="Search by Client Name or ID" class="form-control input-tag search-input" />
-        <button type="submit" class="filter-btn">
-          <i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i>
-        </button>
-      </div>
-      <div class="filters-container">
-        <div class="filter-group">
-          <select class="filter-select" id="departmentFilter" name="department">
-            <option value="" selected disabled hidden>Choose Client Type</option>
-            <option value="DEALER">DEALER</option>
-            <option value="CLIENT">CLIENT</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <select class="filter-select" id="batchFilter" name="batch">
-            <option value="" disabled hidden selected>
-              Choose Client Status
-            </option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="FOLLOW UP">FOLLOW UP</option>
-            <option value="BLACKLISTED">BLACKLISTED</option>
-            <option value="ADVANCED">ADVANCED</option>
-            <option value="OTHERS">OTHERS</option>
-          </select>
-        </div>
-      </div>
-    </form>
-
+    <div class="span-full form-subheading" style="width: 100%">
+      <h1>Master display</h1>
+    </div>
     <div id="master-table" class="tabulator tabulator-modern"></div>
   </div>
 
@@ -223,7 +125,7 @@
     // Render data from Express (passed into EJS)
     const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
 
-    tableData.forEach(user => {
+    tableData.forEach((user) => {
       user.labelCount = user.label?.length || 0;
       user.ttrCount = user.ttr?.length || 0;
       user.tapeCount = user.tape?.length || 0;
@@ -231,8 +133,8 @@
 
     console.log(tableData);
 
-    // Initialize Tabulator
-    new Tabulator("#master-table", {
+    //Build Tabulator
+    var table = new Tabulator("#master-table", {
       data: tableData,
       layout: "fitDataTable",
       virtualDom: true,
@@ -241,20 +143,74 @@
       paginationSize: 30,
       movableColumns: true,
       columns: [
-        { title: "Client Name", field: "clientName" },
-        { title: "Client Type", field: "clientType" },
-        { title: "Head Location", field: "hoLocation" },
-        { title: "Account Head", field: "accountHead" },
-        { title: "User Name", field: "userName" },
-        { title: "User Location", field: "userLocation" },
-        { title: "User Department", field: "userDepartment" },
-        { title: "User Contact", field: "userContact" },
-        { title: "User Email", field: "userEmail" },
-        { title: "Self Dispatch", field: "SelfDispatch" },
-
+        {
+          title: "Client Name",
+          field: "clientName",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "Client Type",
+          field: "clientType",
+          headerSort: false,
+          headerFilter: "select",
+          headerFilterParams: { values: true },
+        },
+        {
+          title: "Head Location",
+          field: "hoLocation",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "Account Head",
+          field: "accountHead",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "User Name",
+          field: "userName",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "User Location",
+          field: "userLocation",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "User Department",
+          field: "userDepartment",
+          headerSort: false,
+          headerFilter: "select",
+          headerFilterParams: { values: true },
+        },
+        {
+          title: "User Contact",
+          field: "userContact",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "User Email",
+          field: "userEmail",
+          headerSort: false,
+          headerFilter: "input",
+        },
+        {
+          title: "Self Dispatch",
+          field: "SelfDispatch",
+          headerSort: false,
+          headerFilter: "select",
+          headerFilterParams: { values: true },
+        },
         {
           title: "Labels",
           field: "labelCount",
+          headerSort: false,
+          headerFilter: "number",
           formatter: (cell) => {
             const row = cell.getRow().getData();
             return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.labelCount}</div>`;
@@ -268,6 +224,8 @@
         {
           title: "TTR's",
           field: "ttrCount",
+          headerSort: false,
+          headerFilter: "number",
           formatter: (cell) => {
             const row = cell.getRow().getData();
             return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.ttrCount}</div>`;
@@ -281,6 +239,8 @@
         {
           title: "Tapes",
           field: "tapeCount",
+          headerSort: false,
+          headerFilter: "number",
           formatter: (cell) => {
             const row = cell.getRow().getData();
             return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.tapeCount}</div>`;

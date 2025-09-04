@@ -396,14 +396,13 @@ router.get("/edit/details/:id", async (req, res) => {
   }
 });
 
-// ----------------------------------Details display---------------------------------->
+// ----------------------------------Master display---------------------------------->
 // route for details page.
 router.get("/disp/master", async (req, res) => {
-  let jsonData = await Username.find();
+  let jsonData = await Username.find().sort({ clientName: 1 });
 
-  // jsonData.push(itemsCount);
-  console.log(jsonData);
-  res.render("display/masterDisp.ejs", { jsonData, CSS: false, JS: false, title: "Master Display", notification: req.flash("notification") });
+  // console.log(jsonData);
+  res.render("display/masterDisp.ejs", { jsonData, CSS: false, JS: "tabulatorFilter.js", title: "Client View", notification: req.flash("notification") });
 });
 
 // ----------------------------------Labels display---------------------------------->
