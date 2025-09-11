@@ -256,8 +256,8 @@
             </span>
               <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
           </button>
-          <div class="download-selector__menu" id="download-pdf">
-              <span class="download-selector__option" id="downloadPDF">
+          <div class="download-selector__menu" id="downloads">
+              <span class="download-selector__option" id="download-pdf">
                   <i class="fas fa-file-pdf download-selector__option-icon"></i>
                   <span>PDF</span>
               </span>
@@ -275,12 +275,13 @@
 
   <!-- Tabulator JS -->
   <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
-  <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+  <!-- <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
-  <script>
-
+<script>
 const downloadSelector = document.getElementById('downloadSelector');
 const triggerBtn = downloadSelector.querySelector('.download-selector__trigger');
 
@@ -336,66 +337,80 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
         {
           title: "Client Name",
           field: "clientName",
-          headerSort: false,
+          // headerSort: false,
           headerFilter: "input",
+          headerFilterPlaceholder:"Search",
         },
         {
           title: "Client Type",
           field: "clientType",
           headerSort: false,
           headerFilter: "select",
-          headerFilterParams: { valuesLookup:true, clearable:true },
-        },
-        {
-          title: "Head Location",
-          field: "hoLocation",
-          headerSort: false,
-          headerFilter: "input",
+          headerFilterParams: { 
+            values: {
+              "": "All", // Clear option
+              "DEALER": "DEALER",
+              "CLIENT": "CLIENT",
+              },
+          clearable: true },
+          headerFilterPlaceholder:"Select",
         },
         {
           title: "Account Head",
           field: "accountHead",
           headerSort: false,
           headerFilter: "input",
+          headerFilterPlaceholder:"Search",
         },
         {
           title: "User Name",
           field: "userName",
           headerSort: false,
           headerFilter: "input",
+          headerFilterPlaceholder:"Search",
         },
         {
-          title: "User Location",
+          title: "Location",
           field: "userLocation",
           headerSort: false,
           headerFilter: "input",
+          headerFilterPlaceholder:"Search",
         },
         {
-          title: "User Department",
+          title: "Department",
           field: "userDepartment",
           headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: { valuesLookup:true, clearable:true },
-        },
+          headerFilter: "input",
+          headerFilterPlaceholder:"Search",
+        },        
         {
-          title: "User Contact",
+          title: "Contact",
           field: "userContact",
           headerSort: false,
           headerFilter: "input",
+          headerFilterPlaceholder:"Search",
         },
         {
-          title: "User Email",
+          title: "Email",
           field: "userEmail",
           headerSort: false,
           headerFilter: "input",
+          headerFilterPlaceholder:"Search",
         },
         {
           title: "Self Dispatch",
           field: "SelfDispatch",
           headerSort: false,
           headerFilter: "select",
-          headerFilterParams: { valuesLookup:true, clearable:true },
-        },
+          headerFilterParams: { 
+            values: {
+              "": "All", // Clear option
+              "SELF DISPATCH": "SELF DISPATCH",
+              "THIRD PARTY": "THIRD PARTY",
+              },
+          clearable: true },
+          headerFilterPlaceholder:"Select",
+        },        
         {
           title: "Labels",
           field: "labelCount",
@@ -410,6 +425,7 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
             // Simply navigate to the labels page instead of using fetch
             window.location.href = `/fairdesk/disp/labels/${row._id}`;
           },
+          headerFilterPlaceholder:"Search",
         },
         {
           title: "TTR's",
@@ -425,6 +441,7 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
             // Fixed the URL path for TTR
             window.location.href = `/fairdesk/disp/ttr/${row._id}`;
           },
+          headerFilterPlaceholder:"Search",
         },
         {
           title: "Tapes",
@@ -440,21 +457,151 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
             // Fixed the URL path for Tapes
             window.location.href = `/fairdesk/disp/tapes/${row._id}`;
           },
+          headerFilterPlaceholder:"Search",
         },
       ],
     });
 
     //trigger download of data.xlsx file
-document.getElementById("download-xlsx").addEventListener("click", function(){
-    table.download("xlsx", "data.xlsx", {sheetName:"My Data"});
+    document.getElementById("download-xlsx").addEventListener("click", async function () {
+  // First get the data
+  const data = table.getData();
+  const columns = table.getColumns();
+
+  // Prepare headers
+  const headers = columns.map(col => col.getDefinition().title);
+
+  // Prepare rows
+  const rows = data.map(row => {
+    return columns.map(col => row[col.getField()]);
+  });
+
+  // Create a new workbook
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("My Data");
+
+  // Add header row
+  const headerRow = worksheet.addRow(headers);
+
+  // Style the header row
+  headerRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: "FF000000" } };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFF2F2F2" }
+    };
+    cell.alignment = { vertical: "middle", horizontal: "center" };
+    cell.border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" }
+    };
+  });
+
+  // Add data rows
+  rows.forEach((row, rowIndex) => {
+    const newRow = worksheet.addRow(row);
+    newRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: rowIndex % 2 === 0 ? "FFF8F9FA" : "FFFFFFFF" }
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" }
+      };
+      cell.alignment = { vertical: "middle", horizontal: "left" };
+    });
+  });
+
+  // Auto-fit column widths
+  worksheet.columns.forEach((col, i) => {
+    let maxLength = headers[i].length;
+    col.eachCell({ includeEmpty: true }, (cell) => {
+      const v = cell.value ? cell.value.toString() : "";
+      if (v.length > maxLength) maxLength = v.length;
+    });
+    col.width = Math.min(Math.max(maxLength + 2, 10), 50);
+  });
+
+  // Export to file
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), "data.xlsx");
 });
 
-//trigger download of data.pdf file
-document.getElementById("download-pdf").addEventListener("click", function(){
-    table.download("pdf", "data.pdf", {
-        orientation:"portrait", //set page orientation to portrait
-        title:"Example Report", //add title to report
-    });
+document.getElementById("download-pdf").addEventListener("click", () => {
+  table.download("pdf", "client-data.pdf", {
+    pdfGenerator: "jspdf",
+
+    jsPDF: {
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4"
+    },
+
+    autoTable: {
+      styles: {
+        fontSize: 8,
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        valign: "middle",
+        overflow: "linebreak",   // ✅ allow wrapping
+        cellWidth: "wrap",       // ✅ auto wrap cell text
+        wordBreak: "break-word"  // ✅ break at spaces, not inside words
+      },
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 9,
+        fontStyle: "bold",
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        valign: "middle"
+      },
+      bodyStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        valign: "middle"
+      },
+      alternateRowStyles: {
+        fillColor: [255, 255, 255]
+      },
+      margin: { top: 10 },
+      tableWidth: "auto",
+
+      columnStyles: {
+        0: { cellWidth: "auto", minCellWidth: 34 }, // or "wrap"
+        1: { cellWidth: "auto" },
+        2: { cellWidth: "auto" },
+        3: { cellWidth: "auto" },
+        4: { cellWidth: "auto" },
+        5: { cellWidth: "auto" },
+        6: { cellWidth: "wrap", minCellWidth: 30 }, // ph no column
+        7: { cellWidth: "auto"}, // email column
+        8: { cellWidth: "auto" },
+        9: { cellWidth: "auto", halign: "center" },
+        10: { cellWidth: "auto", halign: "center", valign: "middle" },
+        11: { cellWidth: "auto", halign: "center", valign: "middle" },
+        12: { cellWidth: "auto", halign: "center", valign: "middle" },
+        // … add more if needed
+      },
+
+      didDrawPage: (data) => {
+        data.doc.setFontSize(14);
+        // data.doc.text("Client Data", data.settings.margin.left, 15);
+      }
+    }
+  });
 });
+
+
+
   </script>
 </body>
