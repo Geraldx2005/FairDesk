@@ -10,6 +10,7 @@ import Carelead from "../models/carelead.js";
 import Calculator from "../models/calculator.js";
 import Block from "../models/block_model.js";
 import Die from "../models/die_model.js";
+import Employee from "../models/employee_model.js";
 const router = express.Router();
 
 // ----------------------------------RateCalculator---------------------------------->
@@ -342,6 +343,25 @@ router.post("/form/die", async (req, res) => {
   req.flash("notification", "Die created successfully!");
   res.redirect("/fairdesk/form/die");
 });
+
+// ----------------------------------Employee Master---------------------------------->
+// route for systemid form.
+router.get("/form/employee", async (req, res) => {
+  res.render("forms/employee.ejs", {
+    CSS: false,
+    title: "Employee Details",
+    JS: false,
+    notification: req.flash("notification"),
+  });
+});
+
+// Route to handle systemid form submission.
+router.post("/form/employee", async (req, res) => {
+  let savedDieData = await Employee.create(req.body);
+  req.flash("notification", "Empployee created successfully!");
+  res.redirect("/fairdesk/form/employee");
+});
+// ---------------------------------------------------------------------------------------------------->>>>>
 
 // ----------------------------------client display---------------------------------->
 // route for client display page.

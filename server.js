@@ -10,7 +10,7 @@ import path from "path";
 import session from "express-session";
 import flash from "connect-flash";
 const app = express();
-const port = 8080;
+const port = 3000;
 
 // Configuring environment variables.
 configDotenv({ quiet: true });

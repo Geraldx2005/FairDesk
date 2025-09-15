@@ -1,0 +1,182 @@
+<!--- Link to boilerplate.ejs -->
+<% layout('/layout/boilerplate') -%>
+
+<div class="main-content">
+    <form class="rottary-content needs-validation" action="/fairdesk/form/employee" method="post" autocomplete="off" novalidate>
+      <div class="span-full form-heading">
+        <h1>Employee Details</h1>
+      </div>
+    <div class="span-penta">
+      <label for="emp-name">Name</label>
+      <input type="text" id="emp-name" class="form-control input-tag" name="empName" placeholder="Enter Name" required />
+    </div>
+
+    <div class="span-five">
+      <label for="emp-dob">D.O.B</label>
+      <input type="date" id="emp-dob" class="form-control input-tag" name="empDob" required />
+    </div>
+
+    <div class="span-five">
+      <label for="emp-gender">Gender</label>
+       <select name="empGender" id="emp-gender" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select</option>
+        <option value="MAlE">MALE</option>
+        <option value="FEMALE">FEMALE</option>
+       </select>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-mobile1">Mobile No 1</label>
+      <input type="text" id="emp-mobile1" class="form-control input-tag" maxlength="10" name="empMobile1" placeholder="Enter Mobile No 1" required/>
+    </div>
+    <div class="span-six">
+      <label for="emp-mobile2">Mobile No 2</label>
+      <input type="text" id="emp-mobile2" class="form-control input-tag" maxlength="10" name="empMobile2" placeholder="Enter Mobile No 2" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-emergency-no1">Emergency No</label>
+      <input type="text" id="emp-emergency-no1" class="form-control input-tag" maxlength="10" name="empEmergencyNo1" placeholder="Enter emergency No" required/>
+    </div>    
+    <div class="span-dual">
+      <label for="emp-emergency-no2">Emergency No</label>
+      <input type="text" id="emp-emergency-no2" class="form-control input-tag" maxlength="10" name="empEmergencyNo2" placeholder="Enter emergency No" required/>
+    </div>    
+
+    <div class="span-dual">
+      <label for="emp-email">Email</label>
+      <input type="text" id="emp-email" class="form-control input-tag" name="empEmail" placeholder="Enter Email" required />
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-martial-status">Martial Status</label>
+       <select name="empMartialStatus" id="emp-martial-status" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select</option>
+        <option value="SINGLE">SINGLE</option>
+        <option value="MARRIED">MARRIED</option>
+       </select>
+    </div>    
+
+    <div class="span-penta">
+      <label for="emp-present-address">Present Address</label>
+      <textarea  id="emp-present-address"  class="form-control input-tag"  name="empPresentAddress"  placeholder="Enter Employee Present Address" rows="3" style="border: 1px solid #1a1a2e; resize: none;" required></textarea>
+    </div>
+    <div class="span-hexa">
+      <label for="emp-permanent-address">Permanent Address</label>
+      <textarea id="emp-permanent-address" class="form-control input-tag" name="empPermanentAddress" placeholder="Enter Employee Permanent Address" rows="3" style="border: 1px solid #1a1a2e; resize: none;" required></textarea>
+    </div>  
+    
+    <div class="span-penta">
+        <label for="emp-hobbies">Hobbies & Interests</label>
+        <textarea id="emp-hobbies"  class="form-control input-tag"  name="empHobbies"  placeholder="Enter Employee Hobbies & Interests"  rows="3" style="border: 1px solid #1a1a2e; resize: none;"  required></textarea>
+    </div>
+
+    <div class="span-full form-subheading">
+        <h1>Identification</h1>
+    </div>    
+
+    <div class="span-half">
+      <label for="emp-aadhaar">Aadhaar</label>
+      <input type="text" id="emp-aadhaar" class="form-control input-tag" name="empAadhaar" placeholder="Enter Aadhaar" />
+    </div>
+
+    <div class="span-half">
+      <label for="emp-pan">PAN</label>
+      <input type="text" id="emp-pan" class="form-control input-tag" name="empPan" placeholder="Enter PAN" required />
+    </div>
+
+    <div class="span-full form-subheading">
+        <h1>Banking</h1>
+    </div>      
+
+    <div class="span-dual">
+      <label for="emp-bank-name">Bank Name</label>
+      <input type="text" id="emp-bank-name" class="form-control input-tag" name="empBankName" placeholder="Enter Bank Name" required />
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-account-holder-name">Account Holder Name</label>
+      <input type="text" id="emp-account-holder-name" class="form-control input-tag" name="empAccountHolderName" placeholder="Enter Account Holder Name" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-acc-no">Account No</label>
+      <input type="text" id="emp-acc-no" class="form-control input-tag" name="empAccNo" placeholder="Enter Account No" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-ifsc-code">IFSC Code</label>
+      <input type="text" id="emp-ifsc-code" class="form-control input-tag" name="empIfscCode" placeholder="Enter IFSC Code" required/>
+    </div>
+
+    <div class="span-full form-subheading">
+        <h1>Employment</h1>
+    </div>    
+
+    <div class="span-seven">
+      <label for="emp-id">Employee ID</label>
+      <input type="text" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-date-of-joining">Date of Joining</label>
+      <input type="date" id="emp-date-of-joining" class="form-control input-tag" name="empDateOfKJoining" placeholder="Enter Date of Joining" required/>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-type">Employee Type</label>
+       <select name="empType" id="emp-type" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select</option>
+        <option value="PERMANENT">PERMANENT</option>
+        <option value="CONTRACT">CONTRACT</option>
+       </select>
+    </div>    
+
+    <div class="span-seven">
+      <label for="emp-reporting-manager">Reporting Manager</label>
+      <input type="text" id="emp-reporting-manager" class="form-control input-tag" name="empReportingManager" placeholder="Enter Reporting Manager" required/>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-dept">Department</label>
+      <input type="text" id="emp-dept" class="form-control input-tag" name="empDept" placeholder="Enter Department" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-loc">Location</label>
+      <input type="text" id="emp-loc" class="form-control input-tag" name="empLoc" placeholder="Enter Location" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-profile">Profile</label>
+      <input type="text" id="emp-profile" class="form-control input-tag" name="empProfile" placeholder="Enter Profile" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-office-mob">Office Mobile No</label>
+      <input type="text" id="emp-office-mob" class="form-control input-tag" name="empOfficeMob" placeholder="Enter Office Mobile No" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-office-email-id">Office Email ID</label>
+      <input type="text" id="emp-office-email-id" class="form-control input-tag" name="empOfficeEmailId" placeholder="Enter Office Email ID" required/>
+    </div>  
+
+
+    <div class="span-full form-subheading">
+        <h1>Attachments</h1>
+    </div>    
+
+    <div class="span-full" id="die-remark-div">
+      <label for="emp-photo">Photo</label>
+      <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" required/>
+    </div>
+
+    <div class="span-full btn-grp">
+      <button class="submit-btn" type="submit">Save Employee</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
