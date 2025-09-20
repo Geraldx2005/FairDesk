@@ -106,139 +106,151 @@
   .side-nav {
     transition: transform 1s;
   }
+
   .side-nav.animate {
     will-change: transform;
   }
 
   .download-btns {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #0f172a;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0f172a;
+  }
 
-.download-btns button {
-  height: 20px;
-}
+  .download-btns button {
+    height: 20px;
+  }
 
-.download-btns button:hover {
-  background-color: rgba(255, 255, 255, 0.85);
-}
+  .download-btns button:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+  }
 
-  /* The download document dropdowm */
-.download-selector {
-  position: relative;
-  display: inline-block;
-  width: 160px; /* Fixed width for the dropdown */
-}
+  /* The download document dropdown */
+  .download-selector {
+    position: relative;
+    display: inline-block;
+    width: 160px; /* Fixed width for the dropdown */
+  }
 
-.download-selector__trigger {
-  background-color: #F0F0F0;
-  color: #1a1a2e;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+  .download-selector__trigger {
+    background-color: #f0f0f0;
+    color: #1a1a2e;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
 
-.download-selector__trigger-icon {
-  font-size: 12px;
-  transition: all 0.2s ease-in-out;
-}
+  .download-selector__trigger-icon {
+    font-size: 12px;
+    transition: all 0.2s ease-in-out;
+  }
 
-.download-selector__menu {
-  position: absolute;
-  background-color: rgb(240, 240, 240);
-  width: 100%;
-  border: 1px solid #1a1a2e;
-  border-radius: 0.5rem;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: all 0.2s ease-in-out;
-  right: 0;
-  margin-top: 12px;
-}
+  .download-selector__menu {
+    position: absolute;
+    background-color: rgb(240, 240, 240);
+    width: 100%;
+    border: 1px solid #1a1a2e;
+    border-radius: 0.5rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease-in-out;
+    right: 0;
+    margin-top: 12px;
+  }
 
-.download-selector--active .download-selector__menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
+  .download-selector--active .download-selector__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 
-.download-selector__option {
-  color: #1a1a2e;
-  padding: 8px 10px;
-  font-size: 15px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.2s ease-in-out;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background-color: rgb(240, 240, 240);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  width: auto;
-  height: auto;
-}
+  .download-selector__option {
+    color: #1a1a2e;
+    padding: 8px 10px;
+    font-size: 15px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: rgb(240, 240, 240);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    width: auto;
+    height: auto;
+  }
 
-.download-selector__option:hover {
-  background-color: rgb(216, 216, 216);
-  border-radius: 0.5rem;
-}
+  .download-selector__option:hover {
+    background-color: rgb(216, 216, 216);
+    border-radius: 0.5rem;
+  }
 
-.download-selector__option-icon {
-  width: 20px;
-  color: #1a1a2e;
-}
+  .download-selector__option-icon {
+    width: 20px;
+    color: #1a1a2e;
+  }
 
-.download-typo {
-  margin-left: 2px;
-}
+  .download-typo {
+    margin-left: 2px;
+  }
 
-.indi-head {
-  width: 100%;
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  background-color: #1a1a2e;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: row;
-}
+  .indi-head {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background-color: #1a1a2e;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+  }
 
-.indi-head h1 {
-  margin: 0;
-  font-size: 1.25rem;
-}
+  .indi-head h1 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
 
-/* Remove the "x" clear button in Tabulator header filters */
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input[type="search"]::-webkit-search-cancel-button {
+  /* Remove the "x" clear button in Tabulator header filters */
+  .tabulator
+    .tabulator-header
+    .tabulator-col
+    .tabulator-header-filter
+    input[type='search']::-webkit-search-cancel-button {
     -webkit-appearance: none;
     appearance: none;
-}
+  }
 
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input[type="search"]::-ms-clear {
+  .tabulator
+    .tabulator-header
+    .tabulator-col
+    .tabulator-header-filter
+    input[type='search']::-ms-clear {
     display: none;
-}
+  }
 
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input[type="search"]::-ms-reveal {
+  .tabulator
+    .tabulator-header
+    .tabulator-col
+    .tabulator-header-filter
+    input[type='search']::-ms-reveal {
     display: none;
-}
-
+  }
 </style>
 </head>
 
@@ -246,7 +258,6 @@
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
     <div class="indi-head">
       <h1>Master display</h1>
-
       <div class="download-btns">
         <div class="download-selector" id="downloadSelector">
           <button class="download-selector__trigger">
@@ -254,64 +265,68 @@
               <i class="fa-solid fa-file-arrow-down"></i>
               <span class="download-typo">Download</span>
             </span>
-              <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
+            <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
           </button>
           <div class="download-selector__menu" id="downloads">
-              <span class="download-selector__option" id="download-pdf">
-                  <i class="fas fa-file-pdf download-selector__option-icon"></i>
-                  <span>PDF</span>
-              </span>
-              <span class="download-selector__option" id="download-xlsx">
-                  <i class="fas fa-file-excel download-selector__option-icon"></i>
-                  <span>Excel</span>
-              </span>
+            <span class="download-selector__option" id="download-pdf">
+              <i class="fas fa-file-pdf download-selector__option-icon"></i>
+              <span>PDF</span>
+            </span>
+            <span class="download-selector__option" id="download-xlsx">
+              <i class="fas fa-file-excel download-selector__option-icon"></i>
+              <span>Excel</span>
+            </span>
           </div>
+        </div>
       </div>
-      </div>
-
     </div>
+
     <div id="master-table" class="tabulator tabulator-modern"></div>
   </div>
 
   <!-- Tabulator JS -->
   <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
-  <!-- <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
-<script>
-const downloadSelector = document.getElementById('downloadSelector');
-const triggerBtn = downloadSelector.querySelector('.download-selector__trigger');
+  <script>
+    const downloadSelector = document.getElementById("downloadSelector");
+    const triggerBtn = downloadSelector.querySelector(
+      ".download-selector__trigger"
+    );
 
-// Toggle dropdown on click
-triggerBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    downloadSelector.classList.toggle('download-selector--active');
-    
-    // Rotate chevron icon
-    const icon = triggerBtn.querySelector('.download-selector__trigger-icon');
-    if (downloadSelector.classList.contains('download-selector--active')) {
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        icon.style.transform = 'rotate(0deg)';
-    }
-});
+    // Toggle dropdown on click
+    triggerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      downloadSelector.classList.toggle("download-selector--active");
 
-// Close dropdown when clicking outside
-document.addEventListener('click', () => {
-    downloadSelector.classList.remove('download-selector--active');
-    const icon = triggerBtn.querySelector('.download-selector__trigger-icon');
-    icon.style.transform = 'rotate(0deg)';
-});
+      const icon = triggerBtn.querySelector(
+        ".download-selector__trigger-icon"
+      );
+      icon.style.transform = downloadSelector.classList.contains(
+        "download-selector--active"
+      )
+        ? "rotate(180deg)"
+        : "rotate(0deg)";
+    });
 
-// Prevent dropdown from closing when clicking inside
-downloadSelector.querySelector('.download-selector__menu').addEventListener('click', (e) => {
-    e.stopPropagation();
-});
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
+      downloadSelector.classList.remove("download-selector--active");
+      const icon = triggerBtn.querySelector(
+        ".download-selector__trigger-icon"
+      );
+      icon.style.transform = "rotate(0deg)";
+    });
 
-
+    // Prevent dropdown from closing when clicking inside
+    downloadSelector
+      .querySelector(".download-selector__menu")
+      .addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
 
     // Render data from Express (passed into EJS)
     const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
@@ -324,287 +339,145 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
 
     console.log(tableData);
 
-    //Build Tabulator
-    var table = new Tabulator("#master-table", {
-    //   data: tableData,
-      layout: "fitDataTable",
-      virtualDom: true,
-      responsiveLayout: false,
-      pagination: "local",
-      paginationSize: 30,
-      movableColumns: true,
-      columns: [
-        {
-          title: "Client Name",
-          field: "clientName",
-          // headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "Client Type",
-          field: "clientType",
-          headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: { 
-            values: {
-              "": "All", // Clear option
-              "DEALER": "DEALER",
-              "CLIENT": "CLIENT",
+    function initTable() {
+      var table = new Tabulator("#master-table", {
+        data: tableData,
+        layout: "fitDataTable",
+        virtualDom: true,
+        responsiveLayout: false,
+        pagination: "local",
+        paginationSize: 30,
+        movableColumns: true,
+        columns: [
+          {
+            title: "Client Name",
+            field: "clientName",
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "Client Type",
+            field: "clientType",
+            headerSort: false,
+            headerFilter: "select",
+            headerFilterParams: {
+              values: {
+                "": "All",
+                DEALER: "DEALER",
+                CLIENT: "CLIENT",
               },
-          clearable: true },
-          headerFilterPlaceholder:"Select",
-        },
-        {
-          title: "Account Head",
-          field: "accountHead",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "User Name",
-          field: "userName",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "Location",
-          field: "userLocation",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "Department",
-          field: "userDepartment",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },        
-        {
-          title: "Contact",
-          field: "userContact",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "Email",
-          field: "userEmail",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "Self Dispatch",
-          field: "SelfDispatch",
-          headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: { 
-            values: {
-              "": "All", // Clear option
-              "SELF DISPATCH": "SELF DISPATCH",
-              "THIRD PARTY": "THIRD PARTY",
+              clearable: true,
+            },
+            headerFilterPlaceholder: "Select",
+          },
+          {
+            title: "Account Head",
+            field: "accountHead",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "User Name",
+            field: "userName",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "Location",
+            field: "userLocation",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "Department",
+            field: "userDepartment",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "Contact",
+            field: "userContact",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "Email",
+            field: "userEmail",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "Self Dispatch",
+            field: "SelfDispatch",
+            headerSort: false,
+            headerFilter: "select",
+            headerFilterParams: {
+              values: {
+                "": "All",
+                "SELF DISPATCH": "SELF DISPATCH",
+                "THIRD PARTY": "THIRD PARTY",
               },
-          clearable: true },
-          headerFilterPlaceholder:"Select",
-        },        
-        {
-          title: "Labels",
-          field: "labelCount",
-          headerSort: false,
-          headerFilter: "number",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.labelCount}</div>`;
+              clearable: true,
+            },
+            headerFilterPlaceholder: "Select",
           },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            // Simply navigate to the labels page instead of using fetch
-            window.location.href = `/fairdesk/disp/labels/${row._id}`;
+          {
+            title: "Labels",
+            field: "labelCount",
+            headerSort: false,
+            headerFilter: "number",
+            formatter: (cell) => {
+              const row = cell.getRow().getData();
+              return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.labelCount}</div>`;
+            },
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/disp/labels/${row._id}`;
+            },
+            headerFilterPlaceholder: "Search",
           },
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "TTR's",
-          field: "ttrCount",
-          headerSort: false,
-          headerFilter: "number",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.ttrCount}</div>`;
+          {
+            title: "TTR's",
+            field: "ttrCount",
+            headerSort: false,
+            headerFilter: "number",
+            formatter: (cell) => {
+              const row = cell.getRow().getData();
+              return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.ttrCount}</div>`;
+            },
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/disp/ttr/${row._id}`;
+            },
+            headerFilterPlaceholder: "Search",
           },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            // Fixed the URL path for TTR
-            window.location.href = `/fairdesk/disp/ttr/${row._id}`;
+          {
+            title: "Tapes",
+            field: "tapeCount",
+            headerSort: false,
+            headerFilter: "number",
+            formatter: (cell) => {
+              const row = cell.getRow().getData();
+              return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.tapeCount}</div>`;
+            },
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/disp/tapes/${row._id}`;
+            },
+            headerFilterPlaceholder: "Search",
           },
-          headerFilterPlaceholder:"Search",
-        },
-        {
-          title: "Tapes",
-          field: "tapeCount",
-          headerSort: false,
-          headerFilter: "number",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<div style="cursor:pointer;color:blue;text-decoration:underline;">${row.tapeCount}</div>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            // Fixed the URL path for Tapes
-            window.location.href = `/fairdesk/disp/tapes/${row._id}`;
-          },
-          headerFilterPlaceholder:"Search",
-        },
-      ],
-    });
-
-    // later, when global data is available:
-    table.setData(tableData);    
-
-    //trigger download of data.xlsx file
-    document.getElementById("download-xlsx").addEventListener("click", async function () {
-  // First get the data
-  const data = table.getData();
-  const columns = table.getColumns();
-
-  // Prepare headers
-  const headers = columns.map(col => col.getDefinition().title);
-
-  // Prepare rows
-  const rows = data.map(row => {
-    return columns.map(col => row[col.getField()]);
-  });
-
-  // Create a new workbook
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("My Data");
-
-  // Add header row
-  const headerRow = worksheet.addRow(headers);
-
-  // Style the header row
-  headerRow.eachCell((cell) => {
-    cell.font = { bold: true, color: { argb: "FF000000" } };
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FFF2F2F2" }
-    };
-    cell.alignment = { vertical: "middle", horizontal: "center" };
-    cell.border = {
-      top: { style: "thin" },
-      left: { style: "thin" },
-      bottom: { style: "thin" },
-      right: { style: "thin" }
-    };
-  });
-
-  // Add data rows
-  rows.forEach((row, rowIndex) => {
-    const newRow = worksheet.addRow(row);
-    newRow.eachCell((cell) => {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: rowIndex % 2 === 0 ? "FFF8F9FA" : "FFFFFFFF" }
-      };
-      cell.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" }
-      };
-      cell.alignment = { vertical: "middle", horizontal: "left" };
-    });
-  });
-
-  // Auto-fit column widths
-  worksheet.columns.forEach((col, i) => {
-    let maxLength = headers[i].length;
-    col.eachCell({ includeEmpty: true }, (cell) => {
-      const v = cell.value ? cell.value.toString() : "";
-      if (v.length > maxLength) maxLength = v.length;
-    });
-    col.width = Math.min(Math.max(maxLength + 2, 10), 50);
-  });
-
-  // Export to file
-  const buffer = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buffer]), "data.xlsx");
-});
-
-document.getElementById("download-pdf").addEventListener("click", () => {
-  table.download("pdf", "client-data.pdf", {
-    pdfGenerator: "jspdf",
-
-    jsPDF: {
-      orientation: "landscape",
-      unit: "mm",
-      format: "a4"
-    },
-
-    autoTable: {
-      styles: {
-        fontSize: 8,
-        fillColor: [255, 255, 255],
-        textColor: [0, 0, 0],
-        lineWidth: 0.25,
-        lineColor: [0, 0, 0],
-        valign: "middle",
-        overflow: "linebreak",   // ✅ allow wrapping
-        cellWidth: "wrap",       // ✅ auto wrap cell text
-        wordBreak: "break-word"  // ✅ break at spaces, not inside words
-      },
-      headStyles: {
-        fillColor: [255, 255, 255],
-        textColor: [0, 0, 0],
-        fontSize: 9,
-        fontStyle: "bold",
-        lineWidth: 0.25,
-        lineColor: [0, 0, 0],
-        valign: "middle"
-      },
-      bodyStyles: {
-        fillColor: [255, 255, 255],
-        textColor: [0, 0, 0],
-        valign: "middle"
-      },
-      alternateRowStyles: {
-        fillColor: [255, 255, 255]
-      },
-      margin: { top: 10 },
-      tableWidth: "auto",
-
-      columnStyles: {
-        0: { cellWidth: "auto", minCellWidth: 34 }, // or "wrap"
-        1: { cellWidth: "auto" },
-        2: { cellWidth: "auto" },
-        3: { cellWidth: "auto" },
-        4: { cellWidth: "auto" },
-        5: { cellWidth: "auto" },
-        6: { cellWidth: "wrap", minCellWidth: 30 }, // ph no column
-        7: { cellWidth: "auto"}, // email column
-        8: { cellWidth: "auto" },
-        9: { cellWidth: "auto", halign: "center" },
-        10: { cellWidth: "auto", halign: "center", valign: "middle" },
-        11: { cellWidth: "auto", halign: "center", valign: "middle" },
-        12: { cellWidth: "auto", halign: "center", valign: "middle" },
-        // … add more if needed
-      },
-
-      didDrawPage: (data) => {
-        data.doc.setFontSize(14);
-        // data.doc.text("Client Data", data.settings.margin.left, 15);
-      }
+        ],
+      });
     }
-  });
-});
 
-
-
+    window.addEventListener("load", () => {
+      initTable();
+    });
   </script>
 </body>
