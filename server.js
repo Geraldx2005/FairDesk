@@ -1,5 +1,6 @@
 import express from "express";
-import ejsMate from 'ejs-mate'
+import ejsMate from 'ejs-mate';
+import cors from "cors";
 import connectDB from "./config/db.js";
 import fairdeskRoute from "./routes/fairdesk_route.js";
 import AppError from "./utils/AppError.js";
@@ -16,6 +17,8 @@ const port = 3000;
 configDotenv({ quiet: true });
 // Connecting to the database.
 connectDB();
+
+app.use(cors());
 
 app.use(session({
     secret: "yoursecretkey",

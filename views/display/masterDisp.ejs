@@ -326,7 +326,7 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
 
     //Build Tabulator
     var table = new Tabulator("#master-table", {
-      data: tableData,
+    //   data: tableData,
       layout: "fitDataTable",
       virtualDom: true,
       responsiveLayout: false,
@@ -461,6 +461,9 @@ downloadSelector.querySelector('.download-selector__menu').addEventListener('cli
         },
       ],
     });
+
+    // later, when global data is available:
+    table.setData(tableData);    
 
     //trigger download of data.xlsx file
     document.getElementById("download-xlsx").addEventListener("click", async function () {

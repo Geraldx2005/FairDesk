@@ -14,6 +14,7 @@
     "bootstrap": "^5.3.7",
     "choices.js": "^11.1.0",
     "connect-flash": "^0.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
@@ -21,7 +22,6 @@
     "express-session": "^1.18.2",
     "mongoose": "^8.16.2"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Geraldx2005/FairDesk.git"
