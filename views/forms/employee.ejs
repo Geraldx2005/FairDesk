@@ -1,15 +1,57 @@
 <!--- Link to boilerplate.ejs -->
 <% layout('/layout/boilerplate') -%>
+<style>
+/* Force ONLY this span-dual to be horizontal */
+/* Force ONLY this span-hexa block to be horizontal */
+#die-remark-div {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Image on the LEFT */
+#empPhotoPreview {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;          /* fill without distortion */
+  object-position: center 60%;/* optional: shift image down inside frame */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f3f3f3;
+  display: none;
+  flex-shrink: 0;             /* keeps it on the left */
+}
+
+/* Right side: label above input + full width */
+.photo-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  flex: 1;        /* ⬅️ take remaining width */
+  min-width: 0;   /* ⬅️ required for flex inputs */
+}
+
+/* Make input stretch fully */
+.photo-upload-wrapper input {
+  width: 100%;
+}
+
+
+
+
+</style>
 
 <div class="main-content">
-    <form class="rottary-content needs-validation" action="/fairdesk/form/employee" method="post" autocomplete="off" novalidate>
+    <form class="rottary-content needs-validation" action="/fairdesk/form/employee" enctype="multipart/form-data" method="post" autocomplete="off" novalidate>
     <div class="span-full form-heading">
         <h1>Employment</h1>
     </div>    
 
     <div class="span-five">
       <label for="emp-id">Employee ID</label>
-      <input type="text" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
+      <input type="text" value="FS|EMP|<%= employeeCount.toString().padStart(3, '0') %>" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
     </div>
 
     <div class="span-six">
@@ -90,12 +132,12 @@
     </div>
 
     <div class="span-six">
-      <label for="emp-emergency-no1">Emergency No</label>
+      <label for="emp-emergency-no1">Emergency No 1</label>
       <input type="number" id="emp-emergency-no1" class="form-control input-tag" maxlength="10" name="empEmergencyNo1" placeholder="Enter emergency No" required/>
     </div> 
 
     <div class="span-six">
-      <label for="emp-emergency-no2">Emergency No</label>
+      <label for="emp-emergency-no2">Emergency No 2</label>
       <input type="number" id="emp-emergency-no2" class="form-control input-tag" maxlength="10" name="empEmergencyNo2" placeholder="Enter emergency No" required/>
     </div>    
 
@@ -134,24 +176,31 @@
     </div>
 
     <div class="span-full form-subheading">
-        <h1>Attachments</h1>
-    </div>    
-
-    <div class="span-full" id="die-remark-div">
-      <label for="emp-photo">Photo</label>
-      <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" />
-    </div>
-
-    <div class="span-full form-subheading">
         <h1>Identification</h1>
     </div>    
 
-    <div class="span-half">
+<div class="span-hexa" id="die-remark-div">
+  
+  <img id="empPhotoPreview" alt="Preview" />
+  <div class="photo-upload-wrapper">
+    <label for="emp-photo">Photo</label>
+    <input
+      type="file"
+      id="emp-photo"
+      class="form-control input-tag"
+      name="empPhoto"
+      accept="image/*"
+    />
+  </div>
+</div>
+ 
+
+    <div class="span-penta">
       <label for="emp-aadhaar">Aadhaar</label>
       <input type="text" id="emp-aadhaar" class="form-control input-tag" name="empAadhaar" placeholder="Enter Aadhaar" />
     </div>
 
-    <div class="span-half">
+    <div class="span-penta">
       <label for="emp-pan">PAN</label>
       <input type="text" id="emp-pan" class="form-control input-tag" name="empPan" placeholder="Enter PAN" required />
     </div>    
@@ -292,4 +341,26 @@
         }
     }
 });
+</script>
+
+<script>
+  const input = document.getElementById("emp-photo");
+  const preview = document.getElementById("empPhotoPreview");
+
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+
+    if (!file || !file.type.startsWith("image/")) {
+      preview.style.display = "none";
+      preview.src = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
 </script>

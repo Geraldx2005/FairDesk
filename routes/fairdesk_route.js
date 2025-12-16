@@ -1,4 +1,6 @@
 import express, { json } from "express";
+import multer from "multer";
+import path from "path";
 // import asyncHandler from "express-async-handler";
 import Client from "../models/client.js";
 import Username from "../models/username.js";
@@ -12,6 +14,30 @@ import Block from "../models/block_model.js";
 import Die from "../models/die_model.js";
 import Employee from "../models/employee_model.js";
 const router = express.Router();
+
+// Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "employeeImages");
+  },
+  filename: (req, file, cb) => {
+    const uniqueName =
+      Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueName + path.extname(file.originalname));
+  },
+});
+
+// Allow only images
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) cb(null, true);
+  else cb(new Error("Only images allowed"), false);
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});
 
 // ----------------------------------RateCalculator---------------------------------->
 // Route for rate calculator.
@@ -347,10 +373,12 @@ router.post("/form/die", async (req, res) => {
 // ----------------------------------Employee Master---------------------------------->
 // route for rendering employee form.
 router.get("/form/employee", async (req, res) => {
+  let employeeCount = (await Employee.countDocuments()) + 1;
   res.render("forms/employee.ejs", {
     CSS: false,
     title: "Employee Details",
     JS: false,
+    employeeCount,
     notification: req.flash("notification"),
   });
 });
@@ -370,11 +398,28 @@ router.get("/disp/employeedisp", async (req, res) => {
 });
 
 // Route to handle employee form submission.
-router.post("/form/employee", async (req, res) => {
-  let savedDieData = await Employee.create(req.body);
-  req.flash("notification", "Employee created successfully!");
-  res.redirect("/fairdesk/form/employee");
-});
+router.post(
+  "/form/employee",
+  upload.single("empPhoto"), // ⬅️ input name
+  async (req, res) => {
+    try {
+      const employeeData = {
+        ...req.body,
+        empPhoto: req.file ? req.file.filename : null, // save filename
+      };
+
+      await Employee.create(employeeData);
+
+      req.flash("notification", "Employee created successfully!");
+      res.redirect("/fairdesk/form/employee");
+    } catch (err) {
+      console.error(err);
+      req.flash("error", "Failed to create employee");
+      res.redirect("/fairdesk/form/employee");
+    }
+  }
+);
+
 // ---------------------------------------------------------------------------------------------------->>>>>
 
 // ----------------------------------client display---------------------------------->
