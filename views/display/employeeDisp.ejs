@@ -259,7 +259,7 @@
 <body>
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
     <div class="indi-head">
-      <h1>Master display</h1>
+      <h1>Employee display</h1>
       <div class="download-btns">
         <div class="download-selector" id="downloadSelector">
           <button class="download-selector__trigger">
@@ -292,204 +292,99 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <script>
-  // ================= DOWNLOAD DROPDOWN UI =================
+  // ================= DOWNLOAD DROPDOWN =================
 
   const downloadSelector = document.getElementById("downloadSelector");
-  const triggerBtn = downloadSelector.querySelector(
-    ".download-selector__trigger"
-  );
+  const triggerBtn = downloadSelector.querySelector(".download-selector__trigger");
 
-  // Toggle dropdown
   triggerBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     downloadSelector.classList.toggle("download-selector--active");
 
-    const icon = triggerBtn.querySelector(
-      ".download-selector__trigger-icon"
-    );
-    icon.style.transform = downloadSelector.classList.contains(
-      "download-selector--active"
-    )
+    const icon = triggerBtn.querySelector(".download-selector__trigger-icon");
+    icon.style.transform = downloadSelector.classList.contains("download-selector--active")
       ? "rotate(180deg)"
       : "rotate(0deg)";
   });
 
-  // Close dropdown when clicking outside
   document.addEventListener("click", () => {
     downloadSelector.classList.remove("download-selector--active");
-    const icon = triggerBtn.querySelector(
-      ".download-selector__trigger-icon"
-    );
+    const icon = triggerBtn.querySelector(".download-selector__trigger-icon");
     icon.style.transform = "rotate(0deg)";
   });
 
-  // Prevent close when clicking inside dropdown
   downloadSelector
     .querySelector(".download-selector__menu")
-    .addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
+    .addEventListener("click", (e) => e.stopPropagation());
 
-  // ================= TABULATOR DATA =================
+  // ================= DATA =================
 
-    // Render data from Express (passed into EJS)
-    const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
+  const tableData = <%- JSON.stringify(jsonData) %>;
 
-  tableData.forEach((user) => {
-    user.labelCount = user.label?.length || 0;
-    user.ttrCount = user.ttr?.length || 0;
-    user.tapeCount = user.tape?.length || 0;
-  });
+  // ================= TABULATOR =================
 
-  // ================= TABULATOR INIT =================
-
-  let table; // 🔥 MUST be global for download to work
+  let table;
 
   function initTable() {
     table = new Tabulator("#master-table", {
       data: tableData,
       layout: "fitDataTable",
-      virtualDom: true,
-      responsiveLayout: false,
       pagination: "local",
       paginationSize: 30,
       movableColumns: true,
       columns: [
-        {
-          title: "Client Name",
-          field: "clientName",
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "Client Type",
-          field: "clientType",
-          headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: {
-            values: {
-              "": "All",
-              DEALER: "DEALER",
-              CLIENT: "CLIENT",
-            },
-            clearable: true,
-          },
-        },
-        {
-          title: "Account Head",
-          field: "accountHead",
-          headerSort: false,
-          headerFilter: "input",
-        },
-        {
-          title: "User Name",
-          field: "userName",
-          headerSort: false,
-          headerFilter: "input",
-        },
-        {
-          title: "Location",
-          field: "userLocation",
-          headerSort: false,
-          headerFilter: "input",
-        },
-        {
-          title: "Department",
-          field: "userDepartment",
-          headerSort: false,
-          headerFilter: "input",
-        },
-        {
-          title: "Contact",
-          field: "userContact",
-          headerSort: false,
-          headerFilter: "input",
-        },
-        {
-          title: "Email",
-          field: "userEmail",
-          headerSort: false,
-          headerFilter: "input",
-        },
-        {
-          title: "Self Dispatch",
-          field: "SelfDispatch",
-          headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: {
-            values: {
-              "": "All",
-              "SELF DISPATCH": "SELF DISPATCH",
-              "THIRD PARTY": "THIRD PARTY",
-            },
-            clearable: true,
-          },
-        },
-        {
-          title: "Labels",
-          field: "labelCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;color:blue;text-decoration:underline;">${row.labelCount}</span>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/disp/labels/${row._id}`;
-          },
-        },
-        {
-          title: "TTR's",
-          field: "ttrCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;color:blue;text-decoration:underline;">${row.ttrCount}</span>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/disp/ttr/${row._id}`;
-          },
-        },
-        {
-          title: "Tapes",
-          field: "tapeCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;color:blue;text-decoration:underline;">${row.tapeCount}</span>`;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/disp/tapes/${row._id}`;
-          },
-        },
+        { title: "Name", field: "empName" },
+        { title: "Dob", field: "empDob" },
+        { title: "Gender", field: "empGender" },
+        { title: "Mobile 1", field: "empMobile1" },
+        { title: "Mobile 2", field: "empMobile2" },
+        { title: "Emergency No 1", field: "empEmergencyNo1" },
+        { title: "Emergency No 2", field: "empEmergencyNo2" },
+        { title: "Email", field: "empEmail" },
+        { title: "Martial Status", field: "empMartialStatus" },
+        { title: "Present Address", field: "empPresentAddress" },
+        { title: "Permanent Address", field: "empPermanentAddress" },
+        { title: "Hobbies", field: "empHobbies" },
+        { title: "Employee Id", field: "empId" },
+        { title: "Date of Joining", field: "empDateOfKJoining" },
+        { title: "Employee Type", field: "empType" },
+        { title: "Reporting Manager", field: "empReportingManager" },
+        { title: "Department", field: "empDept" },
+        { title: "Location", field: "empLoc" },
+        { title: "Office Mobile", field: "empOfficeMob" },
+        { title: "Office Email", field: "empOfficeEmailId" },
+        { title: "Aadhaar", field: "empAadhaar" },
+        { title: "PAN", field: "empPan" },
+        { title: "Bank Name", field: "empBankName" },
+        { title: "Account Holder Name", field: "empAccountHolderName" },
+        { title: "Account No", field: "empAccNo" },
+        { title: "IFSC Code", field: "empIfscCode" },
       ],
     });
   }
 
   window.addEventListener("load", initTable);
 
-  // ================= DOWNLOAD ACTIONS =================
+  // ================= DOWNLOAD =================
 
-  // PDF
   document.getElementById("download-pdf").addEventListener("click", () => {
     if (!table) return;
 
-    table.download("pdf", "master-data.pdf", {
+    table.download("pdf", "employee-data.pdf", {
       orientation: "landscape",
-      title: "Master Data",
+      title: "Employee Data",
     });
 
     downloadSelector.classList.remove("download-selector--active");
   });
 
-  // Excel
   document.getElementById("download-xlsx").addEventListener("click", () => {
     if (!table) return;
 
-    table.download("xlsx", "master-data.xlsx", {
-      sheetName: "Master Data",
+    table.download("xlsx", "employee-data.xlsx", {
+      sheetName: "Employees",
     });
 
     downloadSelector.classList.remove("download-selector--active");

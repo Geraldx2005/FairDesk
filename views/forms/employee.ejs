@@ -3,9 +3,63 @@
 
 <div class="main-content">
     <form class="rottary-content needs-validation" action="/fairdesk/form/employee" method="post" autocomplete="off" novalidate>
-      <div class="span-full form-heading">
-        <h1>Employee Details</h1>
-      </div>
+    <div class="span-full form-heading">
+        <h1>Employment</h1>
+    </div>    
+
+    <div class="span-five">
+      <label for="emp-id">Employee ID</label>
+      <input type="text" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-date-of-joining">Date of Joining</label>
+      <input type="date" id="emp-date-of-joining" class="form-control input-tag" name="empDateOfKJoining" placeholder="Enter Date of Joining" required/>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-type">Employee Type</label>
+       <select name="empType" id="emp-type" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select</option>
+        <option value="PERMANENT">PERMANENT</option>
+        <option value="CONTRACT">CONTRACT</option>
+       </select>
+    </div>   
+    
+    <div class="span-dual">
+      <label for="emp-loc">Location</label>
+      <input type="text" id="emp-loc" class="form-control input-tag" name="empLoc" placeholder="Enter Location" required/>
+    </div>    
+
+    <div class="span-seven">
+      <label for="emp-dept">Department</label>
+      <input type="text" id="emp-dept" class="form-control input-tag" name="empDept" placeholder="Enter Department" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-reporting-manager">Reporting Manager</label>
+      <input type="text" id="emp-reporting-manager" class="form-control input-tag" name="empReportingManager" placeholder="Enter Reporting Manager" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-profile">Profile</label>
+      <input type="text" id="emp-profile" class="form-control input-tag" name="empProfile" placeholder="Enter Profile" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-office-mob">Office Mobile No</label>
+      <input type="text" id="emp-office-mob" class="form-control input-tag" name="empOfficeMob" placeholder="Enter Office Mobile No" required/>
+    </div>
+
+    <div class="span-dual">
+      <label for="emp-office-email-id">Office Email ID</label>
+      <input type="text" id="emp-office-email-id" class="form-control input-tag" name="empOfficeEmailId" placeholder="Enter Office Email ID" required/>
+    </div>
+
+    <div class="span-full form-subheading">
+      <h1>Employee Details</h1>
+    </div>
+
     <div class="span-penta">
       <label for="emp-name">Name</label>
       <input type="text" id="emp-name" class="form-control input-tag" name="empName" placeholder="Enter Name" required />
@@ -27,40 +81,48 @@
 
     <div class="span-six">
       <label for="emp-mobile1">Mobile No 1</label>
-      <input type="text" id="emp-mobile1" class="form-control input-tag" maxlength="10" name="empMobile1" placeholder="Enter Mobile No 1" required/>
+      <input type="number" id="emp-mobile1" class="form-control input-tag" maxlength="10" name="empMobile1" placeholder="Enter Mobile No 1" required/>
     </div>
+
     <div class="span-six">
       <label for="emp-mobile2">Mobile No 2</label>
-      <input type="text" id="emp-mobile2" class="form-control input-tag" maxlength="10" name="empMobile2" placeholder="Enter Mobile No 2" required/>
+      <input type="number" id="emp-mobile2" class="form-control input-tag" maxlength="10" name="empMobile2" placeholder="Enter Mobile No 2" required/>
     </div>
 
-    <div class="span-dual">
+    <div class="span-six">
       <label for="emp-emergency-no1">Emergency No</label>
-      <input type="text" id="emp-emergency-no1" class="form-control input-tag" maxlength="10" name="empEmergencyNo1" placeholder="Enter emergency No" required/>
-    </div>    
-    <div class="span-dual">
+      <input type="number" id="emp-emergency-no1" class="form-control input-tag" maxlength="10" name="empEmergencyNo1" placeholder="Enter emergency No" required/>
+    </div> 
+
+    <div class="span-six">
       <label for="emp-emergency-no2">Emergency No</label>
-      <input type="text" id="emp-emergency-no2" class="form-control input-tag" maxlength="10" name="empEmergencyNo2" placeholder="Enter emergency No" required/>
+      <input type="number" id="emp-emergency-no2" class="form-control input-tag" maxlength="10" name="empEmergencyNo2" placeholder="Enter emergency No" required/>
     </div>    
 
-    <div class="span-dual">
+    <div class="span-seven">
       <label for="emp-email">Email</label>
       <input type="text" id="emp-email" class="form-control input-tag" name="empEmail" placeholder="Enter Email" required />
     </div>
 
-    <div class="span-dual">
+    <div class="span-six">
       <label for="emp-martial-status">Martial Status</label>
        <select name="empMartialStatus" id="emp-martial-status" class="form-control select-tag" required>
         <option value="" disabled selected hidden>Select</option>
         <option value="SINGLE">SINGLE</option>
         <option value="MARRIED">MARRIED</option>
        </select>
-    </div>    
+    </div>
+    
+    <div class="span-seven">
+      <label for="emp-marriage-anniversary">Marriage Anniv</label>
+      <input type="date" id="emp-marriage-anniversary" class="form-control input-tag" name="empMarriageAnniversary" required />
+    </div>
 
     <div class="span-penta">
       <label for="emp-present-address">Present Address</label>
       <textarea  id="emp-present-address"  class="form-control input-tag"  name="empPresentAddress"  placeholder="Enter Employee Present Address" rows="3" style="border: 1px solid #1a1a2e; resize: none;" required></textarea>
     </div>
+
     <div class="span-hexa">
       <label for="emp-permanent-address">Permanent Address</label>
       <textarea id="emp-permanent-address" class="form-control input-tag" name="empPermanentAddress" placeholder="Enter Employee Permanent Address" rows="3" style="border: 1px solid #1a1a2e; resize: none;" required></textarea>
@@ -72,66 +134,12 @@
     </div>
 
     <div class="span-full form-subheading">
-        <h1>Employment</h1>
-    </div>    
-
-    <div class="span-seven">
-      <label for="emp-id">Employee ID</label>
-      <input type="text" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
-    </div>
-
-    <div class="span-six">
-      <label for="emp-date-of-joining">Date of Joining</label>
-      <input type="date" id="emp-date-of-joining" class="form-control input-tag" name="empDateOfKJoining" placeholder="Enter Date of Joining" required/>
-    </div>
-
-    <div class="span-six">
-      <label for="emp-type">Employee Type</label>
-       <select name="empType" id="emp-type" class="form-control select-tag" required>
-        <option value="" disabled selected hidden>Select</option>
-        <option value="PERMANENT">PERMANENT</option>
-        <option value="CONTRACT">CONTRACT</option>
-       </select>
-    </div>    
-
-    <div class="span-seven">
-      <label for="emp-reporting-manager">Reporting Manager</label>
-      <input type="text" id="emp-reporting-manager" class="form-control input-tag" name="empReportingManager" placeholder="Enter Reporting Manager" required/>
-    </div>
-
-    <div class="span-six">
-      <label for="emp-dept">Department</label>
-      <input type="text" id="emp-dept" class="form-control input-tag" name="empDept" placeholder="Enter Department" required/>
-    </div>
-
-    <div class="span-dual">
-      <label for="emp-loc">Location</label>
-      <input type="text" id="emp-loc" class="form-control input-tag" name="empLoc" placeholder="Enter Location" required/>
-    </div>
-
-    <div class="span-dual">
-      <label for="emp-profile">Profile</label>
-      <input type="text" id="emp-profile" class="form-control input-tag" name="empProfile" placeholder="Enter Profile" required/>
-    </div>
-
-    <div class="span-dual">
-      <label for="emp-office-mob">Office Mobile No</label>
-      <input type="text" id="emp-office-mob" class="form-control input-tag" name="empOfficeMob" placeholder="Enter Office Mobile No" required/>
-    </div>
-
-    <div class="span-dual">
-      <label for="emp-office-email-id">Office Email ID</label>
-      <input type="text" id="emp-office-email-id" class="form-control input-tag" name="empOfficeEmailId" placeholder="Enter Office Email ID" required/>
-    </div>  
-
-
-    <div class="span-full form-subheading">
         <h1>Attachments</h1>
     </div>    
 
     <div class="span-full" id="die-remark-div">
       <label for="emp-photo">Photo</label>
-      <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" required/>
+      <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" />
     </div>
 
     <div class="span-full form-subheading">
@@ -170,8 +178,75 @@
     <div class="span-dual">
       <label for="emp-ifsc-code">IFSC Code</label>
       <input type="text" id="emp-ifsc-code" class="form-control input-tag" name="empIfscCode" placeholder="Enter IFSC Code" required/>
+    </div>
+
+    <div class="span-full form-subheading">
+        <h1>Deductions</h1>
+    </div>     
+
+    <div class="span-four">
+      <label for="emp-pt">PT</label>
+      <input type="number" id="emp-pt" class="form-control input-tag" name="empPT" placeholder="Enter PT" required />
     </div>    
 
+    <div class="span-four">
+      <label for="emp-tds">TDS</label>
+      <input type="number" id="emp-tds" class="form-control input-tag" name="empTDS" placeholder="Enter TDS" required />
+    </div>    
+
+    <div class="span-four">
+      <label for="emp-lic">LIC</label>
+      <input type="number" id="emp-lic" class="form-control input-tag" name="empLIC" placeholder="Enter LIC" required />
+    </div>    
+
+    <div class="span-five">
+      <label for="emp-medical">Medical</label>
+      <input type="number" id="emp-medical" class="form-control input-tag" name="empMedical" placeholder="Enter Medical" required />
+    </div>    
+
+    <div class="span-five">
+      <label for="emp-nsic">NSIC</label>
+      <input type="number" id="emp-nsic" class="form-control input-tag" name="empNSIC" placeholder="Enter NSIC" required />
+    </div>    
+
+    <div class="span-five">
+      <label for="emp-esic">ESIC</label>
+      <input type="number" id="emp-esic" class="form-control input-tag" name="empESIC" placeholder="Enter ESIC" required />
+    </div>    
+
+    <div class="span-five">
+      <label for="emp-pf">PF</label>
+      <input type="number" id="emp-pf" class="form-control input-tag" name="empPF" placeholder="Enter PF" required />
+    </div>
+    
+    <div class="span-full form-subheading">
+        <h1>Dependents Details</h1>
+    </div>
+
+    <div class="dependent-count span-half" style="grid-column: span 32;">
+      <label>No. of Dependents</label>
+      <div class="dependents-count" style="width: 100%; display: flex; justify-content: space-between; gap: 10px;">
+        <input type="text" id="dependents-count" class="form-control" name="dependentsCount" placeholder="Enter Dependents Count"/>              
+      </div>
+    </div>
+
+    <div class="dependent-headings" style="margin-bottom: 0px; grid-column: span 32; background-color: #1a1a2e; color: white; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;"> 
+      <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">Name</span>
+      <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">DOB</span>
+      <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">Relation</span>
+    </div> 
+
+    <div class="span-full form-subheading">
+      <h1>Dependents</h1>
+    </div>
+    
+    <div id="dependents-details" style="grid-column: span 32;">
+        <div class="dependents-details" style="margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+          <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
+          <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
+          <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
+        </div>
+    </div>
     <div class="span-full btn-grp">
       <button class="submit-btn" type="submit">Save Employee</button>
     </div>
@@ -180,3 +255,41 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
+<script>
+  document.getElementById('dependents-count').addEventListener('input', function() {
+    const count = parseInt(this.value) || 0;
+    const container = document.getElementById('dependents-details');
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    if (count <= 0 || isNaN(count)) {
+        // Create empty state div
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'dependents-headings';
+        emptyDiv.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
+        
+        emptyDiv.innerHTML = `
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
+        `;
+        container.appendChild(emptyDiv);
+    } else {
+        // Create new divs based on the input count
+        for (let i = 0; i < count; i++) {
+            const div = document.createElement('div');
+            div.className = 'dependents-headings';
+            div.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
+            
+            div.innerHTML = `
+                <h4 style="margin: 0;">${i + 1}</h4>
+                <input type="text" name="dependentsDetails[${i}][dependentsName]" class="form-control" placeholder="Dependents Name" style="flex: 1; border: 1px solid #1a1a2e;">
+                <input type="date" name="dependentsDetails[${i}][dependentsDOB]" class="form-control" placeholder="Dependents Role" style="flex: 1; border: 1px solid #1a1a2e;">
+                <input type="text" name="dependentsDetails[${i}][dependentsRelation]" class="form-control" placeholder="Dependents Relation" style="flex: 1; border: 1px solid #1a1a2e;">
+            `;
+            container.appendChild(div);
+        }
+    }
+});
+</script>

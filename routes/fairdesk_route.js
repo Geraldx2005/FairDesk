@@ -35,7 +35,7 @@ router.get("/form/client", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let userCount = await Username.countDocuments();
   let clientCount = clients.length;
-  res.render("clientForm.ejs", {
+  res.render("forms/clientForm.ejs", {
     JS: "clientForm.js",
     CSS: "tabOpt.css",
     title: "Client Form",
@@ -84,7 +84,7 @@ router.get("/form/labels", async (req, res) => {
   let labelsCount = (await Label.countDocuments()) + 1;
   console.log(clients);
 
-  res.render("labels.ejs", {
+  res.render("forms/labels.ejs", {
     title: "Labels",
     JS: "labels.js",
     CSS: false,
@@ -194,7 +194,7 @@ router.get("/form/ttr", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let ttrCount = await Ttr.countDocuments();
 
-  res.render("ttr.ejs", {
+  res.render("forms/ttr.ejs", {
     JS: "ttr.js",
     CSS: false,
     title: "TTR",
@@ -223,7 +223,7 @@ router.get("/form/tape", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let tapeCount = await Tape.countDocuments();
 
-  res.render("tape.ejs", {
+  res.render("forms/tape.ejs", {
     JS: "ttr.js",
     CSS: false,
     title: "Tape",
@@ -304,7 +304,7 @@ router.post("/form/prodcalc", async (req, res) => {
 router.get("/form/block", async (req, res) => {
   let clients = await Client.distinct("clientName");
   console.log(clients);
-  res.render("blockMaster.ejs", {
+  res.render("forms/blockMaster.ejs", {
     CSS: false,
     title: "Block Master",
     JS: false,
@@ -328,7 +328,7 @@ router.post("/form/block", async (req, res) => {
 router.get("/form/die", async (req, res) => {
   let clients = await Client.distinct("clientName");
   console.log(clients);
-  res.render("dieMaster.ejs", {
+  res.render("forms/dieMaster.ejs", {
     CSS: "tabOpt.css",
     title: "Die Master",
     JS: "clientForm.js",
@@ -345,7 +345,7 @@ router.post("/form/die", async (req, res) => {
 });
 
 // ----------------------------------Employee Master---------------------------------->
-// route for systemid form.
+// route for rendering employee form.
 router.get("/form/employee", async (req, res) => {
   res.render("forms/employee.ejs", {
     CSS: false,
@@ -355,10 +355,24 @@ router.get("/form/employee", async (req, res) => {
   });
 });
 
-// Route to handle systemid form submission.
+// route for rendering employee display.
+router.get("/disp/employeedisp", async (req, res) => {
+  
+  let jsonData = await Employee.find();
+
+  res.render("display/employeeDisp.ejs", {
+    jsonData,
+    CSS: false,
+    title: "Employee View",
+    JS: false,
+    notification: req.flash("notification"),
+  });
+});
+
+// Route to handle employee form submission.
 router.post("/form/employee", async (req, res) => {
   let savedDieData = await Employee.create(req.body);
-  req.flash("notification", "Empployee created successfully!");
+  req.flash("notification", "Employee created successfully!");
   res.redirect("/fairdesk/form/employee");
 });
 // ---------------------------------------------------------------------------------------------------->>>>>
@@ -447,8 +461,9 @@ router.get("/disp/labels/:id", async (req, res) => {
 
 // ----------------------------------TTR display---------------------------------->
 // route for details page.
-router.get("/disp/ttr", async (req, res) => {
-  let jsonData = await Ttr.find();
+router.get("/disp/ttr/:id", async (req, res) => {
+  let userData = await Username.findById(req.params.id).populate("ttr");
+  let jsonData = userData.ttr;
   
   // jsonData.push(itemsCount);
   console.log(jsonData);
@@ -457,8 +472,9 @@ router.get("/disp/ttr", async (req, res) => {
 
 // ----------------------------------Tape display---------------------------------->
 // route for details page.
-router.get("/disp/tapes", async (req, res) => {
-  let jsonData = await Tape.find();
+router.get("/disp/tapes/:id", async (req, res) => {
+  let userData = await Username.findById(req.params.id).populate("tape");
+  let jsonData = userData.tape;
   
   // jsonData.push(itemsCount);
   console.log(jsonData);

@@ -61,7 +61,7 @@
 </div>
 <% } %>
     <nav>
-      <h1>Fairdesk</h1>
+      <h1>Fairtech</h1>
     </nav>
     <div class="contain">
       <!-- Navigation bar -->
@@ -70,27 +70,44 @@
           <i class="fa-solid fa-bars" style="color: #ffffff"></i>
           <p class="nav-items-para">Navigation</p>
         </div>
-        <div title="Master View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/disp/master'">
-          <i class="fa-solid fa-eye" style="color: #ffffff;"></i>
-          <p class="nav-items-para">Client View</p>
-        </div>
 
-        <div title="Employee Data" class="<%= title === 'Employee Details' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/employee'">
-          <i class="fa-solid fa-users" style="color: #ffffff;"></i>
-          <p class="nav-items-para">Employee Data</p>
-        </div>
-        <div title="Client Data" class="<%= title === 'Client Form' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/client'">
-          <i class="fa-solid fa-user" style="color: #ffffff"></i>
-          <p class="nav-items-para">Client Data</p>
-        </div>
+
+
+
 
         <div class="nav-opt-wrap">
-          <div title="Datasheet" class="datasheet-toggle nav-items">
+          <div title="View" class="view-toggle nav-items">
             <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
-            <p class="nav-items-para">Datasheet</p>
+            <p class="nav-items-para">View</p>
           </div>
 
           <div class="nav-labels-opt">
+            <div title="Master View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/disp/master'">
+              <i class="fa-solid fa-eye" style="color: #ffffff;"></i>
+              <p class="nav-items-para">Client View</p>
+            </div>
+            <div title="Employee View" class="<%= title === 'Employee View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/disp/employeedisp'">
+              <i class="fa-solid fa-address-book" style="color: #ffffff;"></i>
+              <p class="nav-items-para">Emp View</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-opt-wrap">
+          <div title="Masters" class="masters-toggle nav-items">
+            <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
+            <p class="nav-items-para">Masters</p>
+          </div>
+          
+          <div class="nav-labels-opt">
+            <div title="Employee Data" class="<%= title === 'Employee Details' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/employee'">
+              <i class="fa-solid fa-users" style="color: #ffffff;"></i>
+              <p class="nav-items-para">Emp Details</p>
+            </div>
+            <div title="Client Data" class="<%= title === 'Client Form' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/client'">
+              <i class="fa-solid fa-user" style="color: #ffffff"></i>
+              <p class="nav-items-para">Client Data</p>
+            </div>            
             <div title="Labels" class="<%= title === 'Labels' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/labels'">
               <i class="fa-solid fa-address-card" style="color: #ffffff"></i>
               <p class="nav-items-para">Labels</p>
@@ -103,18 +120,18 @@
               <i class="fa-solid fa-tape" style="color: #ffffff"></i>
               <p class="nav-items-para">Tape</p>
             </div>
+            <div title="Block Master" class="<%= title === 'Block Master' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/block'">
+              <i class="fa-solid fa-cube" style="color: #ffffff;"></i>
+              <p class="nav-items-para">Block Master</p>
+            </div>        
+            <div title="Die Master" class="<%= title === 'Die Master' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/die'">
+              <i class="fa-solid fa-brush" style="color: #ffffff;"></i>
+              <p class="nav-items-para">Die Master</p>
+            </div>
           </div>
         </div>
 
-        <div title="Block Master" class="nav-items" onclick="window.location.href = '/fairdesk/form/block'">
-          <i class="fa-solid fa-cube" style="color: #ffffff;"></i>
-          <p class="nav-items-para">Block Master</p>
-        </div>        
-
-        <div title="Die Master" class="nav-items" onclick="window.location.href = '/fairdesk/form/die'">
-          <i class="fa-solid fa-brush" style="color: #ffffff;"></i>
-          <p class="nav-items-para">Die Master</p>
-        </div>        
+        
 
         <!-- <div class="nav-opt-wrap">
           <div title="Care" class="care-toggle nav-items">

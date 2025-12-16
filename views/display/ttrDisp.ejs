@@ -179,48 +179,177 @@
   transition: all 0.2s ease;
 }
 
+.download-btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0f172a;
+  }
 
+  .download-btns button {
+    height: 20px;
+  }
+
+  .download-btns button:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* The download document dropdown */
+  .download-selector {
+    position: relative;
+    display: inline-block;
+    width: 160px; /* Fixed width for the dropdown */
+  }
+
+  .download-selector__trigger {
+    background-color: #f0f0f0;
+    color: #1a1a2e;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .download-selector__trigger-icon {
+    font-size: 12px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .download-selector__menu {
+    position: absolute;
+    background-color: rgb(240, 240, 240);
+    width: 100%;
+    border: 1px solid #1a1a2e;
+    border-radius: 0.5rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease-in-out;
+    right: 0;
+    margin-top: 12px;
+  }
+
+  .download-selector--active .download-selector__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .download-selector__option {
+    color: #1a1a2e;
+    padding: 8px 10px;
+    font-size: 15px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: rgb(240, 240, 240);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    width: auto;
+    height: auto;
+  }
+
+  .download-selector__option:hover {
+    background-color: rgb(216, 216, 216);
+    border-radius: 0.5rem;
+  }
+
+  .download-selector__option-icon {
+    width: 20px;
+    color: #1a1a2e;
+  }
+
+  .download-typo {
+    margin-left: 2px;
+  }
+
+  .indi-head {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background-color: #1a1a2e;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .indi-head h1 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+    /* Make empty tabulator area !grey */
+  .tabulator {
+    background-color: #f0f2f5 !important;
+  }
+
+  .tabulator .tabulator-tableholder {
+    background-color: #f0f2f5 !important;
+  }
+
+  .tabulator .tabulator-table {
+    background-color: #f0f2f5 !important;
+  }
+
+  /* When there is no data */
+  .tabulator .tabulator-placeholder {
+    background-color: #f0f2f5 !important;
+    color: #666; /* optional */
+  }
 </style>
 </head>
 
 <body>
-  <div
-    class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
-    <form method="get" action="http://localhost:3000/fairdesk/filter">
-      <div class="search-form">
-        <input type="text" name="search" placeholder="Search by Client Name or ID" class="form-control input-tag search-input"  />
-        <button type="submit" class="filter-btn"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
-      </div>      
-      <div class="filters-container">
-        <div class="filter-group">
-          <select class="filter-select" id="departmentFilter" name="department">
-            <option value="" selected disabled hidden>Choose Client Type</option>
-            <option value="DEALER">DEALER</option>
-            <option value="CLIENT">CLIENT</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <select class="filter-select" id="batchFilter" name="batch">
-            <option value="" disabled hidden selected>
-              Choose Client Status
-            </option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="FOLLOW UP">FOLLOW UP</option>
-            <option value="BLACKLISTED">BLACKLISTED</option>
-            <option value="ADVANCED">ADVANCED</option>
-            <option value="OTHERS">OTHERS</option>
-          </select>
-        </div>
+  <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
+      <div class="indi-head">
+        <h1>TTR display</h1>
+        <div class="download-btns">
+          <div class="download-selector" id="downloadSelector">
+            <button class="download-selector__trigger">
+              <span>
+                <i class="fa-solid fa-file-arrow-down"></i>
+                <span class="download-typo">Download</span>
+              </span>
+              <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
+            </button>
+            <div class="download-selector__menu" id="downloads">
+              <span class="download-selector__option" id="download-pdf">
+                <i class="fas fa-file-pdf download-selector__option-icon"></i>
+                <span>PDF</span>
+              </span>
+              <span class="download-selector__option" id="download-xlsx">
+                <i class="fas fa-file-excel download-selector__option-icon"></i>
+                <span>Excel</span>
+              </span>
+            </div>
+          </div>
       </div>
-    </form>
+    </div>
 
     <div id="master-table" class="tabulator tabulator-modern"></div>
 </div>
 
   <!-- Tabulator JS -->
   <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
 
   <script>
     // Render data from Express (passed into EJS)
@@ -235,7 +364,7 @@
     console.log(tableData);
 
     // Initialize Tabulator
-    new Tabulator("#master-table", {
+    const table = new Tabulator("#master-table", {
       data: tableData,
       layout: "fitDataTable", // expand to fit content + allow horizontal scroll
       responsiveLayout: false, // prevent auto-hiding of columns
@@ -268,5 +397,37 @@
         { title: "TTR Credit Term", field: "ttrCreditTerm" },
       ]
     });
+
+    // Dropdown toggle
+    const selector = document.getElementById("downloadSelector");
+    const trigger = selector.querySelector(".download-selector__trigger");
+    
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selector.classList.toggle("download-selector--active");
+    });
+  
+    // Close dropdown on outside click
+    document.addEventListener("click", () => {
+      selector.classList.remove("download-selector--active");
+    });
+  
+    // PDF download
+    document.getElementById("download-pdf").addEventListener("click", () => {
+      table.download("pdf", "labels.pdf", {
+        orientation: "landscape",
+        title: "Labels Data",
+      });
+      selector.classList.remove("download-selector--active");
+    });
+  
+    // Excel download
+    document.getElementById("download-xlsx").addEventListener("click", () => {
+      table.download("xlsx", "labels.xlsx", {
+        sheetName: "Labels",
+      });
+      selector.classList.remove("download-selector--active");
+    });
+
   </script>
 </body>
