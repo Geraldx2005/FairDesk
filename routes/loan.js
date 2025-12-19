@@ -88,5 +88,30 @@ router.post("/create", async (req, res) => {
   }
 });
 
+/* ================= LOAN DISPLAY ================= */
+router.get("/view", async (req, res) => {
+  const loans = await Loan.find()
+    .populate("employee", "empName empId")
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const jsonData = loans.map(l => ({
+    employeeName: l.employee?.empName || "-",
+    empId: l.employee?.empId || "-",
+    currentBalance: l.currentBalance,
+    emi: l.emi || 0,
+    status: l.status,
+    updatedAt: new Date(l.updatedAt).toLocaleDateString(),
+  }));
+
+  res.render("display/loanDisp", {
+    jsonData,
+    title: "Loan View",
+    CSS: false,
+    JS: false,
+    navigator: "loan",
+  });
+});
+
 
 export default router;

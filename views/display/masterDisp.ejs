@@ -253,6 +253,16 @@
     input[type='search']::-ms-reveal {
     display: none;
   }
+
+  /* Remove sort arrows from Tabulator header */
+  .tabulator .tabulator-col .tabulator-arrow {
+    display: none !important;
+  }
+  
+  /* Also remove space reserved for arrow */
+  .tabulator .tabulator-col .tabulator-col-title {
+    padding-right: 0 !important;
+  }   
 </style>
 </head>
 

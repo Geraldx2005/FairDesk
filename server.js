@@ -1,80 +1,91 @@
 import express from "express";
-import ejsMate from 'ejs-mate';
-import cors from "cors";
+import ejsMate from "ejs-mate";
 import connectDB from "./config/db.js";
 import fairdeskRoute from "./routes/fairdesk_route.js";
 import payrollRoute from "./routes/payroll.js";
 import loanRoute from "./routes/loan.js";
 import advanceRoute from "./routes/advance.js";
-import AppError from "./utils/AppError.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
 
 import session from "express-session";
 import flash from "connect-flash";
+
 const app = express();
 const port = 3000;
 
-// Configuring environment variables.
+/* ================= ENV + DB ================= */
 configDotenv({ quiet: true });
-// Connecting to the database.
 connectDB();
 
-app.use(cors());
+/* ================= PATH SETUP ================= */
+const file_name = fileURLToPath(import.meta.url);
+const dir_name = path.dirname(file_name);
 
-app.use(session({
-    secret: "yoursecretkey",
-    resave: false,
-    saveUninitialized: true
-}));
-
-app.use(flash());
-
-// Make flash messages available to all views & layouts
-app.use((req, res, next) => {
-  res.locals.notification = req.flash("notification");
-  res.locals.error = req.flash("error");
-  next();
-});
-
-// Getting the current file and directory names.
-let file_name = fileURLToPath(import.meta.url);
-let dir_name = path.dirname(file_name);
-
-// Setting up the view engine and parsing middleware.
-app.engine('ejs', ejsMate);
+/* ================= VIEW ENGINE ================= */
+app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
+app.set("views", path.join(dir_name, "views"));
+
+/* ================= BODY PARSERS ================= */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Setting the path for views and static files.
-app.set("views", path.join(dir_name, "views"));
+/* ================= STATIC ================= */
 app.use(express.static(path.join(dir_name, "public")));
-// serving bootstrap.
-app.use('/bootstrap', express.static(dir_name + '/node_modules/bootstrap/dist'));
+app.use("/bootstrap", express.static(dir_name + "/node_modules/bootstrap/dist"));
 
+/* ================= SESSION (THIS IS THE KEY) ================= */
+app.use(
+  session({
+    name: "fairdesk.sid",
+    secret: "fairdesk-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,      // localhost
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
+  })
+);
 
-// Setting up the routes.
+/* ================= FLASH ================= */
+app.use(flash());
+
+/* ================= GLOBAL LOCALS ================= */
+app.use((req, res, next) => {
+  res.locals.notification = req.session.flash?.notification || [];
+  res.locals.error = req.session.flash?.error || [];
+  next();
+});
+
+/* ================= TEST ROUTE (KEEP TEMPORARILY) ================= */
+app.get("/flash-test", (req, res) => {
+  req.flash("notification", "Flash is working 🔥");
+  res.redirect("/fairdesk/payroll/create");
+});
+
+/* ================= ROUTES ================= */
 app.use("/fairdesk", fairdeskRoute);
 app.use("/fairdesk/payroll", payrollRoute);
-app.use("/fairdesk/loan", loanRoute)
-app.use("/fairdesk/advance", advanceRoute)
+app.use("/fairdesk/loan", loanRoute);
+app.use("/fairdesk/advance", advanceRoute);
 
-// Middleware for handling 404 errors - this should be last
+/* ================= 404 ================= */
 app.all("*", (req, res) => {
-  console.warn(`404 triggered for ${req.method} ${req.originalUrl}`);
   res.status(404).send("404 - Page Not Found");
 });
 
-// Global error handling middleware
+/* ================= ERROR HANDLER ================= */
 app.use((err, req, res, next) => {
-  let { statusCode = 500, message = "Something went wrong" } = err;
-  console.log(err);
-  res.status(statusCode).send(message);
+  console.error(err);
+  res.status(err.statusCode || 500).send(err.message || "Something went wrong");
 });
 
-// IP Address: "192.168.10.119", -----! put this before the port below
+/* ================= START ================= */
 app.listen(port, () => {
-  console.log(`server started at port: ${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });

@@ -192,4 +192,44 @@ router.get("/advance/:employeeId", async (req, res) => {
   res.json(advance || { currentBalance: 0 });
 });
 
+/* ================= PAYROLL DISPLAY ================= */
+router.get("/view", async (req, res) => {
+  const payrolls = await Payroll.find()
+    .populate("employee", "empName empId basicSalary")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const monthMap = {
+    1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",
+    5: "May", 6: "Jun", 7: "Jul", 8: "Aug",
+    9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec",
+  };
+
+  const jsonData = payrolls.map(p => ({
+    employeeName: p.employee?.empName || "-",
+    empId: p.employee?.empId || "-",
+    month: monthMap[p.month],
+    year: p.year,
+    presentDays: p.presentDays,
+    absentDays: p.absentDays,
+    otHours: p.otHours,
+    basicSalary: p.employee?.basicSalary || 0,
+    incentive: p.incentive || 0,
+    advance: p.advance || 0,
+    grossSalary: p.grossSalary,
+    totalDeduction: p.totalDeduction,
+    netSalary: p.netSalary,
+    createdAt: new Date(p.createdAt).toLocaleDateString(),
+  }));
+
+  res.render("display/payrollDisp", {
+    jsonData,
+    CSS: false,
+    JS: false,
+    title: "Payroll View",
+    navigator: "payroll",
+  });
+});
+
+
 export default router;

@@ -333,7 +333,7 @@ router.get("/form/block", async (req, res) => {
   console.log(clients);
   res.render("forms/blockMaster.ejs", {
     CSS: false,
-    title: "Block Master",
+    title: "Block",
     JS: false,
     clients,
     notification: req.flash("notification"),
@@ -357,7 +357,7 @@ router.get("/form/die", async (req, res) => {
   console.log(clients);
   res.render("forms/dieMaster.ejs", {
     CSS: "tabOpt.css",
-    title: "Die Master",
+    title: "Die",
     JS: "clientForm.js",
     clients,
     notification: req.flash("notification"),

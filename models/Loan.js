@@ -16,13 +16,6 @@ const loanSchema = new mongoose.Schema(
       default: 0,
     },
 
-    emi: {
-      type: Number,
-      required: true,
-      min: 0,
-      default: 0,
-    },
-
     status: {
       type: String,
       enum: ["ACTIVE", "CLOSED"],

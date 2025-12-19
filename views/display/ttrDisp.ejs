@@ -312,13 +312,23 @@
     background-color: #f0f2f5 !important;
     color: #666; /* optional */
   }
+
+  /* Remove sort arrows from Tabulator header */
+  .tabulator .tabulator-col .tabulator-arrow {
+    display: none !important;
+  }
+  
+  /* Also remove space reserved for arrow */
+  .tabulator .tabulator-col .tabulator-col-title {
+    padding-right: 0 !important;
+  }   
 </style>
 </head>
 
 <body>
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
       <div class="indi-head">
-        <h1>TTR display</h1>
+        <h1>TTR's</h1>
         <div class="download-btns">
           <div class="download-selector" id="downloadSelector">
             <button class="download-selector__trigger">

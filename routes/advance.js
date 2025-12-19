@@ -104,4 +104,29 @@ router.post("/create", async (req, res) => {
   }
 });
 
+/* ================= ADVANCE DISPLAY ================= */
+router.get("/view", async (req, res) => {
+  const advances = await Advance.find()
+    .populate("employee", "empName empId")
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const jsonData = advances.map(a => ({
+    employeeName: a.employee?.empName || "-",
+    empId: a.employee?.empId || "-",
+    currentBalance: a.currentBalance,
+    status: a.status,
+    updatedAt: new Date(a.updatedAt).toLocaleDateString(),
+  }));
+
+  res.render("display/advanceDisp", {
+    jsonData,
+    title: "Advance View",
+    CSS: false,
+    JS: false,
+    navigator: "advance",
+  });
+});
+
+
 export default router;
