@@ -3,6 +3,9 @@ import ejsMate from 'ejs-mate';
 import cors from "cors";
 import connectDB from "./config/db.js";
 import fairdeskRoute from "./routes/fairdesk_route.js";
+import payrollRoute from "./routes/payroll.js";
+import loanRoute from "./routes/loan.js";
+import advanceRoute from "./routes/advance.js";
 import AppError from "./utils/AppError.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
@@ -28,6 +31,13 @@ app.use(session({
 
 app.use(flash());
 
+// Make flash messages available to all views & layouts
+app.use((req, res, next) => {
+  res.locals.notification = req.flash("notification");
+  res.locals.error = req.flash("error");
+  next();
+});
+
 // Getting the current file and directory names.
 let file_name = fileURLToPath(import.meta.url);
 let dir_name = path.dirname(file_name);
@@ -47,6 +57,9 @@ app.use('/bootstrap', express.static(dir_name + '/node_modules/bootstrap/dist'))
 
 // Setting up the routes.
 app.use("/fairdesk", fairdeskRoute);
+app.use("/fairdesk/payroll", payrollRoute);
+app.use("/fairdesk/loan", loanRoute)
+app.use("/fairdesk/advance", advanceRoute)
 
 // Middleware for handling 404 errors - this should be last
 app.all("*", (req, res) => {

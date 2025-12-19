@@ -38,8 +38,43 @@
   width: 100%;
 }
 
+/* Clickable image */
+#empPhotoPreview {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
 
+#empPhotoPreview:hover {
+  transform: scale(1.05);
+}
 
+/* Modal overlay */
+.image-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Enlarged image */
+.image-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+
+/* Close button */
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 36px;
+  color: white;
+  cursor: pointer;
+}
 
 </style>
 
@@ -51,12 +86,12 @@
 
     <div class="span-five">
       <label for="emp-id">Employee ID</label>
-      <input type="text" value="FS|EMP|<%= employeeCount.toString().padStart(3, '0') %>" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
+      <input type="text" value="FS | EMPLOYEE | <%= employeeCount.toString().padStart(3, '0') %>" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
     </div>
 
     <div class="span-six">
       <label for="emp-date-of-joining">Date of Joining</label>
-      <input type="date" id="emp-date-of-joining" class="form-control input-tag" name="empDateOfKJoining" placeholder="Enter Date of Joining" required/>
+      <input type="date" id="emp-date-of-joining" class="form-control input-tag" name="empDateOfJoining" placeholder="Enter Date of Joining" required/>
     </div>
 
     <div class="span-six">
@@ -70,8 +105,14 @@
     
     <div class="span-dual">
       <label for="emp-loc">Location</label>
-      <input type="text" id="emp-loc" class="form-control input-tag" name="empLoc" placeholder="Enter Location" required/>
-    </div>    
+        <select name="empLoc" id="emp-loc" class="form-control select-tag" required>
+         <option value="" disabled selected hidden>Select</option>
+         <option value="OFFICE">OFFICE</option>
+         <option value="UNIT 1">UNIT 1</option>
+         <option value="UNIT 2">UNIT 2</option>
+         <option value="UNIT 3">UNIT 3</option>
+        </select>
+    </div>
 
     <div class="span-seven">
       <label for="emp-dept">Department</label>
@@ -116,7 +157,7 @@
       <label for="emp-gender">Gender</label>
        <select name="empGender" id="emp-gender" class="form-control select-tag" required>
         <option value="" disabled selected hidden>Select</option>
-        <option value="MAlE">MALE</option>
+        <option value="MALE">MALE</option>
         <option value="FEMALE">FEMALE</option>
        </select>
     </div>
@@ -179,20 +220,19 @@
         <h1>Identification</h1>
     </div>    
 
-<div class="span-hexa" id="die-remark-div">
-  
-  <img id="empPhotoPreview" alt="Preview" />
-  <div class="photo-upload-wrapper">
-    <label for="emp-photo">Photo</label>
-    <input
-      type="file"
-      id="emp-photo"
-      class="form-control input-tag"
-      name="empPhoto"
-      accept="image/*"
-    />
-  </div>
-</div>
+    <div class="span-hexa" id="die-remark-div">  
+      <img id="empPhotoPreview" alt="Preview" />
+      <div class="photo-upload-wrapper">
+        <label for="emp-photo">Photo</label>
+        <input
+          type="file"
+          id="emp-photo"
+          class="form-control input-tag"
+          name="empPhoto"
+          accept="image/*"
+        />
+      </div>
+    </div>
  
 
     <div class="span-penta">
@@ -269,6 +309,44 @@
     </div>
     
     <div class="span-full form-subheading">
+      <h1>Payroll Details</h1>
+    </div>
+
+    <div class="span-five">
+      <label>Basic Salary</label>
+      <input type="number" name="basicSalary" class="form-control input-tag" placeholder="Enter Basic Salary">
+    </div>
+
+    <div class="span-five">
+      <label>Railway Pass</label>
+      <input type="number" name="railwayPass" class="form-control input-tag" placeholder="Enter Railway Pass">
+    </div>
+
+    <div class="span-four">
+      <label>Travelling</label>
+      <input type="number" name="travelling" class="form-control input-tag" placeholder="Enter Travelling">
+    </div>
+
+    <div class="span-five">
+      <label>House Rent</label>
+      <input type="number" name="houseRent" class="form-control input-tag" placeholder="Enter House Rent">
+    </div>
+    <div class="span-five">
+      <label>Staff Quaters</label>
+      <input type="number" name="staffQuarters" class="form-control input-tag" placeholder="Enter House Rent">
+    </div>
+
+    <div class="span-four">
+      <label>OT Per Hour</label>
+      <input type="number" name="otRatePerHour" class="form-control input-tag" placeholder="Enter OT">
+    </div>
+
+    <div class="span-four">
+      <label>Bonus %</label>
+      <input type="number" name="bonus" class="form-control input-tag" placeholder="Enter Bonus">
+    </div>
+    
+    <div class="span-full form-subheading">
         <h1>Dependents Details</h1>
     </div>
 
@@ -284,7 +362,7 @@
       <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">DOB</span>
       <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">Relation</span>
     </div> 
-
+    
     <div class="span-full form-subheading">
       <h1>Dependents</h1>
     </div>
@@ -296,10 +374,17 @@
           <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly />
         </div>
     </div>
+
     <div class="span-full btn-grp">
       <button class="submit-btn" type="submit">Save Employee</button>
     </div>
   </form>
+</div>
+
+<!-- Image Preview Modal -->
+<div id="imageModal" class="image-modal">
+  <span class="close-btn">&times;</span>
+  <img id="modalImage" />
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
@@ -364,3 +449,28 @@
     reader.readAsDataURL(file);
   });
 </script>
+
+<script>
+  const previewImg = document.getElementById("empPhotoPreview");
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  const closeBtn = document.querySelector(".close-btn");
+
+  previewImg.addEventListener("click", () => {
+    if (!previewImg.src) return;
+
+    modalImg.src = previewImg.src;
+    modal.style.display = "flex";
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+</script>
+

@@ -218,7 +218,8 @@ router.post("/form/carequote", async (req, res) => {
 // route for systemid form.
 router.get("/form/ttr", async (req, res) => {
   let clients = await Client.distinct("clientName");
-  let ttrCount = await Ttr.countDocuments();
+  let ttrCount = await Ttr.countDocuments() + 1;
+  console.log(ttrCount);
 
   res.render("forms/ttr.ejs", {
     JS: "ttr.js",
@@ -409,6 +410,8 @@ router.post(
       };
 
       await Employee.create(employeeData);
+      console.log("BODY 👉", req.body);
+console.log("FILE 👉", req.file);
 
       req.flash("notification", "Employee created successfully!");
       res.redirect("/fairdesk/form/employee");
