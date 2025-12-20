@@ -112,6 +112,7 @@ router.get("/view", async (req, res) => {
     .lean();
 
   const jsonData = advances.map(a => ({
+    employeeId: a.employee?._id,   // ✅ ADD THIS
     employeeName: a.employee?.empName || "-",
     empId: a.employee?.empId || "-",
     currentBalance: a.currentBalance,
@@ -119,12 +120,50 @@ router.get("/view", async (req, res) => {
     updatedAt: new Date(a.updatedAt).toLocaleDateString(),
   }));
 
+
   res.render("display/advanceDisp", {
     jsonData,
     title: "Advance View",
     CSS: false,
     JS: false,
     navigator: "advance",
+  });
+});
+
+/* ================= EMPLOYEE ADVANCE LOG HISTORY ================= */
+router.get("/employee/:employeeId/logs", async (req, res) => {
+  const { employeeId } = req.params;
+
+  const logs = await AdvanceLog.find({ employee: employeeId })
+    .populate("employee", "empName empId")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!logs.length) {
+    return res.json({ history: [] });
+  }
+
+  const formatted = logs.map(l => ({
+    employeeName: l.employee?.empName || "-",
+    empId: l.employee?.empId || "-",
+
+    openingBalance: l.openingBalance,
+    amount: l.amount,
+    closingBalance: l.closingBalance,
+
+    type: l.type,       // CREDIT / DEBIT
+    source: l.source,   // MANUAL / PAYROLL
+    date: new Date(l.createdAt).toLocaleDateString(),
+  }));
+
+  const latest = logs[0];
+
+  res.json({
+    summary: {
+      currentBalance: latest.closingBalance,
+      status: latest.closingBalance === 0 ? "CLOSED" : "ACTIVE",
+    },
+    history: formatted,
   });
 });
 

@@ -5,6 +5,7 @@ import fairdeskRoute from "./routes/fairdesk_route.js";
 import payrollRoute from "./routes/payroll.js";
 import loanRoute from "./routes/loan.js";
 import advanceRoute from "./routes/advance.js";
+import employeeRoute from "./routes/employee.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -36,6 +37,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(dir_name, "public")));
 app.use("/bootstrap", express.static(dir_name + "/node_modules/bootstrap/dist"));
 
+
+app.use("/employeeImages", express.static(path.join(process.cwd(), "employeeImages")));
+
 /* ================= SESSION (THIS IS THE KEY) ================= */
 app.use(
   session({
@@ -62,17 +66,12 @@ app.use((req, res, next) => {
   next();
 });
 
-/* ================= TEST ROUTE (KEEP TEMPORARILY) ================= */
-app.get("/flash-test", (req, res) => {
-  req.flash("notification", "Flash is working 🔥");
-  res.redirect("/fairdesk/payroll/create");
-});
-
 /* ================= ROUTES ================= */
 app.use("/fairdesk", fairdeskRoute);
 app.use("/fairdesk/payroll", payrollRoute);
 app.use("/fairdesk/loan", loanRoute);
 app.use("/fairdesk/advance", advanceRoute);
+app.use("/fairdesk/employee", employeeRoute);
 
 /* ================= 404 ================= */
 app.all("*", (req, res) => {

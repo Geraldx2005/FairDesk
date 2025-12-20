@@ -96,6 +96,7 @@ router.get("/view", async (req, res) => {
     .lean();
 
   const jsonData = loans.map(l => ({
+    employeeId: l.employee?._id,   // ✅ ADD THIS
     employeeName: l.employee?.empName || "-",
     empId: l.employee?.empId || "-",
     currentBalance: l.currentBalance,
@@ -110,6 +111,43 @@ router.get("/view", async (req, res) => {
     CSS: false,
     JS: false,
     navigator: "loan",
+  });
+});
+
+/* ================= EMPLOYEE LOAN LOG HISTORY ================= */
+router.get("/employee/:employeeId/logs", async (req, res) => {
+  const { employeeId } = req.params;
+
+  const logs = await LoanLog.find({ employee: employeeId })
+    .populate("employee", "empName empId")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!logs.length) {
+    return res.json({ history: [] });
+  }
+
+  const formatted = logs.map(l => ({
+    employeeName: l.employee?.empName || "-",
+    empId: l.employee?.empId || "-",
+
+    openingBalance: l.openingBalance,
+    amount: l.amount,
+    closingBalance: l.closingBalance,
+
+    type: l.type,         // CREDIT / DEBIT
+    source: l.source,     // MANUAL / PAYROLL
+    date: new Date(l.createdAt).toLocaleDateString(),
+  }));
+
+  const latest = logs[0];
+
+  res.json({
+    summary: {
+      currentBalance: latest.closingBalance,
+      status: latest.closingBalance === 0 ? "CLOSED" : "ACTIVE",
+    },
+    history: formatted,
   });
 });
 

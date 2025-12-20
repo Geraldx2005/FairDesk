@@ -260,7 +260,20 @@
 
 <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
   <div class="indi-head">
-    <h1>Loans</h1>
+    <span style="display: flex; align-items: center; gap: 10px">
+      <button
+        id="backToSnapshot"
+        style="display:none;
+               background-color:transparent;
+               padding:2px 14px;
+               border: 1px solid #f0f0f0;
+               border-radius:0.3rem;
+               font-weight:500;
+               cursor:pointer;">
+        <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+      </button>
+      <h1>Loans</h1>      
+    </span>
 
     <div class="download-selector" id="downloadSelector">
       <button class="download-selector__trigger">
@@ -317,26 +330,84 @@
 
   /* ===== Table ===== */
   const tableData = <%- JSON.stringify(jsonData) %>;
+  const snapshotData = [...tableData];
 
-const table = new Tabulator("#master-table", {
-  data: tableData,
-
-  layout: "fitColumns",      // ✅ auto-fit columns
-  columnMinWidth: 120,       // ✅ prevents ultra-thin columns
-  resizableColumns: true,
-  movableColumns: true,
-
-  pagination: "local",
-  paginationSize: 30,
-
-    columns: [
-    { title: "Employee Name", field: "employeeName" },
+  const baseColumns = [
+    {
+      title: "Employee Name",
+      field: "employeeName",
+      formatter: function (cell) {
+        const data = cell.getRow().getData();
+        return `
+          <span
+            class="emp-link"
+            data-id="${data.employeeId}"
+            style="cursor:pointer; font-weight:600; text-decoration:underline;"
+          >
+            ${data.employeeName}
+          </span>
+        `;
+      }
+    },
     { title: "Employee ID", field: "empId" },
     { title: "Current Balance", field: "currentBalance" },
     { title: "Status", field: "status" },
     { title: "Last Updated", field: "updatedAt" },
-  ],
+  ];
+  const logColumns = [
+    { title: "Employee Name", field: "employeeName" },
+    { title: "Employee ID", field: "empId" },
+    { title: "Opening Balance", field: "openingBalance" },
+    { title: "Amount", field: "amount" },
+    { title: "Closing Balance", field: "closingBalance" },
+    { title: "Type", field: "type" },
+    { title: "Source", field: "source" },
+    { title: "Date", field: "date" },
+  ];
+
+  const table = new Tabulator("#master-table", {
+    data: tableData,
+
+    layout: "fitColumns",
+    columnMinWidth: 120,
+    resizableColumns: true,
+    movableColumns: true,
+
+    pagination: "local",
+    paginationSize: 30,
+
+    columns: baseColumns, // ✅ THIS IS THE KEY
+  });
+
+  document.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("emp-link")) return;
+
+  const employeeId = e.target.dataset.id;
+
+  const res = await fetch(`/fairdesk/loan/employee/${employeeId}/logs`);
+  const { history, summary } = await res.json();
+
+  if (!history.length) return;
+
+  table.setColumns(logColumns);
+  table.replaceData(history);
+
+  // 🔹 Update header status (shown ONCE)
+  document.querySelector(".indi-head h1").innerText =
+    `Loans — Outstanding: ₹${summary.currentBalance} (${summary.status})`;
+
+  document.getElementById("backToSnapshot").style.display = "inline-flex";
 });
+
+  document
+  .getElementById("backToSnapshot")
+  .addEventListener("click", () => {
+    table.setColumns(baseColumns);
+    table.replaceData(snapshotData);
+
+    document.querySelector(".indi-head h1").innerText = "Loans";
+    document.getElementById("backToSnapshot").style.display = "none";
+  });
 
   /* ===== Downloads ===== */
   document.getElementById("download-pdf").addEventListener("click", () => {

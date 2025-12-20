@@ -1,6 +1,7 @@
 import express from "express";
 import Employee from "../models/employee_model.js";
 import Payroll from "../models/Payroll.js";
+import PayrollLog from "../models/PayrollLog.js";
 import Loan from "../models/Loan.js";
 import LoanLog from "../models/LoanLog.js";
 import Advance from "../models/Advance.js";
@@ -45,14 +46,14 @@ router.post("/create", async (req, res) => {
       return res.redirect("back");
     }
 
-    /* ================= BLOCK DUPLICATE PAYROLL ================= */
-    const exists = await Payroll.findOne({
+    /* ================= BLOCK DUPLICATE PAYROLL (LOG LEVEL) ================= */
+    const alreadyLogged = await PayrollLog.findOne({
       employee: employeeId,
       month,
       year,
     });
 
-    if (exists) {
+    if (alreadyLogged) {
       req.flash(
         "error",
         "Payroll already exists for this employee and month"
@@ -60,55 +61,104 @@ router.post("/create", async (req, res) => {
       return res.redirect("back");
     }
 
-    /* ================= ADVANCE (FULL DEDUCTION RULE) ================= */
+    /* ================= ADVANCE (DEDUCTION RULE) ================= */
     const advanceRecord = await Advance.findOne({ employee: employeeId });
-
     let advanceDeduction = 0;
 
     if (advanceRecord && advanceRecord.currentBalance > 0) {
       const maxAdvanceAllowed = emp.basicSalary * 0.5;
-
-      // FULL deduction (advance itself is already capped at 50%)
       advanceDeduction = Math.min(
         advanceRecord.currentBalance,
         maxAdvanceAllowed
       );
     }
 
-    /* ================= SALARY CALCULATION ================= */
+    /* ================= ABSENT CALCULATION ================= */
     const totalDays = Number(presentDays) + Number(absentDays);
     const perDaySalary = totalDays ? emp.basicSalary / totalDays : 0;
     const absentAmount = Number(absentDays) * perDaySalary;
 
-    const grossSalary =
-      Number(emp.basicSalary) +
-      Number(incentive) +
-      Number(req.body.empOtAmount || 0);
+    /* ================= ADDITIONS ================= */
+    const otAmount = Number(req.body.empOtAmount || 0);
+    const houseRent = Number(req.body.houseRent || 0);
+    const travelling = Number(req.body.travelling || 0);
+    const railwayPass = Number(req.body.railwayPass || 0);
+    const bonus = Number(req.body.bonus || 0);
 
-    const totalDeduction =
-      Number(emp.empPF || 0) +
-      Number(emp.empESIC || 0) +
-      Number(emp.empPT || 0) +
-      Number(absentAmount) +
-      Number(advanceDeduction) +
-      Number(emiAmount);
+    const totalAdditions =
+      otAmount + houseRent + travelling + railwayPass + bonus;
 
-    // 🔒 Guard: net salary should never be negative
-    const netSalary = Math.max(grossSalary - totalDeduction, 0);
+    /* ================= GROSS SALARY ================= */
+    const grossSalary = Number(
+      (
+        Number(emp.basicSalary) +
+        totalAdditions +
+        Number(incentive)
+      ).toFixed(2)
+    );
 
-    /* ================= SAVE PAYROLL ================= */
-    await Payroll.create({
+    /* ================= TOTAL DEDUCTIONS ================= */
+    const totalDeduction = Number(
+      (
+        Number(emp.empPF || 0) +
+        Number(emp.empESIC || 0) +
+        Number(emp.empPT || 0) +
+        absentAmount +
+        advanceDeduction +
+        emiAmount
+      ).toFixed(2)
+    );
+
+    /* ================= TAKE AWAY ================= */
+    const takeAway = Number(
+      Math.max(grossSalary - totalDeduction, 0).toFixed(2)
+    );
+
+    /* ================= UPSERT PAYROLL (SNAPSHOT) ================= */
+    const payroll = await Payroll.findOneAndUpdate(
+      { employee: emp._id },
+      {
+        employee: emp._id,
+        month,
+        year,
+        presentDays,
+        absentDays,
+        otHours: othrs,
+
+        baseSalary: emp.basicSalary,
+        totalAdditions,
+        incentive,
+        advance: advanceDeduction,
+
+        grossSalary,
+        totalDeduction,
+        takeAway,
+      },
+      { upsert: true, new: true }
+    );
+
+    /* ================= PAYROLL LOG (HISTORY) ================= */
+    await PayrollLog.create({
       employee: emp._id,
+      payroll: payroll._id,
+
       month,
       year,
+
+      baseSalary: emp.basicSalary,
       presentDays,
       absentDays,
       otHours: othrs,
+
+      totalAdditions,
       incentive,
       advance: advanceDeduction,
+
       grossSalary,
       totalDeduction,
-      netSalary,
+      takeAway,
+
+      source: "SYSTEM",
     });
 
     /* ================= LOAN EMI (LOGGED) ================= */
@@ -168,36 +218,35 @@ router.post("/create", async (req, res) => {
   }
 });
 
-/* ================= FETCH EMPLOYEE ================= */
-router.get("/employee/:id", async (req, res) => {
-  const emp = await Employee.findById(req.params.id).lean();
-  res.json(emp);
-});
-
 /* ================= FETCH LOAN ================= */
 router.get("/loan/:employeeId", async (req, res) => {
-  const loan = await Loan.findOne({
-    employee: req.params.employeeId,
-  }).lean();
-
+  const loan = await Loan.findOne({ employee: req.params.employeeId }).lean();
   res.json(loan || { currentBalance: 0 });
 });
 
 /* ================= FETCH ADVANCE ================= */
 router.get("/advance/:employeeId", async (req, res) => {
-  const advance = await Advance.findOne({
-    employee: req.params.employeeId,
-  }).lean();
-
+  const advance = await Advance.findOne({ employee: req.params.employeeId }).lean();
   res.json(advance || { currentBalance: 0 });
 });
 
-/* ================= PAYROLL DISPLAY ================= */
+/* ================= PAYROLL DISPLAY (LATEST PER EMPLOYEE) ================= */
 router.get("/view", async (req, res) => {
-  const payrolls = await Payroll.find()
-    .populate("employee", "empName empId basicSalary")
-    .sort({ createdAt: -1 })
-    .lean();
+  const payrolls = await Payroll.aggregate([
+    { $sort: { year: -1, month: -1, createdAt: -1 } },
+    {
+      $group: {
+        _id: "$employee",
+        latestPayroll: { $first: "$$ROOT" },
+      },
+    },
+    { $replaceRoot: { newRoot: "$latestPayroll" } },
+  ]);
+
+  await Payroll.populate(payrolls, {
+    path: "employee",
+    select: "empName empId basicSalary",
+  });
 
   const monthMap = {
     1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",
@@ -206,20 +255,24 @@ router.get("/view", async (req, res) => {
   };
 
   const jsonData = payrolls.map(p => ({
+    employeeId: p.employee?._id,
     employeeName: p.employee?.empName || "-",
     empId: p.employee?.empId || "-",
     month: monthMap[p.month],
     year: p.year,
+
     presentDays: p.presentDays,
     absentDays: p.absentDays,
     otHours: p.otHours,
+
     basicSalary: p.employee?.basicSalary || 0,
+    totalAdditions: p.totalAdditions || 0,
     incentive: p.incentive || 0,
     advance: p.advance || 0,
+
     grossSalary: p.grossSalary,
     totalDeduction: p.totalDeduction,
-    netSalary: p.netSalary,
-    createdAt: new Date(p.createdAt).toLocaleDateString(),
+    takeAway: p.takeAway,
   }));
 
   res.render("display/payrollDisp", {
@@ -231,5 +284,62 @@ router.get("/view", async (req, res) => {
   });
 });
 
+/* ================= EMPLOYEE PAYROLL HISTORY ================= */
+router.get("/employee/:id/payrolls", async (req, res) => {
+  try {
+    const logs = await PayrollLog.find({ employee: req.params.id })
+      .sort({ year: -1, month: -1 })
+      .populate("employee", "empName empId")
+      .lean();
+
+    const history = logs.map(p => ({
+      employeeId: p.employee?._id,
+      employeeName: p.employee?.empName || "-",
+      empId: p.employee?.empId || "-",
+
+      month: p.month,
+      year: p.year,
+
+      presentDays: p.presentDays,
+      absentDays: p.absentDays,
+      otHours: p.otHours,
+
+      basicSalary: p.baseSalary,
+      totalAdditions: p.totalAdditions,
+      incentive: p.incentive,
+      advance: p.advance,
+
+      grossSalary: p.grossSalary,
+      totalDeduction: p.totalDeduction,
+      takeAway: p.takeAway,
+    }));
+
+    res.json({ history });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ history: [] });
+  }
+});
+
+/* ================= FETCH EMPLOYEE (FOR PAYROLL & ADVANCE) ================= */
+router.get("/employee/:id", async (req, res) => {
+  try {
+    const emp = await Employee.findById(req.params.id)
+      .select("empId empName basicSalary")
+      .lean();
+
+    if (!emp) return res.status(404).json(null);
+
+    res.json({
+      _id: emp._id,
+      empId: emp.empId,
+      empName: emp.empName,
+      basicSalary: emp.basicSalary,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(null);
+  }
+});
 
 export default router;

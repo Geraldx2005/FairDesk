@@ -260,7 +260,20 @@
 
 <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
   <div class="indi-head">
-    <h1>Payrolls</h1>
+    <span style="display: flex; align-items: center; gap: 10px">
+      <button
+        id="backToSnapshot"
+        style="display:none;
+               background-color:transparent;
+               padding:2px 14px;
+               border: 1px solid #f0f0f0;
+               border-radius:0.3rem;
+               font-weight:500;
+               cursor:pointer;">
+        <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+      </button>
+      <h1>Payroll</h1>      
+    </span>
 
     <div class="download-selector" id="downloadSelector">
       <button class="download-selector__trigger">
@@ -319,30 +332,82 @@
   /* ================= TABLE ================= */
 
   const tableData = <%- JSON.stringify(jsonData) %>;
+  const snapshotData = [...tableData];
 
   const table = new Tabulator("#master-table", {
     data: tableData,
-    layout: "fitDataTable",
+    layout: "fitColumns",
     pagination: "local",
     paginationSize: 30,
     movableColumns: true,
+
+    movableColumns: true,
     columns: [
-      { title: "Employee Name", field: "employeeName" },
-      { title: "Employee ID", field: "empId" },
-      { title: "Month", field: "month" },
-      { title: "Year", field: "year" },
-      { title: "Present Days", field: "presentDays" },
-      { title: "Absent Days", field: "absentDays" },
-      { title: "OT Hours", field: "otHours" },
-      { title: "Basic Salary", field: "basicSalary" },
-      { title: "Incentive", field: "incentive" },
-      { title: "Advance", field: "advance" },
-      { title: "Gross Salary", field: "grossSalary" },
-      { title: "Total Deduction", field: "totalDeduction" },
-      { title: "Net Salary", field: "netSalary" },
-      { title: "Created At", field: "createdAt" },
-    ],
+  {
+  title: "Employee Name",
+  field: "employeeName",
+  minWidth: 180,
+  maxWidth: 240,   // ⬅️ this is the key
+  formatter: function (cell) {
+    const data = cell.getRow().getData();
+    return `
+      <span
+        class="emp-link"
+        data-id="${data.employeeId}"
+        title="${data.employeeName}"
+        style="
+          cursor:pointer;
+          font-weight:600;
+          text-decoration:underline;
+          display:block;
+          white-space:nowrap;
+          overflow:hidden;
+          text-overflow:ellipsis;
+        "
+      >
+        ${data.employeeName}
+      </span>
+    `;
+  }
+}
+,
+
+  { title: "Employee ID", field: "empId", minWidth: 160 },
+  { title: "Month", field: "month", minWidth: 90 },
+  { title: "Year", field: "year", minWidth: 80 },
+  { title: "Present", field: "presentDays", minWidth: 80 },
+  { title: "Absent", field: "absentDays", minWidth: 80 },
+  { title: "OT hrs", field: "otHours", minWidth: 80 },
+  { title: "Salary", field: "basicSalary", minWidth: 110 },
+  { title: "Total Additions", field: "totalAdditions", minWidth: 140 },
+  { title: "Incentive", field: "incentive", minWidth: 100 },
+  { title: "Gross Salary", field: "grossSalary", minWidth: 130 },
+  { title: "Deduction", field: "totalDeduction", minWidth: 120 },
+  { title: "Take Away", field: "takeAway", minWidth: 120 },
+]
+
   });
+
+  document.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("emp-link")) return;
+
+  const employeeId = e.target.dataset.id;
+
+  const res = await fetch(
+    `/fairdesk/payroll/employee/${employeeId}/payrolls`
+  );
+
+  const { history } = await res.json();
+
+  if (!history || !history.length) return;
+
+  // 🔁 Replace table with full payroll history
+  table.replaceData(history);
+
+  // 👈 Show back button
+  document.getElementById("backToSnapshot").style.display = "inline-flex";
+});
+
 
   /* ================= DOWNLOAD ACTIONS ================= */
 
@@ -359,5 +424,12 @@
       sheetName: "Payroll",
     });
     downloadSelector.classList.remove("download-selector--active");
+  });
+
+  document
+  .getElementById("backToSnapshot")
+  .addEventListener("click", () => {
+    table.replaceData(snapshotData);
+    document.getElementById("backToSnapshot").style.display = "none";
   });
 </script>

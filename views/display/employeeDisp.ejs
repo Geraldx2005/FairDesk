@@ -340,37 +340,38 @@
   function initTable() {
     table = new Tabulator("#master-table", {
       data: tableData,
-      layout: "fitDataTable",
-      pagination: "local",
-      paginationSize: 30,
-      movableColumns: true,
+      layout: "fitColumns",
+    columnMinWidth: 120,
+    resizableColumns: true,
+    movableColumns: true,
+
+    pagination: "local",
+    paginationSize: 30,
       columns: [
-        { title: "Name", field: "empName" },
-        { title: "Dob", field: "empDob" },
-        { title: "Gender", field: "empGender" },
-        { title: "Mobile 1", field: "empMobile1" },
-        { title: "Mobile 2", field: "empMobile2" },
-        { title: "Emergency No 1", field: "empEmergencyNo1" },
-        { title: "Emergency No 2", field: "empEmergencyNo2" },
-        { title: "Email", field: "empEmail" },
-        { title: "Martial Status", field: "empMartialStatus" },
-        { title: "Present Address", field: "empPresentAddress" },
-        { title: "Permanent Address", field: "empPermanentAddress" },
-        { title: "Hobbies", field: "empHobbies" },
+        {
+          title: "Name",
+          field: "empName",
+          formatter: function (cell) {
+          const data = cell.getRow().getData();
+          return `
+            <a
+              href="/fairdesk/employee/profile/${data._id}"
+              target="_blank"
+              style="font-weight:600;text-decoration:underline;color:#1a1a2e"
+            >
+              ${data.empName}
+            </a>
+          `;
+        }
+
+        },
         { title: "Employee Id", field: "empId" },
-        { title: "Date of Joining", field: "empDateOfJoining" },
-        { title: "Employee Type", field: "empType" },
         { title: "Reporting Manager", field: "empReportingManager" },
-        { title: "Department", field: "empDept" },
-        { title: "Location", field: "empLoc" },
         { title: "Office Mobile", field: "empOfficeMob" },
         { title: "Office Email", field: "empOfficeEmailId" },
-        { title: "Aadhaar", field: "empAadhaar" },
-        { title: "PAN", field: "empPan" },
-        { title: "Bank Name", field: "empBankName" },
-        { title: "Account Holder Name", field: "empAccountHolderName" },
-        { title: "Account No", field: "empAccNo" },
-        { title: "IFSC Code", field: "empIfscCode" },
+        { title: "Employee Type", field: "empType" },
+        { title: "Department", field: "empDept" },
+        { title: "Location", field: "empLoc" },
       ],
     });
   }

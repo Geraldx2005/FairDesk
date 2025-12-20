@@ -86,10 +86,10 @@
       <div class="side-nav nav-panel-toggle">
         <div title="Expand" class="nav-items nav-toggle">
           <i class="fa-solid fa-bars" style="color: #ffffff"></i>
-          <p class="nav-items-para">Navigation</p>
+          <p class="nav-items-para">HR</p>
         </div>
 
-        <!-- <div class="nav-opt-wrap">
+        <div class="nav-opt-wrap">
           <div title="View" class="view-toggle nav-items">
             <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
             <p class="nav-items-para">View</p>
@@ -101,9 +101,9 @@
               <p class="nav-items-para">Client View</p>
             </div>
           </div>
-        </div> -->
+        </div>
 
-        <!-- <div class="nav-opt-wrap">
+        <div class="nav-opt-wrap">
           <div title="Masters" class="masters-toggle nav-items">
             <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
             <p class="nav-items-para">Masters</p>
@@ -135,7 +135,7 @@
               <p class="nav-items-para">Die</p>
             </div>
           </div>
-        </div> -->
+        </div>
 
         
 
@@ -187,59 +187,95 @@
           </div> -->
 
         <div class="nav-opt-wrap">
-          <div title="Masters" class="masters-toggle nav-items">
-            <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
-            <p class="nav-items-para">HR</p>
-          </div>
-          
-          <div class="nav-labels-opt">
+  <div title="Masters" class="masters-toggle nav-items">
+    <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
+    <p class="nav-items-para">HR</p>
+  </div>
 
-            <div title="Employee View" class="<%= title === 'Employee View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/disp/employeedisp'" style="border-top: 2px solid #ffffff9d;">
-              <i class="fa-solid fa-users-viewfinder" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Emp View</p>
-            </div>
-                        
-            <div title="Loan View" class="<%= title === 'Loan View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/loan/view'">
-              <i class="fa-solid fa-handshake" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Loan View</p>
-            </div>
-            
-            <div title="Advance View" class="<%= title === 'Advance View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/advance/view'">
-              <i class="fa-solid fa-binoculars" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Advance View</p>
-            </div>           
+  <div class="nav-labels-opt">
 
-            <div title="Payroll View" class="<%= title === 'Payroll View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/payroll/view'" style="border-bottom: 2px solid #ffffff9d; margin-bottom: 5px;">
-              <i class="fa-solid fa-address-book" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Payroll View</p>
-            </div> 
-            
-             <div title="Employee Details" class="<%= title === 'Employee Details' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/employee'" style="border-top: 2px solid #ffffff9d;">
-              <i class="fa-solid fa-users" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Emp Details</p>
-            </div>           
+    <!-- ===== VIEW HEADING ===== -->
+    <div class="nav-items" style="cursor:default; opacity:0.6; pointer-events:none;">
+      <p class="nav-items-para" style="font-size:11px; letter-spacing:1px;">
+        VIEWS
+      </p>
+    </div>
 
-            <div title="Loan" class="<%= title === 'Loan' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/loan/create'" >
-              <i class="fa-solid fa-landmark" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Loan</p>
-            </div>
+    <div title="Employee View"
+      class="<%= title === 'Employee View' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/employee/view'"
+      style="border-top: 2px solid #ffffff9d;">
+      <i class="fa-solid fa-users-viewfinder" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Emp View</p>
+    </div>
 
-            <div title="Advance" class="<%= title === 'Advance' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/advance/create'" >
-              <i class="fa-solid fa-arrow-up-1-9" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Advance</p>
-            </div>              
+    <div title="Loan View"
+      class="<%= title === 'Loan View' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/loan/view'">
+      <i class="fa-solid fa-handshake" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Loan View</p>
+    </div>
 
-            <div title="Payroll" class="<%= title === 'Payroll' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/payroll/create'" style="border-bottom: 2px solid #ffffff9d;" >
-              <i class="fa-regular fa-money-bill-1" style="color: #ffffff;"></i>
-              <p class="nav-items-para">Payroll</p>
-            </div>          
-          </div>
-        </div>      
-        
-        <!-- <div title="Production Calculator" class="<%= title === 'Production Calculator' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/prodcalc'">
+    <div title="Advance View"
+      class="<%= title === 'Advance View' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/advance/view'">
+      <i class="fa-solid fa-binoculars" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Advance View</p>
+    </div>
+
+    <div title="Payroll View"
+      class="<%= title === 'Payroll View' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/payroll/view'"
+      style="border-bottom: 2px solid #ffffff9d; margin-bottom:5px;">
+      <i class="fa-solid fa-address-book" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Payroll View</p>
+    </div>
+
+    <!-- ===== DATA ENTRY HEADING ===== -->
+    <div class="nav-items" style="cursor:default; opacity:0.6; pointer-events:none;">
+      <p class="nav-items-para" style="font-size:11px; letter-spacing:1px;">
+        DATA ENTRY
+      </p>
+    </div>
+
+    <div title="Employee Details"
+      class="<%= title === 'Employee Details' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/employee/create'"
+      style="border-top: 2px solid #ffffff9d;">
+      <i class="fa-solid fa-users" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Emp Details</p>
+    </div>
+
+    <div title="Loan"
+      class="<%= title === 'Loan' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/loan/create'">
+      <i class="fa-solid fa-landmark" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Loan</p>
+    </div>
+
+    <div title="Advance"
+      class="<%= title === 'Advance' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/advance/create'">
+      <i class="fa-solid fa-arrow-up-1-9" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Advance</p>
+    </div>
+
+    <div title="Payroll"
+      class="<%= title === 'Payroll' ? 'nav-items active' : 'nav-items' %>"
+      onclick="window.location.href = '/fairdesk/payroll/create'"
+      style="border-bottom: 2px solid #ffffff9d;">
+      <i class="fa-regular fa-money-bill-1" style="color:#ffffff;"></i>
+      <p class="nav-items-para">Payroll</p>
+    </div>
+
+  </div>
+</div>
+
+
+        <div title="Production Calculator" class="<%= title === 'Production Calculator' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/prodcalc'">
           <i class="fa-solid fa-industry" style="color: #ffffff"></i>
           <p class="nav-items-para">Production Calculator</p>
-        </div> -->
+        </div>
           
       </div>
 

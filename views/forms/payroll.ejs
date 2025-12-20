@@ -180,10 +180,11 @@
     </div>
 
     <div class="span-five">
-      <label>Net Salary</label>
+      <label>Take Away</label>
       <input
         type="number"
-        id="net-salary"
+        id="take-away"
+        name="takeAway"
         class="form-control input-tag"
         readonly
         value="0"
@@ -244,8 +245,8 @@
   otHoursInput.addEventListener("input", calculateOTAmount);
 
   async function fetchEmployee(id) {
-    return (await fetch(`/fairdesk/payroll/employee/${id}`)).json();
-  }
+  return (await fetch(`/fairdesk/employee/${id}`)).json();
+}
 
   async function fetchLoan(id) {
     const res = await fetch(`/fairdesk/payroll/loan/${id}`);
@@ -327,7 +328,7 @@
 <script>
   const incentiveInput = document.querySelector('[name="incentive"]');
   const grossSalaryInput = document.getElementById("gross-salary");
-  const netSalaryInput = document.getElementById("net-salary");
+  const takeAwayInput = document.getElementById("take-away");
 
   function calculateSalaryPreview() {
     const basic = Number(baseSalaryInput.value || 0);
@@ -348,10 +349,10 @@
       absentAmount;
 
     const gross = basic + incentive + otAmount;
-    const net = gross - deductions;
+    const takeAway = gross - deductions;
 
     grossSalaryInput.value = Math.round(gross);
-    netSalaryInput.value = Math.round(net);
+    takeAwayInput.value = Math.round(takeAway);
   }
 
   // 🔁 Recalculate on changes

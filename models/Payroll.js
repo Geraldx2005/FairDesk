@@ -45,9 +45,14 @@ const payrollSchema = new mongoose.Schema(
       default: 0
     },
 
+    totalAdditions: {
+      type: Number,
+      default: 0,
+    },
+
     grossSalary: Number,
     totalDeduction: Number,
-    netSalary: Number,
+    takeAway: Number,
     reason: String
   },
   { timestamps: true }
