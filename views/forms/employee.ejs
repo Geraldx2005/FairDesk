@@ -84,7 +84,7 @@
         <h1>Employment</h1>
     </div>    
 
-    <div class="span-five">
+    <div class="span-seven">
       <label for="emp-id">Employee ID</label>
       <input type="text" value="FS | EMPLOYEE | <%= employeeCount.toString().padStart(3, '0') %>" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
     </div>
@@ -98,12 +98,23 @@
       <label for="emp-type">Employee Type</label>
        <select name="empType" id="emp-type" class="form-control select-tag" required>
         <option value="" disabled selected hidden>Select</option>
-        <option value="PERMANENT">PERMANENT</option>
+        <option value="SKILLED">SKILLED</option>
+        <option value="UNSKILLED">UNSKILLED</option>
+       </select>
+    </div>
+
+    <div class="span-six">
+      <label for="emp-under">Under</label>
+       <select name="empUnder" id="emp-under" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select</option>
+        <option value="TECH">TECH</option>
+        <option value="TAGS">TAGS</option>
+        <option value="SACHIKO">SACHIKO</option>
         <option value="CONTRACT">CONTRACT</option>
        </select>
     </div>   
     
-    <div class="span-dual">
+    <div class="span-seven">
       <label for="emp-loc">Location</label>
         <select name="empLoc" id="emp-loc" class="form-control select-tag" required>
          <option value="" disabled selected hidden>Select</option>
@@ -119,24 +130,24 @@
       <input type="text" id="emp-dept" class="form-control input-tag" name="empDept" placeholder="Enter Department" required/>
     </div>
 
-    <div class="span-dual">
+    <div class="span-six">
       <label for="emp-reporting-manager">Reporting Manager</label>
       <input type="text" id="emp-reporting-manager" class="form-control input-tag" name="empReportingManager" placeholder="Enter Reporting Manager" required/>
     </div>
 
-    <div class="span-dual">
+    <div class="span-six">
       <label for="emp-profile">Profile</label>
       <input type="text" id="emp-profile" class="form-control input-tag" name="empProfile" placeholder="Enter Profile" required/>
     </div>
 
-    <div class="span-dual">
+    <div class="span-six">
       <label for="emp-office-mob">Office Mobile No</label>
-      <input type="text" id="emp-office-mob" class="form-control input-tag" name="empOfficeMob" placeholder="Enter Office Mobile No" required/>
+      <input type="text" inputmode="numeric" id="emp-office-mob" class="form-control input-tag" name="empOfficeMob" placeholder="Enter Office Mobile No" required/>
     </div>
 
-    <div class="span-dual">
+    <div class="span-seven">
       <label for="emp-office-email-id">Office Email ID</label>
-      <input type="text" id="emp-office-email-id" class="form-control input-tag" name="empOfficeEmailId" placeholder="Enter Office Email ID" required/>
+      <input type="email" id="emp-office-email-id" class="form-control input-tag" name="empOfficeEmailId" placeholder="Enter Office Email ID" required/>
     </div>
 
     <div class="span-full form-subheading">
@@ -164,27 +175,27 @@
 
     <div class="span-six">
       <label for="emp-mobile1">Mobile No 1</label>
-      <input type="number" id="emp-mobile1" class="form-control input-tag" maxlength="10" name="empMobile1" placeholder="Enter Mobile No 1" required/>
+      <input type="text" inputmode="numeric"  id="emp-mobile1" class="form-control input-tag" name="empMobile1" placeholder="Enter Mobile No 1" required/>
     </div>
 
     <div class="span-six">
       <label for="emp-mobile2">Mobile No 2</label>
-      <input type="number" id="emp-mobile2" class="form-control input-tag" maxlength="10" name="empMobile2" placeholder="Enter Mobile No 2" required/>
+      <input type="text" inputmode="numeric" id="emp-mobile2" class="form-control input-tag" name="empMobile2" placeholder="Enter Mobile No 2" required/>
     </div>
 
     <div class="span-six">
       <label for="emp-emergency-no1">Emergency No 1</label>
-      <input type="number" id="emp-emergency-no1" class="form-control input-tag" maxlength="10" name="empEmergencyNo1" placeholder="Enter emergency No" required/>
+      <input type="text" inputmode="numeric" id="emp-emergency-no1" class="form-control input-tag" name="empEmergencyNo1" placeholder="Enter emergency No" required/>
     </div> 
 
     <div class="span-six">
       <label for="emp-emergency-no2">Emergency No 2</label>
-      <input type="number" id="emp-emergency-no2" class="form-control input-tag" maxlength="10" name="empEmergencyNo2" placeholder="Enter emergency No" required/>
+      <input type="text" inputmode="numeric" id="emp-emergency-no2" class="form-control input-tag" name="empEmergencyNo2" placeholder="Enter emergency No" required/>
     </div>    
 
     <div class="span-seven">
       <label for="emp-email">Email</label>
-      <input type="text" id="emp-email" class="form-control input-tag" name="empEmail" placeholder="Enter Email" required />
+      <input type="email" id="emp-email" class="form-control input-tag" name="empEmail" placeholder="Enter Email" required />
     </div>
 
     <div class="span-six">
@@ -203,7 +214,7 @@
 
     <div class="span-penta">
       <label for="emp-present-address">Present Address</label>
-      <textarea  id="emp-present-address"  class="form-control input-tag"  name="empPresentAddress"  placeholder="Enter Employee Present Address" rows="3" style="border: 1px solid #1a1a2e; resize: none;" required></textarea>
+      <textarea  id="emp-present-address" class="form-control input-tag"  name="empPresentAddress"  placeholder="Enter Employee Present Address" rows="3" style="border: 1px solid #1a1a2e; resize: none;" required></textarea>
     </div>
 
     <div class="span-hexa">
@@ -213,7 +224,7 @@
     
     <div class="span-penta">
         <label for="emp-hobbies">Hobbies & Interests</label>
-        <textarea id="emp-hobbies"  class="form-control input-tag"  name="empHobbies"  placeholder="Enter Employee Hobbies & Interests"  rows="3" style="border: 1px solid #1a1a2e; resize: none;"  required></textarea>
+        <textarea id="emp-hobbies" class="form-control input-tag"  name="empHobbies"  placeholder="Enter Employee Hobbies & Interests"  rows="3" style="border: 1px solid #1a1a2e; resize: none;"  required></textarea>
     </div>
 
     <div class="span-full form-subheading">
@@ -224,25 +235,19 @@
       <img id="empPhotoPreview" alt="Preview" />
       <div class="photo-upload-wrapper">
         <label for="emp-photo">Photo</label>
-        <input
-          type="file"
-          id="emp-photo"
-          class="form-control input-tag"
-          name="empPhoto"
-          accept="image/*"
-        />
+        <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" accept="image/*" />
       </div>
     </div>
  
 
     <div class="span-penta">
       <label for="emp-aadhaar">Aadhaar</label>
-      <input type="text" id="emp-aadhaar" class="form-control input-tag" name="empAadhaar" placeholder="Enter Aadhaar" />
+      <input type="text" inputmode="numeric" id="emp-aadhaar" class="form-control input-tag" name="empAadhaar" placeholder="Enter Aadhaar" />
     </div>
 
     <div class="span-penta">
       <label for="emp-pan">PAN</label>
-      <input type="text" id="emp-pan" class="form-control input-tag" name="empPan" placeholder="Enter PAN" required />
+      <input type="text" id="emp-pan" class="form-control input-tag" maxlength="10" name="empPan" placeholder="Enter PAN" required />
     </div>    
 
     <div class="span-full form-subheading">
@@ -256,17 +261,17 @@
 
     <div class="span-dual">
       <label for="emp-account-holder-name">Account Holder Name</label>
-      <input type="text" id="emp-account-holder-name" class="form-control input-tag" name="empAccountHolderName" placeholder="Enter Account Holder Name" required/>
+      <input type="text" id="emp-account-holder-name" class="form-control input-tag" name="empAccountHolderName" placeholder="Enter Account Holder Name" required />
     </div>
 
     <div class="span-dual">
       <label for="emp-acc-no">Account No</label>
-      <input type="text" id="emp-acc-no" class="form-control input-tag" name="empAccNo" placeholder="Enter Account No" required/>
+      <input type="text" id="emp-acc-no" class="form-control input-tag" name="empAccNo" placeholder="Enter Account No" required />
     </div>
 
     <div class="span-dual">
       <label for="emp-ifsc-code">IFSC Code</label>
-      <input type="text" id="emp-ifsc-code" class="form-control input-tag" name="empIfscCode" placeholder="Enter IFSC Code" required/>
+        <input type="text" id="emp-ifsc-code" class="form-control input-tag" name="empIfscCode" placeholder="Enter IFSC Code" maxlength="11" autocomplete="off" required />
     </div>
 
     <div class="span-full form-subheading">
@@ -346,15 +351,9 @@
       <input type="number" name="bonus" class="form-control input-tag" placeholder="Enter Bonus">
     </div>
     
-    <div class="span-full form-subheading">
+    <div class="span-full form-subheading" style="display: flex; align-items: center;">
         <h1>Dependents Details</h1>
-    </div>
-
-    <div class="dependent-count span-half" style="grid-column: span 32;">
-      <label>No. of Dependents</label>
-      <div class="dependents-count" style="width: 100%; display: flex; justify-content: space-between; gap: 10px;">
-        <input type="text" id="dependents-count" class="form-control" name="dependentsCount" placeholder="Enter Dependents Count"/>              
-      </div>
+        <input type="text" id="dependents-count" style="width: 130px; height: 25px; margin-left: 20px;"  maxlength="2" class="form-control" name="dependentsCount" placeholder="Dependents Count"/>
     </div>
 
     <div class="dependent-headings" style="margin-bottom: 0px; grid-column: span 32; background-color: #1a1a2e; color: white; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;"> 
@@ -362,10 +361,6 @@
       <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">DOB</span>
       <span style="flex: 1; font-size: 16px; font-weight: 600; padding-left: 15px;">Relation</span>
     </div> 
-    
-    <div class="span-full form-subheading">
-      <h1>Dependents</h1>
-    </div>
     
     <div id="dependents-details" style="grid-column: span 32;">
         <div class="dependents-details" style="margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
@@ -473,4 +468,82 @@
     }
   });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* ================= MOBILE FORMATTER ================= */
+  function mobileInputFormatter(input) {
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+      let digits = input.value.replace(/\D/g, "").slice(0, 10);
+
+      // space after 5 digits → 98765 43210
+      if (digits.length > 5) {
+        digits = digits.slice(0, 5) + " " + digits.slice(5);
+      }
+
+      input.value = digits;
+    });
+  }
+
+  /* ================= EMAIL FORMATTER ================= */
+  function emailInputFormatter(input) {
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+      input.value = input.value.replace(/\s+/g, "").toLowerCase();
+    });
+  }
+
+  /* ================= APPLY FORMATTERS ================= */
+  [
+    "emp-office-mob",
+    "emp-mobile1",
+    "emp-mobile2",
+    "emp-emergency-no1",
+    "emp-emergency-no2",
+  ].forEach(id => mobileInputFormatter(document.getElementById(id)));
+
+  [
+    "emp-email",
+    "emp-office-email-id",
+  ].forEach(id => emailInputFormatter(document.getElementById(id)));
+
+  /* ================= CLEAN BEFORE SUBMIT ================= */
+  const form = document.querySelector("form");
+
+  form.addEventListener("submit", () => {
+    [
+      "emp-office-mob",
+      "emp-mobile1",
+      "emp-mobile2",
+      "emp-emergency-no1",
+      "emp-emergency-no2",
+      "emp-aadhaar",
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = el.value.replace(/\s/g, "");
+    });
+  });
+
+});
+
+/* ================= AADHAAR FORMATTER ================= */
+function aadhaarInputFormatter(input) {
+  if (!input) return;
+
+  input.addEventListener("input", () => {
+    let digits = input.value.replace(/\D/g, "").slice(0, 12);
+
+    // format as XXXX XXXX XXXX
+    let formatted = digits.match(/.{1,4}/g);
+    input.value = formatted ? formatted.join(" ") : "";
+  });
+}
+
+aadhaarInputFormatter(document.getElementById("emp-aadhaar"));
+</script>
+
 

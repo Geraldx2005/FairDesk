@@ -338,43 +338,46 @@
   let table;
 
   function initTable() {
-    table = new Tabulator("#master-table", {
-      data: tableData,
-      layout: "fitColumns",
+  table = new Tabulator("#master-table", {
+    data: tableData,
+    layout: "fitColumns",
     columnMinWidth: 120,
     resizableColumns: true,
     movableColumns: true,
-
     pagination: "local",
     paginationSize: 30,
-      columns: [
-        {
-          title: "Name",
-          field: "empName",
-          formatter: function (cell) {
-          const data = cell.getRow().getData();
-          return `
-            <a
-              href="/fairdesk/employee/profile/${data._id}"
-              target="_blank"
-              style="font-weight:600;text-decoration:underline;color:#1a1a2e"
-            >
-              ${data.empName}
-            </a>
-          `;
-        }
 
+    columns: [
+      {
+        title: "Name",
+        field: "empName",
+        formatter: function (cell) {
+          return `
+            <span style="font-weight:600;color:#1a1a2e;text-decoration:underline">
+              ${cell.getValue()}
+            </span>
+          `;
         },
-        { title: "Employee Id", field: "empId" },
-        { title: "Reporting Manager", field: "empReportingManager" },
-        { title: "Office Mobile", field: "empOfficeMob" },
-        { title: "Office Email", field: "empOfficeEmailId" },
-        { title: "Employee Type", field: "empType" },
-        { title: "Department", field: "empDept" },
-        { title: "Location", field: "empLoc" },
-      ],
-    });
-  }
+        cellClick: function (e, cell) {
+          const data = cell.getRow().getData();
+          window.open(
+            `/fairdesk/employee/profile/${data._id}`,
+            "_blank"
+          );
+        },
+      },
+
+      { title: "Employee Id", field: "empId" },
+      { title: "Reporting Manager", field: "empReportingManager" },
+      { title: "Office Mobile", field: "empOfficeMob" },
+      { title: "Office Email", field: "empOfficeEmailId" },
+      { title: "Employee Type", field: "empType" },
+      { title: "Department", field: "empDept" },
+      { title: "Location", field: "empLoc" },
+    ],
+  });
+}
+
 
   window.addEventListener("load", initTable);
 
