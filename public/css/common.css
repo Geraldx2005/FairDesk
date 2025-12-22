@@ -550,3 +550,8 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* span vertically for specific fields */
+.span-row-2 {
+  grid-row: span 2;
+}

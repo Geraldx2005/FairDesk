@@ -84,7 +84,7 @@
         <h1>Employment</h1>
     </div>    
 
-    <div class="span-seven">
+    <div class="span-six">
       <label for="emp-id">Employee ID</label>
       <input type="text" value="FS | EMPLOYEE | <%= employeeCount.toString().padStart(3, '0') %>" id="emp-id" class="form-control input-tag" name="empId" placeholder="Enter Employee ID" required/>
     </div>
@@ -94,7 +94,7 @@
       <input type="date" id="emp-date-of-joining" class="form-control input-tag" name="empDateOfJoining" placeholder="Enter Date of Joining" required/>
     </div>
 
-    <div class="span-six">
+    <div class="span-five">
       <label for="emp-type">Employee Type</label>
        <select name="empType" id="emp-type" class="form-control select-tag" required>
         <option value="" disabled selected hidden>Select</option>
@@ -103,7 +103,7 @@
        </select>
     </div>
 
-    <div class="span-six">
+    <div class="span-four">
       <label for="emp-under">Under</label>
        <select name="empUnder" id="emp-under" class="form-control select-tag" required>
         <option value="" disabled selected hidden>Select</option>
@@ -114,18 +114,31 @@
        </select>
     </div>   
     
-    <div class="span-seven">
+    <div class="span-four">
       <label for="emp-loc">Location</label>
-        <select name="empLoc" id="emp-loc" class="form-control select-tag" required>
-         <option value="" disabled selected hidden>Select</option>
-         <option value="OFFICE">OFFICE</option>
-         <option value="UNIT 1">UNIT 1</option>
-         <option value="UNIT 2">UNIT 2</option>
-         <option value="UNIT 3">UNIT 3</option>
-        </select>
+      <select
+        name="empLoc"
+        id="emp-loc"
+        class="form-control select-tag"
+        required
+      >
+        <option value="" disabled selected hidden>Select</option>
+        <option value="OFFICE">OFFICE</option>
+        <option value="UNIT 1">UNIT 1</option>
+        <option value="UNIT 2">UNIT 2</option>
+        <option value="UNIT 3">UNIT 3</option>
+      </select>
+    </div>
+    
+    <div class="span-seven span-row-2">
+      <label for="emp-assets">Assets</label>
+      <input type="text" name="empAssets1" placeholder="1" id="emp-assets" class="form-control select-tag" required/>
+      <input type="text" name="empAssets2" placeholder="2" id="emp-assets" class="form-control select-tag" required/>
+      <input type="text" name="empAssets3" placeholder="3" id="emp-assets" class="form-control select-tag" required/>
+      <input type="text" name="empAssets4" placeholder="4" id="emp-assets" class="form-control select-tag" required/>
     </div>
 
-    <div class="span-seven">
+    <div class="span-four">
       <label for="emp-dept">Department</label>
       <input type="text" id="emp-dept" class="form-control input-tag" name="empDept" placeholder="Enter Department" required/>
     </div>
@@ -135,17 +148,17 @@
       <input type="text" id="emp-reporting-manager" class="form-control input-tag" name="empReportingManager" placeholder="Enter Reporting Manager" required/>
     </div>
 
-    <div class="span-six">
+    <div class="span-four">
       <label for="emp-profile">Profile</label>
       <input type="text" id="emp-profile" class="form-control input-tag" name="empProfile" placeholder="Enter Profile" required/>
     </div>
 
-    <div class="span-six">
+    <div class="span-five">
       <label for="emp-office-mob">Office Mobile No</label>
       <input type="text" inputmode="numeric" id="emp-office-mob" class="form-control input-tag" name="empOfficeMob" placeholder="Enter Office Mobile No" required/>
     </div>
 
-    <div class="span-seven">
+    <div class="span-six">
       <label for="emp-office-email-id">Office Email ID</label>
       <input type="email" id="emp-office-email-id" class="form-control input-tag" name="empOfficeEmailId" placeholder="Enter Office Email ID" required/>
     </div>
@@ -477,7 +490,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!input) return;
 
     input.addEventListener("input", () => {
-      let digits = input.value.replace(/\D/g, "").slice(0, 10);
+      const raw = input.value.trim();
+
+      // allow single dash only if empty
+      if (raw === "-") {
+        input.value = "-";
+        return;
+      }
+
+      // if user typed dash + digits, remove dash
+      let digits = raw.replace(/\D/g, "").slice(0, 10);
+
+      // if no digits and user cleared input
+      if (!digits) {
+        input.value = "";
+        return;
+      }
 
       // space after 5 digits → 98765 43210
       if (digits.length > 5) {
@@ -524,7 +552,12 @@ document.addEventListener("DOMContentLoaded", () => {
       "emp-aadhaar",
     ].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.value = el.value.replace(/\s/g, "");
+      if (!el) return;
+
+      // keep dash as-is, clean only numbers
+      if (el.value !== "-") {
+        el.value = el.value.replace(/\s/g, "");
+      }
     });
   });
 
@@ -536,8 +569,6 @@ function aadhaarInputFormatter(input) {
 
   input.addEventListener("input", () => {
     let digits = input.value.replace(/\D/g, "").slice(0, 12);
-
-    // format as XXXX XXXX XXXX
     let formatted = digits.match(/.{1,4}/g);
     input.value = formatted ? formatted.join(" ") : "";
   });
@@ -545,5 +576,6 @@ function aadhaarInputFormatter(input) {
 
 aadhaarInputFormatter(document.getElementById("emp-aadhaar"));
 </script>
+
 
 
