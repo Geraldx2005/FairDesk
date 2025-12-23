@@ -6,14 +6,19 @@ const loanSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
       required: true,
-      unique: true, // one loan per employee
+      unique: true,
     },
 
     currentBalance: {
       type: Number,
       required: true,
       min: 0,
-      default: 0,
+    },
+
+    emi: {
+      type: Number,
+      required: true,
+      min: 0,
     },
 
     status: {
@@ -24,5 +29,6 @@ const loanSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 
 export default mongoose.model("Loan", loanSchema);

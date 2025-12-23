@@ -37,13 +37,18 @@ router.post("/create", async (req, res) => {
       incentive = 0,
     } = req.body;
 
-    const emiAmount = Math.max(Number(req.body.emi ?? 0), 0);
-
     /* ================= FETCH EMPLOYEE ================= */
     const emp = await Employee.findById(employeeId);
     if (!emp) {
       req.flash("error", "Employee not found");
       return res.redirect("back");
+    }
+    /* ===== FETCH EMI FROM LOAN MASTER ===== */
+    let emiAmount = 0;
+    const loan = await Loan.findOne({ employee: emp._id });
+
+    if (loan && loan.status === "ACTIVE") {
+      emiAmount = loan.emi;
     }
 
     /* ================= BLOCK DUPLICATE PAYROLL (LOG LEVEL) ================= */
@@ -162,29 +167,26 @@ router.post("/create", async (req, res) => {
     });
 
     /* ================= LOAN EMI (LOGGED) ================= */
-    if (emiAmount > 0) {
-      const loan = await Loan.findOne({ employee: emp._id });
-
-      if (loan) {
-        const openingBalance = loan.currentBalance;
-        const closingBalance = Math.max(openingBalance - emiAmount, 0);
-
-        loan.currentBalance = closingBalance;
-        loan.status = closingBalance === 0 ? "CLOSED" : "ACTIVE";
-        await loan.save();
-
-        await LoanLog.create({
-          employee: emp._id,
-          loan: loan._id,
-          openingBalance,
-          amount: emiAmount,
-          closingBalance,
-          type: "DEBIT",
-          source: "PAYROLL",
-          month,
-          year,
-        });
-      }
+    /* ===== LOAN EMI DEDUCTION ===== */
+    if (emiAmount > 0 && loan) {
+      const openingBalance = loan.currentBalance;
+      const closingBalance = Math.max(openingBalance - emiAmount, 0);
+    
+      loan.currentBalance = closingBalance;
+      loan.status = closingBalance === 0 ? "CLOSED" : "ACTIVE";
+      await loan.save();
+    
+      await LoanLog.create({
+        employee: emp._id,
+        loan: loan._id,
+        openingBalance,
+        amount: emiAmount,
+        closingBalance,
+        type: "DEBIT",
+        source: "PAYROLL",
+        month,
+        year,
+      });
     }
 
     /* ================= ADVANCE (LOGGED) ================= */

@@ -22,13 +22,21 @@ router.get("/create", async (req, res) => {
 });
 
 /* ===== ADD / UPDATE LOAN ===== */
+/* ===== ADD / RE-ISSUE LOAN ===== */
+/* ===== ADD / RE-ISSUE LOAN ===== */
 router.post("/create", async (req, res) => {
   try {
     const { employeeId, loanAmount } = req.body;
     const amount = Number(loanAmount) || 0;
 
-    if (!employeeId || amount <= 0) {
-      req.flash("error", "Invalid loan amount");
+    // accept both names safely
+    const newEmi =
+      Number(req.body.emi) ||
+      Number(req.body.emiAmount) ||
+      0;
+
+    if (!employeeId || amount <= 0 || newEmi <= 0) {
+      req.flash("error", "Invalid loan or EMI amount");
       return res.redirect("back");
     }
 
@@ -36,57 +44,75 @@ router.post("/create", async (req, res) => {
 
     let loan = await Loan.findOne({ employee: empObjectId });
 
-    // ================= CREATE NEW LOAN =================
+    /* ================= FIRST TIME LOAN ================= */
     if (!loan) {
       const newLoan = await Loan.create({
         employee: empObjectId,
         currentBalance: amount,
-        emi: 0,
+        emi: newEmi,
         status: "ACTIVE",
       });
 
-      // ✅ LOG ENTRY (CREDIT)
       await LoanLog.create({
         employee: empObjectId,
         loan: newLoan._id,
         openingBalance: 0,
-        amount: amount,
+        amount: amount,          // full loan amount
         closingBalance: amount,
         type: "CREDIT",
         source: "MANUAL",
       });
 
-    } 
-    // ================= UPDATE EXISTING LOAN =================
-    else {
-      const openingBalance = loan.currentBalance;
-      const closingBalance = openingBalance + amount;
-
-      loan.currentBalance = closingBalance;
-      loan.status = "ACTIVE";
-      await loan.save();
-
-      // ✅ LOG ENTRY (CREDIT)
-      await LoanLog.create({
-        employee: empObjectId,
-        loan: loan._id,
-        openingBalance,
-        amount,
-        closingBalance,
-        type: "CREDIT",
-        source: "MANUAL",
-      });
+      req.flash("notification", "Loan issued successfully");
+      return res.redirect("/fairdesk/loan/create");
     }
 
-    req.flash("notification", "Loan saved successfully");
-    res.redirect("/fairdesk/loan/create");
+    /* ================= LOAN RE-ISSUE (TOP-UP / CONSOLIDATION) ================= */
+
+    const oldBalance = loan.currentBalance;
+
+    /* 🔹 1. CLOSE OLD LOAN BALANCE */
+    await LoanLog.create({
+      employee: empObjectId,
+      loan: loan._id,
+      openingBalance: oldBalance,
+      amount: oldBalance,
+      closingBalance: 0,
+      type: "DEBIT",
+      source: "MANUAL",
+    });
+
+    /* 🔹 2. UPDATE LOAN MASTER (OVERRIDE EMI) */
+    const consolidatedAmount = oldBalance + amount;
+
+    loan.currentBalance = consolidatedAmount;
+    loan.emi = newEmi;           // ✅ EMI OVERRIDDEN (NOT ADDED)
+    loan.status = "ACTIVE";
+    await loan.save();
+
+    /* 🔹 3. LOG ONLY THE TOP-UP */
+    await LoanLog.create({
+      employee: empObjectId,
+      loan: loan._id,
+      openingBalance: oldBalance,
+      amount: amount,            // only top-up amount
+      closingBalance: consolidatedAmount,
+      type: "CREDIT",
+      source: "MANUAL",
+    });
+
+    req.flash("notification", "Loan re-issued successfully");
+    return res.redirect("/fairdesk/loan/create");
 
   } catch (err) {
     console.error(err);
-    req.flash("error", "Failed to save loan");
-    res.redirect("back");
+    req.flash("error", "Failed to issue loan");
+    return res.redirect("back");
   }
 });
+
+
+
 
 /* ================= LOAN DISPLAY ================= */
 router.get("/view", async (req, res) => {

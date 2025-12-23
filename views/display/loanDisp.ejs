@@ -350,20 +350,59 @@
       }
     },
     { title: "Employee ID", field: "empId" },
-    { title: "Current Balance", field: "currentBalance" },
+    { title: "Outstanding", field: "currentBalance" },
+    { title: "EMI", field: "emi" },          // ✅ ADD THIS
     { title: "Status", field: "status" },
     { title: "Last Updated", field: "updatedAt" },
   ];
+
   const logColumns = [
     { title: "Employee Name", field: "employeeName" },
     { title: "Employee ID", field: "empId" },
     { title: "Opening Balance", field: "openingBalance" },
-    { title: "Amount", field: "amount" },
+    
+    {
+      title: "Action",
+      formatter: function (cell) {
+        const row = cell.getRow().getData();
+      
+        if (row.type === "CREDIT" && row.source === "MANUAL") {
+          return row.openingBalance === 0 ? "INITIAL LOAN" : "LOAN TOP-UP";
+        }
+      
+        if (row.type === "DEBIT" && row.source === "MANUAL") {
+          return "LOAN CLOSE";
+        }
+      
+        if (row.type === "DEBIT" && row.source === "PAYROLL") {
+          return "EMI DEDUCTION";
+        }
+      
+        return "-";
+      },
+      width: 150,
+    },
+  
+    {
+      title: "Amount",
+      field: "amount",
+      formatter: function (cell) {
+        const row = cell.getRow().getData();
+      
+        if (row.type === "DEBIT") {
+          return `- ₹${cell.getValue()}`;
+        }
+      
+        return `+ ₹${cell.getValue()}`;
+      },
+    },
+  
     { title: "Closing Balance", field: "closingBalance" },
     { title: "Type", field: "type" },
     { title: "Source", field: "source" },
     { title: "Date", field: "date" },
   ];
+
 
   const table = new Tabulator("#master-table", {
     data: tableData,

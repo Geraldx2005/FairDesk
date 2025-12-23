@@ -1,0 +1,301 @@
+<% layout('/layout/boilerplate') -%>
+
+<!-- ================= TABULATOR CSS ================= -->
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
+
+<style>
+  #master-table {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .tabulator .tabulator-header {
+    background-color: #1a1a2e !important;
+  }
+
+  .tabulator .tabulator-col,
+  .tabulator .tabulator-col-content {
+    background-color: #1a1a2e !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+  }
+
+  .tabulator .tabulator-cell {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1e2e !important;
+    padding: 6px;
+  }
+
+  .tabulator .tabulator-row:hover {
+    background-color: rgba(140, 154, 173, 0.25) !important;
+    cursor: pointer;
+  }
+
+  .indi-head {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background-color: #1a1a2e;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .download-selector {
+    position: relative;
+    width: 160px;
+  }
+
+  .download-selector__trigger {
+    background-color: #f0f0f0;
+    color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .download-selector__menu {
+    position: absolute;
+    top: 120%;
+    width: 100%;
+    background: #f0f0f0;
+    border-radius: 0.5rem;
+    display: none;
+  }
+
+  .download-selector--active .download-selector__menu {
+    display: block;
+  }
+
+  .download-selector__option {
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .download-selector__option:hover {
+    background: #ddd;
+  }
+
+  /* ===== REMOVE TABULATOR SORT ARROWS ===== */
+  .tabulator .tabulator-col .tabulator-arrow {
+    display: none !important;
+  }
+
+  /* Remove extra space reserved for arrow */
+  .tabulator .tabulator-col .tabulator-col-title {
+    padding-right: 0 !important;
+  }
+
+  /* ===== FORCE TABULATOR BACKGROUND WHITE ===== */
+  /* ===== FIX EMPTY TABULATOR BACKGROUND ONLY ===== */
+  .tabulator .tabulator-tableholder {
+    background-color: #f8f9f8 !important;
+  }
+
+  /* ===== TABULATOR CELL BORDERS ===== */
+  .tabulator .tabulator-cell {
+    border-right: 1px solid #e5e7eb; /* vertical grid */
+    border-bottom: 1px solid #e5e7eb; /* horizontal grid */
+  }
+
+  /* Remove border on last column */
+  .tabulator .tabulator-cell:last-child {
+    border-right: none;
+  }
+
+  /* Optional: header bottom border for alignment */
+  .tabulator .tabulator-header {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  /* ===== INDIVIDUAL PAGE HEADING SIZE FIX ===== */
+  .indi-head h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+</style>
+
+<div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
+  <div class="indi-head">
+    <span style="display: flex; align-items: center; gap: 10px">
+      <button
+        id="backToSnapshot"
+        style="
+          display: none;
+          background-color: transparent;
+          padding: 2px 14px;
+          border: 1px solid #ffffffaa;
+          border-radius: 0.3rem;
+          cursor: pointer;
+        "
+      >
+        <i class="fa-solid fa-arrow-left" style="color: #fff"></i>
+      </button>
+      <h1>Petty Cash</h1>
+    </span>
+
+    <div class="download-selector" id="downloadSelector">
+      <div class="download-selector__trigger">
+        <span><i class="fa-solid fa-file-arrow-down"></i> Download</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+
+      <div class="download-selector__menu">
+        <div class="download-selector__option" id="download-pdf">PDF</div>
+        <div class="download-selector__option" id="download-xlsx">Excel</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="master-table"></div>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+  const tableData = <%- JSON.stringify(jsonData) %>;
+  const snapshotData = [...tableData];
+
+  function formatDateTime(value) {
+      if (!value) return "-";
+
+      const d = new Date(value);
+      return d.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
+
+  /* ===== SNAPSHOT COLUMNS (LIKE LOAN) ===== */
+  const baseColumns = [
+    { title: "Location", field: "location", headerSort: false },
+    {
+      title: "Current Balance",
+      field: "balance",
+      formatter: c => `₹ ${c.getValue()}`
+    },
+    { title: "Status", field: "status" },
+    {
+      title: "Last Updated",
+      field: "updatedAt",
+      formatter: cell => formatDateTime(cell.getValue()),
+    },
+    {
+      title: "Action",
+      formatter: () =>
+        `<span style="text-decoration:underline;font-weight:600;cursor:pointer">
+          View Transactions
+         </span>`,
+      cellClick: async (e, cell) => {
+        const { location } = cell.getRow().getData();
+      
+        const res = await fetch(`/fairdesk/pettycash/logs/${location}`);
+        const { history } = await res.json();
+      
+        table.setColumns(logColumns);
+        table.replaceData(history);
+      
+        document.querySelector(".indi-head h1").innerText =
+          `Petty Cash — ${location}`;
+        document.getElementById("backToSnapshot").style.display = "inline-flex";
+      }
+    },
+  ];
+
+  /* ===== LOG COLUMNS ===== */
+  const logColumns = [
+    { title: "From", field: "from" },
+    { title: "To", field: "to" },
+    { title: "Opening Balance", field: "openingBalance" },
+    {
+      title: "Amount",
+      field: "amount",
+      formatter: c => {
+        const r = c.getRow().getData();
+        return r.type === "OUTWARD"
+          ? `- ₹${c.getValue()}`
+          : `+ ₹${c.getValue()}`;
+      },
+    },
+    { title: "Closing Balance", field: "closingBalance" },
+    { title: "Type", field: "type" },
+    { title: "Reason", field: "reason" },
+    {
+      title: "Date",
+      field: "createdAt",
+      formatter: cell => formatDateTime(cell.getValue()),
+    },
+  ];
+
+  const table = new Tabulator("#master-table", {
+    data: tableData,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 30,
+    columns: baseColumns,
+  });
+
+  /* ===== BACK ===== */
+  document.getElementById("backToSnapshot").addEventListener("click", () => {
+    table.setColumns(baseColumns);
+    table.replaceData(snapshotData);
+    document.querySelector(".indi-head h1").innerText = "Petty Cash";
+    document.getElementById("backToSnapshot").style.display = "none";
+  });
+
+  /* ===== DOWNLOAD ===== */
+  const selector = document.getElementById("downloadSelector");
+  selector.querySelector(".download-selector__trigger").onclick = () =>
+    selector.classList.toggle("download-selector--active");
+
+  document.getElementById("download-pdf").onclick = () =>
+    table.download("pdf", "pettycash.pdf");
+
+  document.getElementById("download-xlsx").onclick = () =>
+    table.download("xlsx", "pettycash.xlsx");
+</script>
+
+<script>
+  /* ===== TRANSACTION TYPE → VISIBILITY + VALUE FIX ===== */
+function syncFields() {
+  if (txnType.value === "PAID") {
+    // PAID → only TO
+    fromWrap.style.display = "none";
+    fromInput.required = false;
+    fromInput.value = "-"; // ✅ FIXED
+
+    toWrap.style.display = "block";
+    toInput.required = true;
+  } else {
+    // RECEIVED → only FROM
+    toWrap.style.display = "none";
+    toInput.required = false;
+    toInput.value = "-"; // ✅ FIXED
+
+    fromWrap.style.display = "block";
+    fromInput.required = true;
+  }
+}
+
+
+  txnType.addEventListener("change", syncFields);
+  syncFields(); // run once on load
+</script>
+
+

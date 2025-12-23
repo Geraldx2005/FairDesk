@@ -1,0 +1,175 @@
+import express from "express";
+import PettyCash from "../models/PettyCash.js";
+import PettyCashLog from "../models/PettyCashLog.js";
+
+const router = express.Router();
+
+/* ================= HELPERS ================= */
+/* ===== READ ONLY (NO SIDE EFFECTS) ===== */
+async function findPettyCash(location) {
+  return await PettyCash.findOne({ location });
+}
+
+/* ===== CREATE ONLY WHEN TXN IS VALID ===== */
+async function getOrCreatePettyCash(location) {
+  let petty = await PettyCash.findOne({ location });
+
+  if (!petty) {
+    petty = await PettyCash.create({
+      location,
+      currentBalance: 0,
+    });
+  }
+
+  return petty;
+}
+
+/* ================= SHOW ENTRY FORM ================= */
+router.get("/create", async (req, res) => {
+  res.render("forms/pettycash", {
+    title: "Petty Cash",
+    navigator: "pettycash",
+    CSS: false,
+    JS: false,
+    notification: req.flash("notification"),
+    error: req.flash("error"),
+  });
+});
+
+/* ================= ADD TRANSACTION ================= */
+router.post("/create", async (req, res) => {
+  try {
+    const { location, from, to, amount, type, reason } = req.body;
+    const txnAmount = Number(amount) || 0;
+
+    /* ===== BASIC VALIDATION ===== */
+    if (
+      !location ||
+      txnAmount <= 0 ||
+      !type ||
+      (type === "PAID" && !to) ||
+      (type === "RECEIVED" && !from)
+    ) {
+      req.flash("error", "Invalid petty cash entry");
+      return res.redirect("back");
+    }
+
+    /* ===== UI → INTERNAL TYPE MAP ===== */
+    const internalType = type === "RECEIVED" ? "INWARD" : "OUTWARD";
+
+    /* =====================================================
+       READ FIRST — NO CREATE, NO UPDATE
+       ===================================================== */
+    const existingPetty = await findPettyCash(location);
+    const openingBalance = existingPetty?.currentBalance ?? 0;
+
+    /* ===== HARD STOP — ETHICAL GUARD ===== */
+    if (internalType === "OUTWARD" && txnAmount > openingBalance) {
+      req.flash("error", "Insufficient petty cash balance");
+      return res.redirect("back"); // ❌ NO CREATE, NO UPDATE, NO LOG
+    }
+
+    /* =====================================================
+       NOW IT IS SAFE TO CREATE / UPDATE
+       ===================================================== */
+    const petty = await getOrCreatePettyCash(location);
+
+    /* ===== CALCULATE CLOSING BALANCE ===== */
+    const closingBalance =
+      internalType === "INWARD"
+        ? openingBalance + txnAmount
+        : openingBalance - txnAmount;
+
+    /* ===== FINAL SAFETY ASSERTION ===== */
+    if (closingBalance < 0) {
+      throw new Error("Invariant violation: negative petty cash balance");
+    }
+
+    /* ===== UPDATE MASTER ===== */
+    petty.currentBalance = closingBalance;
+    await petty.save();
+
+    /* ===== CREATE LOG (SUCCESS ONLY) ===== */
+    await PettyCashLog.create({
+      location,
+        
+      from:
+        internalType === "OUTWARD"
+          ? "-"
+          : (from && from.trim()) || "-",
+        
+      to:
+        internalType === "INWARD"
+          ? "-"
+          : (to && to.trim()) || "-",
+        
+      openingBalance,
+      amount: txnAmount,
+      closingBalance,
+      type: internalType,
+      reason,
+    });
+
+    req.flash("notification", "Petty cash updated successfully");
+    return res.redirect("/fairdesk/pettycash/create");
+
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Petty cash transaction failed");
+    return res.redirect("back");
+  }
+});
+
+/* ================= SNAPSHOT (ALL LOCATIONS) ================= */
+router.get("/disp", async (req, res) => {
+  try {
+    const pettyList = await PettyCash.find().lean();
+
+    const snapshot = pettyList.map(p => ({
+      location: p.location,
+      balance: p.currentBalance,
+      status: p.currentBalance > 0 ? "ACTIVE" : "EMPTY",
+      updatedAt: p.updatedAt,
+    }));
+
+    res.render("display/pettycashDisp", {
+      jsonData: snapshot,
+      title: "Petty Cash View",
+      navigator: "pettycash",
+      CSS: false,
+      JS: false,
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Failed to load petty cash");
+    res.redirect("back");
+  }
+});
+
+/* ================= LOCATION-WISE LOGS ================= */
+router.get("/logs/:location", async (req, res) => {
+  try {
+    const { location } = req.params;
+
+    const logs = await PettyCashLog.find({ location })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({ history: logs });
+  } catch (err) {
+    res.status(500).json({ history: [] });
+  }
+});
+
+/* ================= LOCATION BALANCE (READ ONLY) ================= */
+router.get("/balance/:location", async (req, res) => {
+  const { location } = req.params;
+
+  const petty = await findPettyCash(location);
+
+  res.json({
+    balance: petty?.currentBalance ?? 0,
+  });
+});
+
+export default router;
