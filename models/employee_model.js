@@ -1,54 +1,69 @@
 import mongoose from "mongoose";
 
+/* ================= DEPENDENTS ================= */
 const dependentSchema = new mongoose.Schema(
   {
-    dependentsName: String,
-    dependentsDOB: String,
-    dependentsRelation: String
+    dependentsName: { type: String },
+    dependentsDOB: { type: String },
+    dependentsRelation: { type: String },
   },
   { _id: false }
 );
 
+/* ================= EMPLOYEE ================= */
 const employeeSchema = new mongoose.Schema(
   {
     /* ================= EMPLOYMENT ================= */
-    empId: { type: String, unique: true },
-    empDateOfJoining: String,
-    empType: String,
-    empLoc: String,
-    empDept: String,
-    empReportingManager: String,
-    empProfile: String,
-    empOfficeMob: String,
-    empOfficeEmailId: String,
+    empId: { type: String, unique: true, required: true },
+    empDateOfJoining: { type: String },
+    empType: { type: String },
+    empUnder: { type: String },
+    empLoc: { type: String },
+
+    empAssets1: { type: String },
+    empAssets2: { type: String },
+    empAssets3: { type: String },
+    empAssets4: { type: String },
+
+    empDept: { type: String },
+    empReportingManager: { type: String },
+    empProfile: { type: String },
+
+    empOfficeMob: { type: String },
+    empOfficeEmailId: { type: String },
 
     /* ================= PERSONAL ================= */
-    empName: String,
-    empDob: String,
-    empGender: String,
-    empMobile1: String,
-    empMobile2: String,
-    empEmergencyNo1: String,
-    empEmergencyNo2: String,
-    empEmail: String,
-    empMartialStatus: String,
-    empMarriageAnniversary: String,
-    empPresentAddress: String,
-    empPermanentAddress: String,
-    empHobbies: String,
+    empName: { type: String },
+    empDob: { type: String },
+    empGender: { type: String },
+
+    empMobile1: { type: String },
+    empMobile2: { type: String },
+
+    empEmergencyNo1: { type: String },
+    empEmergencyNo2: { type: String },
+
+    empEmail: { type: String },
+    empMartialStatus: { type: String },
+    empMarriageAnniversary: { type: String },
+
+    empPresentAddress: { type: String },
+    empPermanentAddress: { type: String },
+
+    empHobbies: { type: String },
 
     /* ================= IDENTIFICATION ================= */
-    empPhoto: String, // store file path
-    empAadhaar: String,
-    empPan: String,
+    empPhoto: { type: String }, // filename only
+    empAadhaar: { type: String },
+    empPan: { type: String },
 
     /* ================= BANKING ================= */
-    empBankName: String,
-    empAccountHolderName: String,
-    empAccNo: String,
-    empIfscCode: String,
+    empBankName: { type: String },
+    empAccountHolderName: { type: String },
+    empAccNo: { type: String },
+    empIfscCode: { type: String },
 
-    /* ================= DEDUCTIONS (STATIC) ================= */
+    /* ================= DEDUCTIONS ================= */
     empPT: { type: Number, default: 0 },
     empTDS: { type: Number, default: 0 },
     empLIC: { type: Number, default: 0 },
@@ -57,22 +72,25 @@ const employeeSchema = new mongoose.Schema(
     empESIC: { type: Number, default: 0 },
     empPF: { type: Number, default: 0 },
 
-    /* ================= SALARY STRUCTURE ================= */
+    /* ================= PAYROLL ================= */
     basicSalary: { type: Number, default: 0 },
     railwayPass: { type: Number, default: 0 },
     travelling: { type: Number, default: 0 },
     houseRent: { type: Number, default: 0 },
     staffQuarters: { type: Number, default: 0 },
     otRatePerHour: { type: Number, default: 0 },
+    bonus: { type: Number, default: 0 },
 
     /* ================= DEPENDENTS ================= */
     dependentsCount: { type: Number, default: 0 },
     dependentsDetails: [dependentSchema],
 
     /* ================= META ================= */
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const Employee = mongoose.model("Employee", employeeSchema);

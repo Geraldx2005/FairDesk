@@ -6,12 +6,6 @@
   href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css"
   rel="stylesheet"
 />
-<!-- Tabulator CSS -->
-<link
-  href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css"
-  rel="stylesheet"
-/>
-
 
 <style>
   #master-table {
@@ -294,6 +288,7 @@
     </div>
 
     <div id="master-table" class="tabulator tabulator-modern"></div>
+    <div id="loading">Loading master data…</div>
   </div>
 
   <!-- Tabulator JS -->
@@ -301,7 +296,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <script>
@@ -346,22 +340,29 @@
   // ================= TABULATOR DATA =================
 
     // Render data from Express (passed into EJS)
-    const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
+    let tableData = [];
+    try {
+      tableData = JSON.parse('<%- JSON.stringify(jsonData || []) %>');
+    } catch (err) {
+      console.error("Master Disp JSON error", err);
+    }
 
   tableData.forEach((user) => {
-    user.labelCount = user.label?.length || 0;
+    user.labelCount = user.labelCount ?? 0;
     user.ttrCount = user.ttr?.length || 0;
     user.tapeCount = user.tape?.length || 0;
   });
 
   // ================= TABULATOR INIT =================
 
-  let table; // 🔥 MUST be global for download to work
+  let table; // MUST be global for download to work
 
   function initTable() {
+    document.getElementById("loading")?.remove();
+
     table = new Tabulator("#master-table", {
       data: tableData,
-      layout: "fitDataTable",
+      layout: "fitColumns",
       virtualDom: true,
       responsiveLayout: false,
       pagination: "local",
@@ -416,13 +417,11 @@
           title: "Contact",
           field: "userContact",
           headerSort: false,
-          headerFilter: "input",
         },
         {
           title: "Email",
           field: "userEmail",
           headerSort: false,
-          headerFilter: "input",
         },
         {
           title: "Self Dispatch",
@@ -471,7 +470,7 @@
           },
           cellClick: (e, cell) => {
             const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/disp/tapes/${row._id}`;
+            window.location.href = `/fairdesk/disp/tapebind/${row._id}`;
           },
         },
       ],

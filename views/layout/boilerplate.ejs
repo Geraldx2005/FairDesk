@@ -6,7 +6,6 @@
     <title>Fairdesk - <%= title %></title>
     <link rel="icon" href="/assets/fairfavicon.png" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/selectize/dist/css/selectize.default.css" rel="stylesheet" />
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <!-- <link rel="stylesheet" href="/css/ratecalculator.css" /> -->
@@ -129,7 +128,7 @@
               <i class="fa-solid fa-ribbon" style="color: #ffffff"></i>
               <p class="nav-items-para">TTR</p>
             </div>
-            <div title="Tape" class="<%= title === 'Tape' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/tape'" >
+            <div title="Tape" class="<%= title === 'Tape' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/tape-master'" >
               <i class="fa-solid fa-tape" style="color: #ffffff"></i>
               <p class="nav-items-para">Tape</p>
             </div>
@@ -260,10 +259,38 @@
           </div>
         </div>
 
-        <div title="Production Calculator" class="<%= title === 'Production Calculator' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/prodcalc'" >
-          <i class="fa-solid fa-industry" style="color: #ffffff"></i>
-          <p class="nav-items-para">Production Calculator</p>
+        <div class="nav-opt-wrap">
+          <div title="View" class="view-toggle nav-items">
+            <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
+            <p class="nav-items-para">Production</p>
+          </div>
+
+          <div class="nav-labels-opt">
+            <div title="Production Calculator" class="<%= title === 'Production Calculator' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/prodcalc'" >
+              <i class="fa-solid fa-industry" style="color: #ffffff"></i>
+              <p class="nav-items-para">Production Calculator</p>
+            </div>
+          </div>
         </div>
+
+        <div title="Client Tape" class="<%= title === 'Client Tape' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/form/tape-binding'" >
+          <i class="fa-solid fa-tape" style="color: #ffffff"></i>
+          <p class="nav-items-para">Client Tape</p>
+        </div>
+
+        <div class="nav-opt-wrap">
+          <div title="Stock" class="view-toggle nav-items">
+            <i class="fa-solid fa-square-caret-down" style="color: #ffffff"></i>
+            <p class="nav-items-para">Stock</p>
+          </div>
+
+          <div class="nav-labels-opt">
+            <div title="Tape Stock" class="<%= title === 'Tape Stock' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/tapestock'" style="border-top: 2px solid #ffffff9d; border-bottom: 2px solid #ffffff9d" >
+              <i class="fa-solid fa-tape" style="color: #ffffff"></i>
+              <p class="nav-items-para">Tape Stock</p>
+            </div>
+          </div>
+        </div>        
       </div>
 
       <!--- Loading Content --->

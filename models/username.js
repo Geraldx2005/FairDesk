@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
   }],
   tape: [{
     type: Schema.Types.ObjectId,
-    ref: 'Tape'
+    ref: 'TapeBinding'
   }]
 });
 

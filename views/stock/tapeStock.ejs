@@ -1,0 +1,170 @@
+<% layout('/layout/boilerplate') -%>
+
+<div class="main-content">
+  <form class="rottary-content" method="post" action="/fairdesk/tapestock/create">
+
+    <!-- ================= HEADER ================= -->
+    <div class="span-full form-heading" style="display:flex; justify-content:space-between; flex-direction:row;">
+
+      <!-- ================= LOCATION ================= -->
+      <div class="span-five" style="display:flex; gap:6px; justify-content:start; flex-direction:row; width:auto;">
+        <label style="width:auto;">Location</label>
+        <select name="location" id="locationSelect" class="form-control select-tag" style="width:130px" required >
+          <option value="" disabled selected hidden>Select Location</option>
+          <option value="UNIT 1">UNIT 1</option>
+          <option value="UNIT 2">UNIT 2</option>
+          <option value="UNIT 3">UNIT 3</option>
+        </select>
+      </div>
+
+      <!-- ================= TITLE ================= -->
+      <h1>Tape Stock Entry</h1>
+
+      <!-- ================= CURRENT STOCK ================= -->
+      <div class="span-five" id="stockWrap" style="display:flex; gap:6px; justify-content:end; flex-direction:row; width:auto;">
+        <label style="width:auto;">Current Stock</label>
+        <input type="number" id="currentStock" class="form-control input-tag" style="width:100px" value="0" readonly />
+      </div>
+    </div>
+
+    <!-- ================= TAPE SPECS ================= -->
+    <div class="span-five">
+      <label>Tape ID</label>
+      <input type="text" id="resolvedTape" class="form-control input-tag" placeholder="ID will appear here" readonly />
+      <input type="hidden" name="tapeId" id="resolvedTapeId" />
+    </div>
+
+    <div class="span-four">
+      <label for="tape-paper-code">Paper Code</label>
+      <input type="text" id="tape-paper-code" class="form-control" name="tapePaperCode" placeholder="Enter Paper Code" required />
+    </div>
+    <div class="span-four">
+      <label for="tape-paper-type">Paper Type</label>
+      <input type="text" id="tape-paper-type" class="form-control" name="tapePaperType" placeholder="Enter Paper Type" required />
+    </div>
+    <div class="span-three">
+      <label for="tape-gsm">GSM</label>
+      <input type="text" id="tape-gsm" class="form-control" name="tapeGsm" placeholder="Enter GSM" required />
+    </div>
+    <div class="span-four">
+      <label for="tape-width">Width</label>
+      <input type="text" id="tape-width" class="form-control" name="tapeWidth" placeholder="Enter Width" required />
+    </div>
+    <div class="span-four">
+      <label for="tape-mtrs">MTRS</label>
+      <input type="text" id="tape-mtrs" class="form-control" name="tapeMtrs" placeholder="Enter MTRS" required />
+    </div>                        
+    <div class="span-four">
+      <label for="tape-core-id">Core ID</label>
+       <select name="tapeCoreId" id="tape-core-id" class="form-control select-tag" required>
+        <option value="3">3</option>
+        <option value="1">1</option>
+        <option value="0.5">0.5</option>
+      </select>             
+    </div>
+    <div class="span-four">
+      <label for="tape-finish">Finish</label>
+       <select name="tapeFinish" id="tape-finish" class="form-control select-tag" required>
+        <option value="" selected disabled hidden>Select </option>
+        <option value="MATTE">MATTE</option>
+        <option value="GLOSSY">GLOSSY</option>
+      </select>             
+    </div>
+    
+    <div class="span-full btn-grp">
+      <button type="button" id="resolveTapeBtn" class="btn-secondary">
+        Get Tape ID
+      </button>
+    </div>
+
+    <!-- ================= RESOLVED TAPE ================= -->
+    <div class="span-full form-subheading"></div>
+
+    <!-- ================= QUANTITY ================= -->
+    <div class="span-seven">
+      <label>Quantity</label>
+      <input type="number" name="quantity" class="form-control input-tag" min="1" placeholder="Enter Quantity" required />
+    </div>
+
+    <div class="span-half" style="grid-column: span 25;">
+      <label>Remarks</label>
+      <input type="text" name="remarks" class="form-control input-tag" placeholder="Enter Remarks" />
+    </div>
+
+    <div class="span-full btn-grp">
+      <button type="submit">Save Stock</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  const locationSelect = document.getElementById("locationSelect");
+  const stockInput = document.getElementById("currentStock");
+
+  const gsm = document.getElementById("tape-gsm");
+  const paperType = document.getElementById("tape-paper-type");
+  const width = document.getElementById("tape-width");
+  const mtrs = document.getElementById("tape-mtrs");
+  const paperCode = document.getElementById("tape-paper-code");
+  const coreId = document.getElementById("tape-core-id");
+  const finish = document.getElementById("tape-finish");
+
+  const resolvedTape = document.getElementById("resolvedTape");
+  const resolvedTapeId = document.getElementById("resolvedTapeId");
+
+  async function resolveTape() {
+    if (!gsm.value || !paperType.value || !width.value || !mtrs.value) return;
+
+    const res = await fetch("/fairdesk/tapestock/resolve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paperCode: paperCode.value,
+        gsm: gsm.value,
+        paperType: paperType.value,
+        width: width.value,
+        mtrs: mtrs.value,
+        coreId: coreId.value,
+        finish: finish.value
+      })     
+    });
+
+    const data = await res.json();
+
+    if (!data.found) {
+      resolvedTape.value = "No matching tape found";
+      resolvedTapeId.value = "";
+      stockInput.value = 0;
+      return;
+    }
+
+    resolvedTape.value = data.TapeProductId;
+    resolvedTapeId.value = data.tapeId;
+
+      console.log("Resolving tape with:", {
+        paperCode: paperCode.value,
+        gsm: gsm.value,
+        paperType: paperType.value,
+        width: width.value,
+        mtrs: mtrs.value,
+        coreId: coreId.value,
+        finish: finish.value
+      });
+
+    if (locationSelect.value) fetchStock();
+  }
+
+  async function fetchStock() {
+    if (!resolvedTapeId.value || !locationSelect.value) return;
+    const res = await fetch(`/fairdesk/tapestock/balance/${resolvedTapeId.value}/${locationSelect.value}`);
+    const data = await res.json();
+    stockInput.value = data.stock ?? 0;
+  }
+
+  const resolveBtn = document.getElementById("resolveTapeBtn");
+
+  resolveBtn.addEventListener("click", resolveTape);
+  locationSelect.addEventListener("change", fetchStock);
+
+</script>

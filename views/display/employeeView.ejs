@@ -65,7 +65,28 @@
       font-size: 14px;
       color: var(--muted);
     }
-    
+
+    /* ================= EDIT BUTTON ================= */
+    .edit-btn {
+      margin-left: auto;
+      padding: 8px 16px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .edit-btn:hover {
+      background: #0f1020;
+      transform: translateY(-1px);
+    }
+
     /* ================= SECTION ================= */
     .section {
       margin-top: 38px;
@@ -165,12 +186,13 @@
       alt="Employee Photo"
     />
 
-
     <div class="basic">
       <h2><%= employee.empName %></h2>
       <div class="meta">Employee ID: <%= employee.empId %></div>
       <div class="meta">Designation: <%= employee.empProfile %></div>
     </div>
+
+    <a href="/fairdesk/employee/edit/<%= employee._id %>" class="edit-btn">Edit</a>
   </div>
 
   <!-- EMPLOYMENT -->

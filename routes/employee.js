@@ -38,6 +38,7 @@ router.get("/create", async (req, res) => {
     title: "Employee Details",
     JS: false,
     employeeCount,
+    employee: null, // 🔥 IMPORTANT PATCH
     notification: req.flash("notification"),
   });
 });
@@ -98,7 +99,6 @@ router.get("/profile/:id", async (req, res) => {
   }
 });
 
-
 /* ================= FETCH EMPLOYEE (JSON) ================= */
 router.get("/:id", async (req, res) => {
   try {
@@ -109,5 +109,54 @@ router.get("/:id", async (req, res) => {
     res.status(500).json(null);
   }
 });
+
+/* ================= EDIT EMPLOYEE FORM ================= */
+router.get("/edit/:id", async (req, res) => {
+  try {
+    const employee = await Employee.findById(req.params.id).lean();
+    if (!employee) return res.status(404).send("Employee not found");
+
+    res.render("forms/employee.ejs", {
+      title: "Edit Employee",
+      CSS: false,
+      JS: false,
+      employee,
+      employeeCount: null,
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect("back");
+  }
+});
+
+/* ================= UPDATE EMPLOYEE ================= */
+router.post(
+  "/edit/:id",
+  upload.single("empPhoto"),
+  async (req, res) => {
+    try {
+      const employee = await Employee.findById(req.params.id);
+      if (!employee) return res.redirect("back");
+
+      // replace photo only if new uploaded
+      if (req.file) {
+        if (employee.empPhoto) {
+          const oldPath = `employeeImages/${employee.empPhoto}`;
+          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+        employee.empPhoto = req.file.filename;
+      }
+
+      Object.assign(employee, req.body);
+      await employee.save();
+
+      res.redirect(`/fairdesk/employee/profile/${employee._id}`);
+    } catch (err) {
+      console.error(err);
+      res.redirect("back");
+    }
+  }
+);
+
 
 export default router;

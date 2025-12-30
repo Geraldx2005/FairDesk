@@ -220,31 +220,74 @@ router.post("/form/ttr", async (req, res) => {
 
 // ----------------------------------Tape---------------------------------->
 // route for systemid form.
-router.get("/form/tape", async (req, res) => {
-  let clients = await Client.distinct("clientName");
-  let tapeCount = await Tape.countDocuments();
+// router.get("/form/tape", async (req, res) => {
+//   let clients = await Client.distinct("clientName");
+//   let tapeCount = await Tape.countDocuments();
+
+//   res.render("forms/tape.ejs", {
+//     JS: "ttr.js",
+//     CSS: false,
+//     title: "Tape",
+//     clients,
+//     tapeCount,
+//     notification: req.flash("notification"),
+//   });
+// });
+
+// Route to handle systemid form submission.
+// router.post("/form/tape", async (req, res) => {
+//   let { userId } = req.body;
+//   let tapeData = await Tape.create(req.body);
+
+//   let user = await Username.findOne({ _id: userId });
+//   user.tape.push(tapeData);
+//   await user.save();
+
+//   req.flash("notification", "Tape created successfully!");
+//   res.redirect("/fairdesk/form/tape");
+// });
+
+// ----------------------------------Tape Master---------------------------------->
+
+// GET: Tape Master form
+router.get("/form/tape-master", async (req, res) => {
+  const tapeCount = await Tape.countDocuments() + 1;
 
   res.render("forms/tape.ejs", {
-    JS: "ttr.js",
+    JS: false,
     CSS: false,
-    title: "Tape",
-    clients,
+    title: "Tape Master",
     tapeCount,
     notification: req.flash("notification"),
   });
 });
 
-// Route to handle systemid form submission.
-router.post("/form/tape", async (req, res) => {
-  let { userId } = req.body;
-  let tapeData = await Tape.create(req.body);
+// POST: Tape Master submission
+router.post("/form/tape-master", async (req, res) => {
+  console.log("TAPE MASTER BODY", req.body);
+  try {
+    const data = {
+      tapeProductId: req.body.tapeProductId,
+      tapePaperCode: req.body.tapePaperCode,
+      tapeGsm: Number(req.body.tapeGsm),
+      tapePaperType: req.body.tapePaperType,
+      tapeWidth: Number(req.body.tapeWidth),
+      tapeMtrs: Number(req.body.tapeMtrs),
+      tapeCoreId: Number(req.body.tapeCoreId),
+      tapeAdhesiveGsm: Number(req.body.tapeAdhesiveGsm),
+      tapeFinish: req.body.tapeFinish,
+      createdBy: req.user?.username || "SYSTEM",
+    };
 
-  let user = await Username.findOne({ _id: userId });
-  user.tape.push(tapeData);
-  await user.save();
+    await Tape.create(data);
 
-  req.flash("notification", "Tape created successfully!");
-  res.redirect("/fairdesk/form/tape");
+    req.flash("notification", "Tape Master created successfully!");
+    res.redirect("/fairdesk/form/tape-master");
+  } catch (err) {
+    console.error(err);
+    req.flash("notification", err.message);
+    res.redirect("back");
+  }
 });
 
 // ----------------------------------Sales Order---------------------------------->
@@ -438,17 +481,6 @@ router.get("/disp/ttr/:id", async (req, res) => {
   // jsonData.push(itemsCount);
   console.log(jsonData);
   res.render("display/ttrDisp.ejs", { jsonData, CSS: false, JS: false, title: "TTR Display", notification: req.flash("notification") });
-});
-
-// ----------------------------------Tape display---------------------------------->
-// route for details page.
-router.get("/disp/tapes/:id", async (req, res) => {
-  let userData = await Username.findById(req.params.id).populate("tape");
-  let jsonData = userData.tape;
-  
-  // jsonData.push(itemsCount);
-  console.log(jsonData);
-  res.render("display/tapeDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
 });
 
 export default router;

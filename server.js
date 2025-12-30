@@ -7,6 +7,8 @@ import loanRoute from "./routes/loan.js";
 import advanceRoute from "./routes/advance.js";
 import employeeRoute from "./routes/employee.js";
 import pettycashRoute from "./routes/pettycash.js";
+import tapeBindingRoutes from "./routes/tapeBinding.js";
+import tapeStockRoutes from "./routes/stock/tapeStock.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -74,6 +76,8 @@ app.use("/fairdesk/loan", loanRoute);
 app.use("/fairdesk/advance", advanceRoute);
 app.use("/fairdesk/employee", employeeRoute);
 app.use("/fairdesk/pettycash", pettycashRoute);
+app.use("/fairdesk", tapeBindingRoutes);
+app.use("/fairdesk/tapestock", tapeStockRoutes);
 
 /* ================= 404 ================= */
 app.all("*", (req, res) => {
