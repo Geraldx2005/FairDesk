@@ -294,7 +294,7 @@
     font-size: 1.25rem;
   }
 
-    /* Make empty tabulator area !grey */
+  /* Make empty tabulator area !grey */
   .tabulator {
     background-color: #f0f2f5 !important;
   }
@@ -321,14 +321,14 @@
   /* Also remove space reserved for arrow */
   .tabulator .tabulator-col .tabulator-col-title {
     padding-right: 0 !important;
-  }   
+  } 
 </style>
 </head>
 
 <body>
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
       <div class="indi-head">
-        <h1>TTR's</h1>
+        <h1>Labels</h1>
         <div class="download-btns">
           <div class="download-selector" id="downloadSelector">
             <button class="download-selector__trigger">
@@ -365,46 +365,38 @@
     // Render data from Express (passed into EJS)
     const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
 
-    tableData.forEach(user => {
-      user.labelCount = user.label?.length || 0;
-      user.ttrCount = user.ttr?.length || 0;
-      user.tapeCount = user.tape?.length || 0;
-    });
-
-    console.log(tableData);
-
     // Initialize Tabulator
     const table = new Tabulator("#master-table", {
       data: tableData,
-      layout: "fitDataTable", // expand to fit content + allow horizontal scroll
-      responsiveLayout: false, // prevent auto-hiding of columns
+      layout: "fitDataTable",
+      responsiveLayout: false,
       pagination: "local",
       paginationSize: 30,
       movableColumns: true,
+      placeholder: "No data to display",
       columns: [
-        { title: "Product ID", field: "productId" },
         { title: "Client Name", field: "clientName" },
         { title: "User Name", field: "userName" },
         { title: "User Contact", field: "userContact" },
         { title: "Location", field: "location" },
-        { title: "TTR Type", field: "ttrType" },
-        { title: "TTR Color", field: "ttrColor" },
-        { title: "TTR Material Code", field: "ttrMaterialCode" },
-        { title: "TTR Client Code", field: "ttrClientCode" },
-        { title: "TTR Width", field: "ttrWidth" },
-        { title: "TTR Mtrs", field: "ttrMtrs" },
-        { title: "TTR Mtrs Del", field: "ttrMtrsDel" },
-        { title: "TTR Ink Face", field: "ttrInkFace" },
-        { title: "TTR Core ID", field: "ttrCoreId" },
-        { title: "TTR Core Length", field: "ttrCoreLength" },
-        { title: "TTR Notch", field: "ttrNotch" },
-        { title: "TTR Winding", field: "ttrWinding" },
-        { title: "TTR Rate Per Roll", field: "ttrRatePerRoll" },
-        { title: "TTR Sale Cost", field: "ttrSaleCost" },
-        { title: "TTR Min Qty", field: "ttrMinQty" },
-        { title: "TTR Single Odr Qty", field: "ttrSinOdrQty" },
-        { title: "TTR Odr Freq", field: "ttrOdrFreq" },
-        { title: "TTR Credit Term", field: "ttrCreditTerm" },
+        { title: "Instructions", field: "instructions" },
+        { title: "Varnish", field: "varnish" },
+        { title: "foil NO", field: "foilNo" },
+        { title: "Paper Type", field: "paperType" },
+        { title: "Width", field: "labelWidth" },
+        { title: "Height", field: "labelHeight" },
+        { title: "Gap", field: "labelGap" },
+        { title: "Ups", field: "labelUps" },
+        { title: "Core", field: "labelCore" },
+        { title: "Per Roll Qty", field: "perRollQty" }, 
+        { title: "First Out", field: "firstOut" },
+        { title: "Rate Per 1K", field: "ratePerK" },
+        { title: "Rate Per Label", field: "ratePerLabel" },
+        { title: "Per Roll", field: "perRoll" },
+        { title: "Sale Cost", field: "saleCost" },
+        { title: "Min Order Qty", field: "minOrderQty" },
+        { title: "Rep Order Frequency", field: "repOrderFq" },
+        { title: "credit Term", field: "creditTerm" },
       ]
     });
 

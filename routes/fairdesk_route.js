@@ -1,16 +1,15 @@
 import express, { json } from "express";
 // import asyncHandler from "express-async-handler";
-import Client from "../models/client.js";
-import Username from "../models/username.js";
-import Label from "../models/labels.js";
-import Ttr from "../models/ttr.js";
-import Tape from "../models/tape.js";
-import SystemId from "../models/systemId.js";
+import Client from "../models/users/client.js";
+import Username from "../models/users/username.js";
+import Label from "../models/inventory/labels.js";
+import Ttr from "../models/inventory/ttr.js";
+import Tape from "../models/inventory/tape.js";
+import SystemId from "../models/system/systemId.js";
 import Carelead from "../models/carelead.js";
-import Calculator from "../models/calculator.js";
-import Block from "../models/block_model.js";
-import Die from "../models/die_model.js";
-import Employee from "../models/employee_model.js";
+import Calculator from "../models/utilities/calculator.js";
+import Block from "../models/utilities/block_model.js";
+import Die from "../models/utilities/die_model.js";
 const router = express.Router();
 
 // ----------------------------------RateCalculator---------------------------------->
@@ -18,7 +17,7 @@ const router = express.Router();
 
 router.get("/form/ratecalculator", async (req, res) => {
   let clients = await Username.distinct("clientName");
-  res.render("rateCalculator.ejs", { clients });
+  res.render("utilities/rateCalculator.ejs", { clients });
 });
 
 // Route to handle rate calculator form submission
@@ -35,7 +34,7 @@ router.get("/form/client", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let userCount = await Username.countDocuments();
   let clientCount = clients.length;
-  res.render("forms/clientForm.ejs", {
+  res.render("users/clientForm.ejs", {
     JS: "clientForm.js",
     CSS: "tabOpt.css",
     title: "Client Form",
@@ -84,7 +83,7 @@ router.get("/form/labels", async (req, res) => {
   let labelsCount = (await Label.countDocuments()) + 1;
   console.log(clients);
 
-  res.render("forms/labels.ejs", {
+  res.render("inventory/labels.ejs", {
     title: "Labels",
     JS: "labels.js",
     CSS: false,
@@ -161,12 +160,12 @@ router.post("/form/systemid", async (req, res) => {
 });
 
 // ----------------------------------WorkshopReport---------------------------------->
-// route for systemid form.
+// route for careworkshopreport form.
 router.get("/form/careworkshopreport", (req, res) => {
   res.render("careWokshopReport.ejs");
 });
 
-// Route to handle systemid form submission.
+// Route to handle careworkshopreport form submission.
 router.post("/form/careworkshopreport", async (req, res) => {
   let formData = req.body;
 
@@ -175,12 +174,12 @@ router.post("/form/careworkshopreport", async (req, res) => {
 });
 
 // ----------------------------------CareQuote---------------------------------->
-// route for systemid form.
+// route for carequote form.
 router.get("/form/carequote", (req, res) => {
   res.render("careQuote.ejs");
 });
 
-// Route to handle systemid form submission.
+// Route to handle carequote form submission.
 router.post("/form/carequote", async (req, res) => {
   let formData = req.body;
 
@@ -189,13 +188,13 @@ router.post("/form/carequote", async (req, res) => {
 });
 
 // ----------------------------------TTR---------------------------------->
-// route for systemid form.
+// route for ttr form.
 router.get("/form/ttr", async (req, res) => {
   let clients = await Client.distinct("clientName");
   let ttrCount = await Ttr.countDocuments() + 1;
   console.log(ttrCount);
 
-  res.render("forms/ttr.ejs", {
+  res.render("inventory/ttr.ejs", {
     JS: "ttr.js",
     CSS: false,
     title: "TTR",
@@ -205,7 +204,7 @@ router.get("/form/ttr", async (req, res) => {
   });
 });
 
-// Route to handle systemid form submission.
+// Route to handle ttr form submission.
 router.post("/form/ttr", async (req, res) => {
   let { userId } = req.body;
   let ttrData = await Ttr.create(req.body);
@@ -219,7 +218,7 @@ router.post("/form/ttr", async (req, res) => {
 });
 
 // ----------------------------------Tape---------------------------------->
-// route for systemid form.
+// route for tape form.
 // router.get("/form/tape", async (req, res) => {
 //   let clients = await Client.distinct("clientName");
 //   let tapeCount = await Tape.countDocuments();
@@ -234,7 +233,7 @@ router.post("/form/ttr", async (req, res) => {
 //   });
 // });
 
-// Route to handle systemid form submission.
+// Route to handle tape form submission.
 // router.post("/form/tape", async (req, res) => {
 //   let { userId } = req.body;
 //   let tapeData = await Tape.create(req.body);
@@ -253,7 +252,7 @@ router.post("/form/ttr", async (req, res) => {
 router.get("/form/tape-master", async (req, res) => {
   const tapeCount = await Tape.countDocuments() + 1;
 
-  res.render("forms/tape.ejs", {
+  res.render("inventory/tape.ejs", {
     JS: false,
     CSS: false,
     title: "Tape Master",
@@ -291,42 +290,43 @@ router.post("/form/tape-master", async (req, res) => {
 });
 
 // ----------------------------------Sales Order---------------------------------->
-// route for systemid form.
+// route for salesorder form.
 router.get("/form/salesorder", async (req, res) => {
   let clients = await Client.find();
-  res.render("salesOrder.ejs", { clients });
+  res.render("utilities/salesOrder.ejs", { clients });
 });
 
-// Route to handle systemid form submission.
+// Route to handle salesorder form submission.
 router.post("/form/salesorder", async (req, res) => {
   let formData = req.body;
 
   await Carelead.create(formData);
-  res.send("TTR created successfully!");
+  res.send("Sales Order created successfully!");
 });
 
 // ----------------------------------Sales Calculator---------------------------------->
-// route for systemid form.
+// route for salescalc form.
 router.get("/form/salescalc", async (req, res) => {
   let clients = await Client.distinct("clientName");
-  res.render("salesCalc.ejs", { clients });
+  res.render("utilities/salesCalc.ejs", { clients });
 });
 
-// Route to handle systemid form submission.
+// Route to handle salescalc form submission.
 router.post("/form/salescalc", async (req, res) => {
   let formData = req.body;
 
   await Calculator.create(formData);
-  res.send("TTR created successfully!");
+  res.send("Sales Calculation created successfully!");
 });
 
 // ----------------------------------Production Calculator---------------------------------->
-// route for systemid form.
+// route for prodcalc form.
 router.get("/form/prodcalc", async (req, res) => {
   let clients = await Client.distinct("clientName");
-  res.render("prodCalc.ejs", { title: "Production Calculator", CSS: false, JS: "prodCalc.js", clients, notification: req.flash("notification") });
+  res.render("utilities/prodCalc.ejs", { title: "Production Calculator", CSS: false, JS: "prodCalc.js", clients, notification: req.flash("notification") });
 });
 
+// Route to handle prodcalc form submission.
 router.get("/form/prodcalc/data", async (req, res) => {
   let { w, h, client } = req.query;
   console.log(w, h, client);
@@ -340,7 +340,7 @@ router.post("/form/prodcalc", async (req, res) => {
   let formData = req.body;
 
   await Calculator.create(formData);
-  res.send("TTR created successfully!");
+  res.send("Production Calculation created successfully!");
 });
 
 // ----------------------------------Block Master---------------------------------->
@@ -348,7 +348,7 @@ router.post("/form/prodcalc", async (req, res) => {
 router.get("/form/block", async (req, res) => {
   let clients = await Client.distinct("clientName");
   console.log(clients);
-  res.render("forms/blockMaster.ejs", {
+  res.render("utilities/blockMaster.ejs", {
     CSS: false,
     title: "Block",
     JS: false,
@@ -372,7 +372,7 @@ router.post("/form/block", async (req, res) => {
 router.get("/form/die", async (req, res) => {
   let clients = await Client.distinct("clientName");
   console.log(clients);
-  res.render("forms/dieMaster.ejs", {
+  res.render("utilities/dieMaster.ejs", {
     CSS: "tabOpt.css",
     title: "Die",
     JS: "clientForm.js",
@@ -445,11 +445,11 @@ router.get("/edit/details/:id", async (req, res) => {
 
 // ----------------------------------Master display---------------------------------->
 // route for details page.
-router.get("/disp/master", async (req, res) => {
+router.get("/master/view", async (req, res) => {
   let jsonData = await Username.find().sort({ clientName: 1 });
 
   // console.log(jsonData);
-  res.render("display/masterDisp.ejs", { jsonData, CSS: false, JS: false, title: "Client View", notification: req.flash("notification") });
+  res.render("users/masterDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Client View", notification: req.flash("notification") });
 });
 
 // ----------------------------------Labels display---------------------------------->
@@ -457,30 +457,30 @@ router.get("/disp/master", async (req, res) => {
 router.get("/disp/labels", async (req, res) => {
   let jsonData = await Label.find();
   
-  res.render("display/labelsDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
+  res.render("inventory/labelsDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Labels Display", notification: req.flash("notification") });
 });
 
 // ----------------------------------Labels display (individual)---------------------------------->
 // route for details page.
-router.get("/disp/labels/:id", async (req, res) => {
+router.get("/labels/view/:id", async (req, res) => {
   console.log(req.params.id);
   let userData = await Username.findById(req.params.id).populate("label");
   let jsonData = userData.label;
 
   console.log(jsonData);
   // res.send("hello");
-  res.render("display/labelsDisp.ejs", { jsonData, CSS: false, JS: false, title: "Labels Display", notification: req.flash("notification") });
+  res.render("inventory/labelsDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Labels Display", notification: req.flash("notification") });
 });
 
 // ----------------------------------TTR display---------------------------------->
 // route for details page.
-router.get("/disp/ttr/:id", async (req, res) => {
+router.get("/ttr/view/:id", async (req, res) => {
   let userData = await Username.findById(req.params.id).populate("ttr");
   let jsonData = userData.ttr;
   
   // jsonData.push(itemsCount);
   console.log(jsonData);
-  res.render("display/ttrDisp.ejs", { jsonData, CSS: false, JS: false, title: "TTR Display", notification: req.flash("notification") });
+  res.render("inventory/ttrDisp.ejs", { jsonData, CSS: false, JS: false, title: "TTR Display", notification: req.flash("notification") });
 });
 
 export default router;

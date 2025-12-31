@@ -1,12 +1,12 @@
 import express from "express";
-import Tape from "../models/tape.js";
-import TapeBinding from "../models/tapeBinding.js";
-import Client from "../models/client.js";
-import Username from "../models/username.js";
+import Tape from "../../models/inventory/tape.js";
+import TapeBinding from "../../models/inventory/tapeBinding.js";
+import Client from "../../models/users/client.js";
+import Username from "../../models/users/username.js";
 
 const router = express.Router();
 
-/* ================= GET : Load Tape Binding Form ================= */
+/* GET : Load Tape Binding Form */
 router.get("/form/tape-binding", async (req, res) => {
   try {
     const clients = await Client.distinct("clientName");
@@ -18,7 +18,7 @@ router.get("/form/tape-binding", async (req, res) => {
     const widths = await Tape.distinct("tapeWidth", { status: "ACTIVE" });
     const mtrsList = await Tape.distinct("tapeMtrs", { status: "ACTIVE" });
 
-    res.render("forms/tapeBinding.ejs", {
+    res.render("inventory/tapeBinding.ejs", {
       title: "Client Tape",
       clients,
       CSS: false,
@@ -37,7 +37,7 @@ router.get("/form/tape-binding", async (req, res) => {
   }
 });
 
-/* ================= POST : Save Tape Binding ================= */
+/* POST : Save Tape Binding */
 router.post("/form/tape-binding", async (req, res) => {
   try {
     if (!req.body.tapeId) {
@@ -101,7 +101,7 @@ router.post("/form/tape-binding", async (req, res) => {
 });
 
 
-/* ================= GET : Fetch Users by Client (AJAX) ================= */
+/* GET : Fetch Users by Client (AJAX) */
 router.get("/form/tape-binding/client/:name", async (req, res) => {
   try {
     const clientData = await Client
@@ -115,7 +115,7 @@ router.get("/form/tape-binding/client/:name", async (req, res) => {
   }
 });
 
-/* ================= GET : Resolve Tape from Specifications ================= */
+/* GET : Resolve Tape from Specifications */
 router.get("/form/tape-binding/resolve-tape", async (req, res) => {
   try {
     const {
@@ -165,16 +165,16 @@ router.get("/form/tape-binding/resolve-tape", async (req, res) => {
   }
 });
 
-/* ================= GET : Display Bound Tapes ================= */
-router.get("/disp/tapebind/:id", async (req, res) => {
+/* GET : Display Bound Tapes */
+router.get("/tape/view/:id", async (req, res) => {
   try {
     const userData = await Username
       .findById(req.params.id)
       .populate("tape");
 
-    res.render("display/tapeDisp.ejs", {
+    res.render("inventory/tapeDisp.ejs", {
       jsonData: userData?.tape || [],
-      CSS: false,
+      CSS: "tableDisp.css",
       JS: false,
       title: "Tape Display",
       notification: req.flash("notification"),

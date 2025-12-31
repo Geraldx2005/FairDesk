@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import Employee from "../models/employee_model.js";
+import Employee from "../../models/hr/employee_model.js";
 import multer from "multer";
 import path from "path";
 const router = express.Router();
@@ -33,12 +33,12 @@ const upload = multer({
 // route for rendering employee form.
 router.get("/create", async (req, res) => {
   let employeeCount = (await Employee.countDocuments()) + 1;
-  res.render("forms/employee.ejs", {
+  res.render("hr/employee.ejs", {
     CSS: false,
     title: "Employee Details",
     JS: false,
     employeeCount,
-    employee: null, // 🔥 IMPORTANT PATCH
+    employee: null,
     notification: req.flash("notification"),
   });
 });
@@ -48,10 +48,10 @@ router.get("/view", async (req, res) => {
   
   let jsonData = await Employee.find();
 
-  res.render("display/employeeDisp.ejs", {
+  res.render("hr/employeeDisp.ejs", {
     jsonData,
-    CSS: false,
     title: "Employee View",
+    CSS: "tableDisp.css",
     JS: false,
     notification: req.flash("notification"),
   });
@@ -90,7 +90,7 @@ router.get("/profile/:id", async (req, res) => {
       return res.status(404).send("Employee not found");
     }
 
-    res.render("display/employeeView.ejs", {
+    res.render("hr/employeeView.ejs", {
       employee,
     });
   } catch (err) {
@@ -116,7 +116,7 @@ router.get("/edit/:id", async (req, res) => {
     const employee = await Employee.findById(req.params.id).lean();
     if (!employee) return res.status(404).send("Employee not found");
 
-    res.render("forms/employee.ejs", {
+    res.render("hr/employee.ejs", {
       title: "Edit Employee",
       CSS: false,
       JS: false,

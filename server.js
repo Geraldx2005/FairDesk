@@ -2,12 +2,12 @@ import express from "express";
 import ejsMate from "ejs-mate";
 import connectDB from "./config/db.js";
 import fairdeskRoute from "./routes/fairdesk_route.js";
-import payrollRoute from "./routes/payroll.js";
-import loanRoute from "./routes/loan.js";
-import advanceRoute from "./routes/advance.js";
-import employeeRoute from "./routes/employee.js";
-import pettycashRoute from "./routes/pettycash.js";
-import tapeBindingRoutes from "./routes/tapeBinding.js";
+import payrollRoute from "./routes/acccounting/payroll.js";
+import loanRoute from "./routes/acccounting/loan.js";
+import advanceRoute from "./routes/acccounting/advance.js";
+import employeeRoute from "./routes/hr/employee.js";
+import pettycashRoute from "./routes/acccounting/pettycash.js";
+import tapeBindingRoutes from "./routes/inventory/tapeBinding.js";
 import tapeStockRoutes from "./routes/stock/tapeStock.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
@@ -40,7 +40,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(dir_name, "public")));
 app.use("/bootstrap", express.static(dir_name + "/node_modules/bootstrap/dist"));
 
-
 app.use("/employeeImages", express.static(path.join(process.cwd(), "employeeImages")));
 
 /* SESSION (THIS IS THE KEY) */
@@ -52,7 +51,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,      // localhost
+      secure: false, // localhost
       sameSite: "lax",
       maxAge: 1000 * 60 * 60, // 1 hour
     },

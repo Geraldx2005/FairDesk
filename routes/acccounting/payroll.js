@@ -1,19 +1,19 @@
 import express from "express";
-import Employee from "../models/employee_model.js";
-import Payroll from "../models/Payroll.js";
-import PayrollLog from "../models/PayrollLog.js";
-import Loan from "../models/Loan.js";
-import LoanLog from "../models/LoanLog.js";
-import Advance from "../models/Advance.js";
-import AdvanceLog from "../models/AdvanceLog.js";
+import Employee from "../../models/hr/employee_model.js";
+import Payroll from "../../models/accounting/Payroll.js";
+import PayrollLog from "../../models/accounting/PayrollLog.js";
+import Loan from "../../models/accounting/Loan.js";
+import LoanLog from "../../models/accounting/LoanLog.js";
+import Advance from "../../models/accounting/Advance.js";
+import AdvanceLog from "../../models/accounting/AdvanceLog.js";
 
 const router = express.Router();
 
-/* ================= SHOW PAYROLL FORM ================= */
+/* SHOW PAYROLL FORM */
 router.get("/create", async (req, res) => {
   const employees = await Employee.find({ isActive: true }).sort({ empName: 1 });
 
-  res.render("forms/payroll", {
+  res.render("accounting/payroll", {
     employees,
     CSS: false,
     JS: false,
@@ -24,7 +24,7 @@ router.get("/create", async (req, res) => {
   });
 });
 
-/* ================= CREATE PAYROLL ================= */
+/* CREATE PAYROLL */
 router.post("/create", async (req, res) => {
   try {
     const {
@@ -37,13 +37,13 @@ router.post("/create", async (req, res) => {
       incentive = 0,
     } = req.body;
 
-    /* ================= FETCH EMPLOYEE ================= */
+    /* FETCH EMPLOYEE */
     const emp = await Employee.findById(employeeId);
     if (!emp) {
       req.flash("error", "Employee not found");
       return res.redirect("back");
     }
-    /* ===== FETCH EMI FROM LOAN MASTER ===== */
+    /* FETCH EMI FROM LOAN MASTER */
     let emiAmount = 0;
     const loan = await Loan.findOne({ employee: emp._id });
 
@@ -51,7 +51,7 @@ router.post("/create", async (req, res) => {
       emiAmount = loan.emi;
     }
 
-    /* ================= BLOCK DUPLICATE PAYROLL (LOG LEVEL) ================= */
+    /* BLOCK DUPLICATE PAYROLL (LOG LEVEL) */
     const alreadyLogged = await PayrollLog.findOne({
       employee: employeeId,
       month,
@@ -66,7 +66,7 @@ router.post("/create", async (req, res) => {
       return res.redirect("back");
     }
 
-    /* ================= ADVANCE (DEDUCTION RULE) ================= */
+    /* ADVANCE (DEDUCTION RULE) */
     const advanceRecord = await Advance.findOne({ employee: employeeId });
     let advanceDeduction = 0;
 
@@ -78,12 +78,12 @@ router.post("/create", async (req, res) => {
       );
     }
 
-    /* ================= ABSENT CALCULATION ================= */
+    /* ABSENT CALCULATION */
     const totalDays = Number(presentDays) + Number(absentDays);
     const perDaySalary = totalDays ? emp.basicSalary / totalDays : 0;
     const absentAmount = Number(absentDays) * perDaySalary;
 
-    /* ================= ADDITIONS ================= */
+    /* ADDITIONS */
     const otAmount = Number(req.body.empOtAmount || 0);
     const houseRent = Number(req.body.houseRent || 0);
     const travelling = Number(req.body.travelling || 0);
@@ -93,7 +93,7 @@ router.post("/create", async (req, res) => {
     const totalAdditions =
       otAmount + houseRent + travelling + railwayPass + bonus;
 
-    /* ================= GROSS SALARY ================= */
+    /* GROSS SALARY */
     const grossSalary = Number(
       (
         Number(emp.basicSalary) +
@@ -102,7 +102,7 @@ router.post("/create", async (req, res) => {
       ).toFixed(2)
     );
 
-    /* ================= TOTAL DEDUCTIONS ================= */
+    /* TOTAL DEDUCTIONS */
     const totalDeduction = Number(
       (
         Number(emp.empPF || 0) +
@@ -114,12 +114,12 @@ router.post("/create", async (req, res) => {
       ).toFixed(2)
     );
 
-    /* ================= TAKE AWAY ================= */
+    /* TAKE AWAY */
     const takeAway = Number(
       Math.max(grossSalary - totalDeduction, 0).toFixed(2)
     );
 
-    /* ================= UPSERT PAYROLL (SNAPSHOT) ================= */
+    /* UPSERT PAYROLL (SNAPSHOT) */
     const payroll = await Payroll.findOneAndUpdate(
       { employee: emp._id },
       {
@@ -142,7 +142,7 @@ router.post("/create", async (req, res) => {
       { upsert: true, new: true }
     );
 
-    /* ================= PAYROLL LOG (HISTORY) ================= */
+    /* PAYROLL LOG (HISTORY) */
     await PayrollLog.create({
       employee: emp._id,
       payroll: payroll._id,
@@ -166,8 +166,7 @@ router.post("/create", async (req, res) => {
       source: "SYSTEM",
     });
 
-    /* ================= LOAN EMI (LOGGED) ================= */
-    /* ===== LOAN EMI DEDUCTION ===== */
+    /* LOAN EMI DEDUCTION */
     if (emiAmount > 0 && loan) {
       const openingBalance = loan.currentBalance;
       const closingBalance = Math.max(openingBalance - emiAmount, 0);
@@ -189,7 +188,7 @@ router.post("/create", async (req, res) => {
       });
     }
 
-    /* ================= ADVANCE (LOGGED) ================= */
+    /* ADVANCE (LOGGED) */
     if (advanceDeduction > 0 && advanceRecord) {
       const openingBalance = advanceRecord.currentBalance;
       const closingBalance = openingBalance - advanceDeduction;
@@ -220,19 +219,19 @@ router.post("/create", async (req, res) => {
   }
 });
 
-/* ================= FETCH LOAN ================= */
+/* FETCH LOAN */
 router.get("/loan/:employeeId", async (req, res) => {
   const loan = await Loan.findOne({ employee: req.params.employeeId }).lean();
   res.json(loan || { currentBalance: 0 });
 });
 
-/* ================= FETCH ADVANCE ================= */
+/* FETCH ADVANCE */
 router.get("/advance/:employeeId", async (req, res) => {
   const advance = await Advance.findOne({ employee: req.params.employeeId }).lean();
   res.json(advance || { currentBalance: 0 });
 });
 
-/* ================= PAYROLL DISPLAY (LATEST PER EMPLOYEE) ================= */
+/* PAYROLL DISPLAY (LATEST PER EMPLOYEE) */
 router.get("/view", async (req, res) => {
   const payrolls = await Payroll.aggregate([
     { $sort: { year: -1, month: -1, createdAt: -1 } },
@@ -277,16 +276,16 @@ router.get("/view", async (req, res) => {
     takeAway: p.takeAway,
   }));
 
-  res.render("display/payrollDisp", {
+  res.render("accounting/payrollDisp", {
     jsonData,
-    CSS: false,
+    CSS: "tableDisp.css",
     JS: false,
     title: "Payroll View",
     navigator: "payroll",
   });
 });
 
-/* ================= EMPLOYEE PAYROLL HISTORY ================= */
+/* EMPLOYEE PAYROLL HISTORY */
 router.get("/employee/:id/payrolls", async (req, res) => {
   try {
     const logs = await PayrollLog.find({ employee: req.params.id })
@@ -323,7 +322,7 @@ router.get("/employee/:id/payrolls", async (req, res) => {
   }
 });
 
-/* ================= FETCH EMPLOYEE (FOR PAYROLL & ADVANCE) ================= */
+/* FETCH EMPLOYEE (FOR PAYROLL & ADVANCE) */
 router.get("/employee/:id", async (req, res) => {
   try {
     const emp = await Employee.findById(req.params.id)

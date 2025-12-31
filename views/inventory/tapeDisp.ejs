@@ -1,0 +1,121 @@
+<!-- Link to boilerplate.ejs -->
+<% layout('/layout/boilerplate') -%>
+
+<!-- Tabulator CSS -->
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
+<link href="https://unpkg.com/tabulator-tables@5.6.2/dist/css/tabulator_modern.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
+      <div class="indi-head">
+        <h1>Tapes</h1>
+        <div class="download-btns">
+          <div class="download-selector" id="downloadSelector">
+            <button class="download-selector__trigger">
+              <span>
+                <i class="fa-solid fa-file-arrow-down"></i>
+                <span class="download-typo">Download</span>
+              </span>
+              <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
+            </button>
+            <div class="download-selector__menu" id="downloads">
+              <span class="download-selector__option" id="download-pdf">
+                <i class="fas fa-file-pdf download-selector__option-icon"></i>
+                <span>PDF</span>
+              </span>
+              <span class="download-selector__option" id="download-xlsx">
+                <i class="fas fa-file-excel download-selector__option-icon"></i>
+                <span>Excel</span>
+              </span>
+            </div>
+          </div>
+      </div>
+    </div>
+
+    <div id="master-table" class="tabulator tabulator-modern"></div>
+</div>
+
+  <!-- Tabulator JS -->
+  <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    // Render data from Express (passed into EJS)
+    const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
+
+    tableData.forEach(user => {
+      user.labelCount = user.label?.length || 0;
+      user.ttrCount = user.ttr?.length || 0;
+      user.tapeCount = user.tape?.length || 0;
+    });
+
+    console.log(tableData);
+
+    // Initialize Tabulator
+    const table = new Tabulator("#master-table", {
+      data: tableData,
+      layout: "fitDataTable", // expand to fit content + allow horizontal scroll
+      responsiveLayout: false,
+      pagination: "local",
+      paginationSize: 30,
+      movableColumns: true,
+      placeholder: "No data to display",
+      columns: [
+        { title: "Tape Product ID", field: "tapeProductId" },
+        { title: "Client Name", field: "clientName" },
+        { title: "User Name", field: "userName" },
+        { title: "User Contact", field: "userContact" },
+        { title: "Location", field: "location" },
+        { title: "Paper Code", field: "tapePaperCode" },
+        { title: "GSM", field: "tapeGsm" },
+        { title: "Client Paper Code", field: "tapeClientPaperCode" },
+        { title: "Client GSM", field: "clientTapeGsm" },
+        { title: "Paper Type", field: "tapePaperType" },
+        { title: "Width", field: "tapeWidth" },
+        { title: "Mtrs", field: "tapeMtrs" },
+        { title: "Mtrs Del", field: "tapeMtrsDel" },
+        { title: "Core ID", field: "tapeCoreId" },
+        { title: "Rate Per Roll", field: "tapeRatePerRoll" },
+        { title: "Sale Cost", field: "tapeSaleCost" },
+        { title: "Min Qty", field: "tapeMinQty" },
+        { title: "Order Qty", field: "tapeOdrQty" },
+        { title: "Order Freq", field: "tapeOdrFreq" },
+        { title: "Credit Term", field: "tapeCreditTerm" },
+      ]
+    });
+
+    // Dropdown toggle
+    const selector = document.getElementById("downloadSelector");
+    const trigger = selector.querySelector(".download-selector__trigger");
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selector.classList.toggle("download-selector--active");
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener("click", () => {
+      selector.classList.remove("download-selector--active");
+    });
+
+    // PDF download
+    document.getElementById("download-pdf").addEventListener("click", () => {
+      table.download("pdf", "labels.pdf", {
+        orientation: "landscape",
+        title: "Labels Data",
+      });
+      selector.classList.remove("download-selector--active");
+    });
+
+    // Excel download
+    document.getElementById("download-xlsx").addEventListener("click", () => {
+      table.download("xlsx", "labels.xlsx", {
+        sheetName: "Labels",
+      });
+      selector.classList.remove("download-selector--active");
+    });
+
+  </script>
+</body>

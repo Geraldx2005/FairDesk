@@ -1,16 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
-import Employee from "../models/employee_model.js";
-import Loan from "../models/Loan.js";
-import LoanLog from "../models/LoanLog.js";
+import Employee from "../../models/hr/employee_model.js";
+import Loan from "../../models/accounting/Loan.js";
+import LoanLog from "../../models/accounting/LoanLog.js";
 
 const router = express.Router();
 
-/* ===== SHOW LOAN FORM ===== */
+/* SHOW LOAN FORM */
 router.get("/create", async (req, res) => {
   const employees = await Employee.find({ isActive: true });
 
-  res.render("forms/loan", {
+  res.render("accounting/loan", {
     employees,
     CSS: false,
     JS: false,
@@ -21,9 +21,7 @@ router.get("/create", async (req, res) => {
   });
 });
 
-/* ===== ADD / UPDATE LOAN ===== */
-/* ===== ADD / RE-ISSUE LOAN ===== */
-/* ===== ADD / RE-ISSUE LOAN ===== */
+/* ADD / RE-ISSUE LOAN */
 router.post("/create", async (req, res) => {
   try {
     const { employeeId, loanAmount } = req.body;
@@ -44,7 +42,7 @@ router.post("/create", async (req, res) => {
 
     let loan = await Loan.findOne({ employee: empObjectId });
 
-    /* ================= FIRST TIME LOAN ================= */
+    /* FIRST TIME LOAN */
     if (!loan) {
       const newLoan = await Loan.create({
         employee: empObjectId,
@@ -57,7 +55,7 @@ router.post("/create", async (req, res) => {
         employee: empObjectId,
         loan: newLoan._id,
         openingBalance: 0,
-        amount: amount,          // full loan amount
+        amount: amount,
         closingBalance: amount,
         type: "CREDIT",
         source: "MANUAL",
@@ -67,11 +65,11 @@ router.post("/create", async (req, res) => {
       return res.redirect("/fairdesk/loan/create");
     }
 
-    /* ================= LOAN RE-ISSUE (TOP-UP / CONSOLIDATION) ================= */
+    /* LOAN RE-ISSUE (TOP-UP / CONSOLIDATION) */
 
     const oldBalance = loan.currentBalance;
 
-    /* 🔹 1. CLOSE OLD LOAN BALANCE */
+    /* 1. CLOSE OLD LOAN BALANCE */
     await LoanLog.create({
       employee: empObjectId,
       loan: loan._id,
@@ -82,20 +80,20 @@ router.post("/create", async (req, res) => {
       source: "MANUAL",
     });
 
-    /* 🔹 2. UPDATE LOAN MASTER (OVERRIDE EMI) */
+    /* 2. UPDATE LOAN MASTER (OVERRIDE EMI) */
     const consolidatedAmount = oldBalance + amount;
 
     loan.currentBalance = consolidatedAmount;
-    loan.emi = newEmi;           // ✅ EMI OVERRIDDEN (NOT ADDED)
+    loan.emi = newEmi; //  EMI OVERRIDDEN (NOT ADDED)
     loan.status = "ACTIVE";
     await loan.save();
 
-    /* 🔹 3. LOG ONLY THE TOP-UP */
+    /* 3. LOG ONLY THE TOP-UP */
     await LoanLog.create({
       employee: empObjectId,
       loan: loan._id,
       openingBalance: oldBalance,
-      amount: amount,            // only top-up amount
+      amount: amount, // only top-up amount
       closingBalance: consolidatedAmount,
       type: "CREDIT",
       source: "MANUAL",
@@ -111,10 +109,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-
-
-
-/* ================= LOAN DISPLAY ================= */
+/* LOAN DISPLAY */
 router.get("/view", async (req, res) => {
   const loans = await Loan.find()
     .populate("employee", "empName empId")
@@ -122,7 +117,7 @@ router.get("/view", async (req, res) => {
     .lean();
 
   const jsonData = loans.map(l => ({
-    employeeId: l.employee?._id,   // ✅ ADD THIS
+    employeeId: l.employee?._id,
     employeeName: l.employee?.empName || "-",
     empId: l.employee?.empId || "-",
     currentBalance: l.currentBalance,
@@ -131,16 +126,16 @@ router.get("/view", async (req, res) => {
     updatedAt: new Date(l.updatedAt).toLocaleDateString(),
   }));
 
-  res.render("display/loanDisp", {
+  res.render("accounting/loanDisp", {
     jsonData,
     title: "Loan View",
-    CSS: false,
+    CSS: "tableDisp.css",
     JS: false,
     navigator: "loan",
   });
 });
 
-/* ================= EMPLOYEE LOAN LOG HISTORY ================= */
+/* EMPLOYEE LOAN LOG HISTORY */
 router.get("/employee/:employeeId/logs", async (req, res) => {
   const { employeeId } = req.params;
 
@@ -161,8 +156,8 @@ router.get("/employee/:employeeId/logs", async (req, res) => {
     amount: l.amount,
     closingBalance: l.closingBalance,
 
-    type: l.type,         // CREDIT / DEBIT
-    source: l.source,     // MANUAL / PAYROLL
+    type: l.type, // CREDIT / DEBIT
+    source: l.source, // MANUAL / PAYROLL
     date: new Date(l.createdAt).toLocaleDateString(),
   }));
 

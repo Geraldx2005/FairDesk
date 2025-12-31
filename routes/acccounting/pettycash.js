@@ -1,16 +1,15 @@
 import express from "express";
-import PettyCash from "../models/PettyCash.js";
-import PettyCashLog from "../models/PettyCashLog.js";
+import PettyCash from "../../models/accounting/PettyCash.js";
+import PettyCashLog from "../../models/accounting/PettyCashLog.js";
 
 const router = express.Router();
 
-/* ================= HELPERS ================= */
-/* ===== READ ONLY (NO SIDE EFFECTS) ===== */
+/* READ ONLY (NO SIDE EFFECTS) */
 async function findPettyCash(location) {
   return await PettyCash.findOne({ location });
 }
 
-/* ===== CREATE ONLY WHEN TXN IS VALID ===== */
+/* CREATE ONLY WHEN TXN IS VALID */
 async function getOrCreatePettyCash(location) {
   let petty = await PettyCash.findOne({ location });
 
@@ -24,9 +23,9 @@ async function getOrCreatePettyCash(location) {
   return petty;
 }
 
-/* ================= SHOW ENTRY FORM ================= */
+/* SHOW ENTRY FORM */
 router.get("/create", async (req, res) => {
-  res.render("forms/pettycash", {
+  res.render("accounting/pettycash", {
     title: "Petty Cash",
     navigator: "pettycash",
     CSS: false,
@@ -36,13 +35,13 @@ router.get("/create", async (req, res) => {
   });
 });
 
-/* ================= ADD TRANSACTION ================= */
+/* ADD TRANSACTION */
 router.post("/create", async (req, res) => {
   try {
     const { location, from, to, amount, type, reason } = req.body;
     const txnAmount = Number(amount) || 0;
 
-    /* ===== BASIC VALIDATION ===== */
+    /* BASIC VALIDATION */
     if (
       !location ||
       txnAmount <= 0 ||
@@ -54,42 +53,38 @@ router.post("/create", async (req, res) => {
       return res.redirect("back");
     }
 
-    /* ===== UI → INTERNAL TYPE MAP ===== */
+    /* UI → INTERNAL TYPE MAP */
     const internalType = type === "RECEIVED" ? "INWARD" : "OUTWARD";
 
-    /* =====================================================
-       READ FIRST — NO CREATE, NO UPDATE
-       ===================================================== */
+    /* READ FIRST — NO CREATE, NO UPDATE */
     const existingPetty = await findPettyCash(location);
     const openingBalance = existingPetty?.currentBalance ?? 0;
 
-    /* ===== HARD STOP — ETHICAL GUARD ===== */
+    /* HARD STOP — ETHICAL GUARD */
     if (internalType === "OUTWARD" && txnAmount > openingBalance) {
       req.flash("error", "Insufficient petty cash balance");
-      return res.redirect("back"); // ❌ NO CREATE, NO UPDATE, NO LOG
+      return res.redirect("back"); // NO CREATE, NO UPDATE, NO LOG
     }
 
-    /* =====================================================
-       NOW IT IS SAFE TO CREATE / UPDATE
-       ===================================================== */
+    /* NOW IT IS SAFE TO CREATE / UPDATE */
     const petty = await getOrCreatePettyCash(location);
 
-    /* ===== CALCULATE CLOSING BALANCE ===== */
+    /* CALCULATE CLOSING BALANCE */
     const closingBalance =
       internalType === "INWARD"
         ? openingBalance + txnAmount
         : openingBalance - txnAmount;
 
-    /* ===== FINAL SAFETY ASSERTION ===== */
+    /* FINAL SAFETY ASSERTION */
     if (closingBalance < 0) {
       throw new Error("Invariant violation: negative petty cash balance");
     }
 
-    /* ===== UPDATE MASTER ===== */
+    /* UPDATE MASTER */
     petty.currentBalance = closingBalance;
     await petty.save();
 
-    /* ===== CREATE LOG (SUCCESS ONLY) ===== */
+    /* CREATE LOG (SUCCESS ONLY) */
     await PettyCashLog.create({
       location,
         
@@ -120,8 +115,8 @@ router.post("/create", async (req, res) => {
   }
 });
 
-/* ================= SNAPSHOT (ALL LOCATIONS) ================= */
-router.get("/disp", async (req, res) => {
+/* SNAPSHOT (ALL LOCATIONS) */
+router.get("/view", async (req, res) => {
   try {
     const pettyList = await PettyCash.find().lean();
 
@@ -132,11 +127,11 @@ router.get("/disp", async (req, res) => {
       updatedAt: p.updatedAt,
     }));
 
-    res.render("display/pettycashDisp", {
+    res.render("accounting/pettycashDisp", {
       jsonData: snapshot,
       title: "Petty Cash View",
       navigator: "pettycash",
-      CSS: false,
+      CSS: "tableDisp.css",
       JS: false,
     });
   } catch (err) {
@@ -146,7 +141,7 @@ router.get("/disp", async (req, res) => {
   }
 });
 
-/* ================= LOCATION-WISE LOGS ================= */
+/* LOCATION-WISE LOGS */
 router.get("/logs/:location", async (req, res) => {
   try {
     const { location } = req.params;
@@ -161,7 +156,7 @@ router.get("/logs/:location", async (req, res) => {
   }
 });
 
-/* ================= LOCATION BALANCE (READ ONLY) ================= */
+/* LOCATION BALANCE (READ ONLY) */
 router.get("/balance/:location", async (req, res) => {
   const { location } = req.params;
 

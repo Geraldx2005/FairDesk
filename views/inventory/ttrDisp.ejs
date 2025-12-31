@@ -294,7 +294,7 @@
     font-size: 1.25rem;
   }
 
-  /* Make empty tabulator area !grey */
+    /* Make empty tabulator area !grey */
   .tabulator {
     background-color: #f0f2f5 !important;
   }
@@ -326,9 +326,9 @@
 </head>
 
 <body>
-<div class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
+  <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px" >
       <div class="indi-head">
-        <h1>Tapes</h1>
+        <h1>TTR's</h1>
         <div class="download-btns">
           <div class="download-selector" id="downloadSelector">
             <button class="download-selector__trigger">
@@ -360,6 +360,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
+
   <script>
     // Render data from Express (passed into EJS)
     const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
@@ -380,44 +381,48 @@
       pagination: "local",
       paginationSize: 30,
       movableColumns: true,
+      placeholder: "No data to display",
       columns: [
-        { title: "Tape Product ID", field: "tapeProductId" },
+        { title: "Product ID", field: "productId" },
         { title: "Client Name", field: "clientName" },
         { title: "User Name", field: "userName" },
         { title: "User Contact", field: "userContact" },
         { title: "Location", field: "location" },
-        { title: "Paper Code", field: "tapePaperCode" },
-        { title: "GSM", field: "tapeGsm" },
-        { title: "Client Paper Code", field: "tapeClientPaperCode" },
-        { title: "Client GSM", field: "clientTapeGsm" },
-        { title: "Paper Type", field: "tapePaperType" },
-        { title: "Width", field: "tapeWidth" },
-        { title: "Mtrs", field: "tapeMtrs" },
-        { title: "Mtrs Del", field: "tapeMtrsDel" },
-        { title: "Core ID", field: "tapeCoreId" },
-        { title: "Rate Per Roll", field: "tapeRatePerRoll" },
-        { title: "Sale Cost", field: "tapeSaleCost" },
-        { title: "Min Qty", field: "tapeMinQty" },
-        { title: "Order Qty", field: "tapeOdrQty" },
-        { title: "Order Freq", field: "tapeOdrFreq" },
-        { title: "Credit Term", field: "tapeCreditTerm" },
+        { title: "TTR Type", field: "ttrType" },
+        { title: "TTR Color", field: "ttrColor" },
+        { title: "TTR Material Code", field: "ttrMaterialCode" },
+        { title: "TTR Client Code", field: "ttrClientCode" },
+        { title: "TTR Width", field: "ttrWidth" },
+        { title: "TTR Mtrs", field: "ttrMtrs" },
+        { title: "TTR Mtrs Del", field: "ttrMtrsDel" },
+        { title: "TTR Ink Face", field: "ttrInkFace" },
+        { title: "TTR Core ID", field: "ttrCoreId" },
+        { title: "TTR Core Length", field: "ttrCoreLength" },
+        { title: "TTR Notch", field: "ttrNotch" },
+        { title: "TTR Winding", field: "ttrWinding" },
+        { title: "TTR Rate Per Roll", field: "ttrRatePerRoll" },
+        { title: "TTR Sale Cost", field: "ttrSaleCost" },
+        { title: "TTR Min Qty", field: "ttrMinQty" },
+        { title: "TTR Single Odr Qty", field: "ttrSinOdrQty" },
+        { title: "TTR Odr Freq", field: "ttrOdrFreq" },
+        { title: "TTR Credit Term", field: "ttrCreditTerm" },
       ]
     });
 
     // Dropdown toggle
     const selector = document.getElementById("downloadSelector");
     const trigger = selector.querySelector(".download-selector__trigger");
-
+    
     trigger.addEventListener("click", (e) => {
       e.stopPropagation();
       selector.classList.toggle("download-selector--active");
     });
-
+  
     // Close dropdown on outside click
     document.addEventListener("click", () => {
       selector.classList.remove("download-selector--active");
     });
-
+  
     // PDF download
     document.getElementById("download-pdf").addEventListener("click", () => {
       table.download("pdf", "labels.pdf", {
@@ -426,7 +431,7 @@
       });
       selector.classList.remove("download-selector--active");
     });
-
+  
     // Excel download
     document.getElementById("download-xlsx").addEventListener("click", () => {
       table.download("xlsx", "labels.xlsx", {

@@ -41,14 +41,14 @@
         color: #0a3646;
       }
 
-/* Hide page content until JS finishes */
-.page-content {
-  opacity: 0;
-}
-.page-content.ready {
-  opacity: 1;
-  transition: opacity 0.15s ease-in;
-}    
+      /* Hide page content until JS finishes */
+      .page-content {
+        opacity: 0;
+      }
+      .page-content.ready {
+        opacity: 1;
+        transition: opacity 0.15s ease-in;
+      }    
 
       .toast-success {
         background-color: #d1e7dd;
@@ -111,7 +111,7 @@
           </div>
 
           <div class="nav-labels-opt">
-            <div title="Master View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/disp/master'" style="border-top: 2px solid #ffffff9d; border-bottom: 2px solid #ffffff9d" >
+            <div title="Master View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/master/view'" style="border-top: 2px solid #ffffff9d; border-bottom: 2px solid #ffffff9d" >
               <i class="fa-solid fa-eye" style="color: #ffffff"></i>
               <p class="nav-items-para">Client View</p>
             </div>
@@ -211,7 +211,7 @@
               <p class="nav-items-para" style="font-size: 11px; letter-spacing: 1px">VIEWS</p>
             </div>
 
-            <div title="Petty Cash View" class="<%= title === 'Petty Cash View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/pettycash/disp'" style="border-top: 2px solid #ffffff9d; margin-bottom: 5px">
+            <div title="Petty Cash View" class="<%= title === 'Petty Cash View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/pettycash/view'" style="border-top: 2px solid #ffffff9d; margin-bottom: 5px">
               <i class="fa-solid fa-address-book" style="color: #ffffff"></i>
               <p class="nav-items-para">Petty Cash</p>
             </div>            

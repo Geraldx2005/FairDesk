@@ -1,16 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
-import Employee from "../models/employee_model.js";
-import Advance from "../models/Advance.js";
-import AdvanceLog from "../models/AdvanceLog.js";
+import Employee from "../../models/hr/employee_model.js";
+import Advance from "../../models/accounting/Advance.js";
+import AdvanceLog from "../../models/accounting/AdvanceLog.js";
 
 const router = express.Router();
 
-/* ===== SHOW ADVANCE FORM ===== */
+/* SHOW ADVANCE FORM */
 router.get("/create", async (req, res) => {
   const employees = await Employee.find({ isActive: true });
 
-  res.render("forms/advance", {
+  res.render("accounting/advance", {
     employees,
     CSS: false,
     JS: false,
@@ -21,7 +21,7 @@ router.get("/create", async (req, res) => {
   });
 });
 
-/* ===== ADD / UPDATE ADVANCE (WITH 50% RULE + LOGS) ===== */
+/* ADD / UPDATE ADVANCE (WITH 50% RULE + LOGS) */
 router.post("/create", async (req, res) => {
   try {
     const { employeeId, advanceAmount } = req.body;
@@ -34,21 +34,21 @@ router.post("/create", async (req, res) => {
 
     const empObjectId = new mongoose.Types.ObjectId(employeeId);
 
-    /* ================= FETCH EMPLOYEE ================= */
+    /* FETCH EMPLOYEE */
     const emp = await Employee.findById(empObjectId);
     if (!emp) {
       req.flash("error", "Employee not found");
       return res.redirect("back");
     }
 
-    /* ================= 50% ADVANCE LIMIT ================= */
+    /* 50% ADVANCE LIMIT */
     const maxAllowedAdvance = emp.basicSalary * 0.5;
 
-    /* ================= FETCH EXISTING ADVANCE ================= */
+    /* FETCH EXISTING ADVANCE */
     let advance = await Advance.findOne({ employee: empObjectId });
     const currentBalance = advance?.currentBalance || 0;
 
-    /* ================= LIMIT CHECK ================= */
+    /* LIMIT CHECK */
     if (currentBalance + amount > maxAllowedAdvance) {
       req.flash(
         "error",
@@ -57,7 +57,7 @@ router.post("/create", async (req, res) => {
       return res.redirect("back");
     }
 
-    /* ================= CREATE NEW ADVANCE ================= */
+    /* CREATE NEW ADVANCE */
     if (!advance) {
       const newAdvance = await Advance.create({
         employee: empObjectId,
@@ -75,7 +75,7 @@ router.post("/create", async (req, res) => {
         source: "MANUAL",
       });
     }
-    /* ================= UPDATE EXISTING ADVANCE ================= */
+    /* UPDATE EXISTING ADVANCE */
     else {
       const openingBalance = advance.currentBalance;
       const closingBalance = openingBalance + amount;
@@ -104,7 +104,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-/* ================= ADVANCE DISPLAY ================= */
+/* ADVANCE DISPLAY */
 router.get("/view", async (req, res) => {
   const advances = await Advance.find()
     .populate("employee", "empName empId")
@@ -112,7 +112,7 @@ router.get("/view", async (req, res) => {
     .lean();
 
   const jsonData = advances.map(a => ({
-    employeeId: a.employee?._id,   // ✅ ADD THIS
+    employeeId: a.employee?._id,
     employeeName: a.employee?.empName || "-",
     empId: a.employee?.empId || "-",
     currentBalance: a.currentBalance,
@@ -121,16 +121,16 @@ router.get("/view", async (req, res) => {
   }));
 
 
-  res.render("display/advanceDisp", {
+  res.render("accounting/advanceDisp", {
     jsonData,
     title: "Advance View",
-    CSS: false,
+    CSS: "tableDisp.css",
     JS: false,
     navigator: "advance",
   });
 });
 
-/* ================= EMPLOYEE ADVANCE LOG HISTORY ================= */
+/* EMPLOYEE ADVANCE LOG HISTORY */
 router.get("/employee/:employeeId/logs", async (req, res) => {
   const { employeeId } = req.params;
 

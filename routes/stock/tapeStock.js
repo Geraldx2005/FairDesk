@@ -1,31 +1,20 @@
 import express from "express";
 import mongoose from "mongoose";
-import Tape from "../../models/Tape.js";
-import TapeStock from "../../models/TapeStock.js";
-import TapeStockLog from "../../models/TapeStockLog.js";
+import Tape from "../../models/inventory/tape.js";
+import TapeStock from "../../models/inventory/TapeStock.js";
+import TapeStockLog from "../../models/inventory/TapeStockLog.js";
 
 const router = express.Router();
 
-/* ================= RENDER ================= */
+/* RENDER */
 router.get("/", (req, res) => {
   res.render("stock/tapeStock", { title: "Tape Stock", CSS: false, JS: false, notification: req.flash("notification") });
 });
 
-/* ================= RESOLVE TAPE ================= */
-/* ================= RESOLVE TAPE ================= */
+/* RESOLVE TAPE */
 router.post("/resolve", async (req, res) => {
   try {
-    const {
-      paperCode,
-      gsm,
-      paperType,
-      width,
-      mtrs,
-      coreId,
-      finish, // coming from UI
-    } = req.body;
-
-    console.log("Resolve request 👉", req.body);
+    const { paperCode, gsm, paperType, width, mtrs, coreId, finish, } = req.body;
 
     const tape = await Tape.findOne({
       tapePaperCode: paperCode?.trim(),
@@ -34,7 +23,7 @@ router.post("/resolve", async (req, res) => {
       tapeWidth: Number(width),
       tapeMtrs: Number(mtrs),
       tapeCoreId: Number(coreId),
-      tapeFinish: finish, // ✅ SCHEMA FIELD
+      tapeFinish: finish,
     }).lean();
 
     if (!tape) {
@@ -53,9 +42,7 @@ router.post("/resolve", async (req, res) => {
   }
 });
 
-
-
-/* ================= BALANCE ================= */
+/* BALANCE */
 router.get("/balance/:tapeId/:location", async (req, res) => {
   const { tapeId, location } = req.params;
 
@@ -67,12 +54,9 @@ router.get("/balance/:tapeId/:location", async (req, res) => {
   res.json({ stock: bal[0]?.qty || 0 });
 });
 
-/* ================= CREATE ================= */
-/* ================= CREATE (INWARD ONLY) ================= */
+/* CREATE (INWARD ONLY) */
 router.post("/create", async (req, res) => {
   try {
-    console.log("🟢 HIT TAPE STOCK CREATE ROUTE");
-    console.log(req.body);
 
     const { tapeId, location, quantity, remarks } = req.body;
     const qty = Number(quantity);
@@ -84,7 +68,7 @@ router.post("/create", async (req, res) => {
 
     const tapeObjectId = new mongoose.Types.ObjectId(tapeId);
 
-    /* ================= CURRENT STOCK ================= */
+    /* CURRENT STOCK */
     const bal = await TapeStock.aggregate([
       { $match: { tape: tapeObjectId, location } },
       { $group: { _id: null, qty: { $sum: "$quantity" } } },
@@ -93,15 +77,15 @@ router.post("/create", async (req, res) => {
     const openingStock = bal[0]?.qty || 0;
     const closingStock = openingStock + qty;
 
-    /* ================= INSERT STOCK ================= */
+    /* INSERT STOCK */
     await TapeStock.create({
       tape: tapeObjectId,
       location,
-      quantity: qty, // INWARD
+      quantity: qty,
       remarks,
     });
 
-    /* ================= LOG ENTRY ================= */
+    /* LOG ENTRY */
     await TapeStockLog.create({
       tape: tapeObjectId,
       location,
@@ -123,8 +107,5 @@ router.post("/create", async (req, res) => {
     res.redirect("back");
   }
 });
-
-
-
 
 export default router;

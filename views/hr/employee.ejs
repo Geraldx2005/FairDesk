@@ -272,7 +272,7 @@
         <h1>Identification</h1>
     </div>    
 
-    <div class="span-hexa" id="die-remark-div">  
+    <div class="span-eight" id="die-remark-div">  
       <img id="empPhotoPreview" alt="Preview" />
       <div class="photo-upload-wrapper">
         <label for="emp-photo">Photo</label>
@@ -286,15 +286,31 @@
       </div>
     </div>
  
-    <div class="span-penta">
+    <div class="span-six">
       <label for="emp-aadhaar">Aadhaar</label>
       <input type="text" inputmode="numeric" id="emp-aadhaar" class="form-control input-tag" name="empAadhaar" value="<%= employee?.empAadhaar || '' %>" placeholder="Enter Aadhaar" />
     </div>
 
-    <div class="span-penta">
+    <div class="span-six" id="die-remark-div">  
+      <!-- <img id="empAadhaarPreview" alt="Preview" /> -->
+      <div class="photo-upload-wrapper">
+        <label for="emp-aadhaar-img">Aadhaar Image</label>
+        <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" accept="image/*" />
+      </div>
+    </div>    
+
+    <div class="span-six">
       <label for="emp-pan">PAN</label>
       <input type="text" id="emp-pan" class="form-control input-tag" maxlength="10" name="empPan" value="<%= employee?.empPan || '' %>" placeholder="Enter PAN" required />
-    </div>    
+    </div>
+
+    <div class="span-six" id="die-remark-div">  
+      <!-- <img id="empAadhaarPreview" alt="Preview" /> -->
+      <div class="photo-upload-wrapper">
+        <label for="emp-pan-img">PAN Image</label>
+        <input type="file" id="emp-pan-img" class="form-control input-tag" name="empPanImg" accept="image/*" />
+      </div>
+    </div>       
 
     <div class="span-full form-subheading">
         <h1>Banking</h1>
