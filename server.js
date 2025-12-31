@@ -19,31 +19,31 @@ import flash from "connect-flash";
 const app = express();
 const port = 3000;
 
-/* ================= ENV + DB ================= */
+/* ENV + DB */
 configDotenv({ quiet: true });
 connectDB();
 
-/* ================= PATH SETUP ================= */
+/* PATH SETUP */
 const file_name = fileURLToPath(import.meta.url);
 const dir_name = path.dirname(file_name);
 
-/* ================= VIEW ENGINE ================= */
+/* VIEW ENGINE */
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(dir_name, "views"));
 
-/* ================= BODY PARSERS ================= */
+/* BODY PARSERS */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ================= STATIC ================= */
+/* STATIC */
 app.use(express.static(path.join(dir_name, "public")));
 app.use("/bootstrap", express.static(dir_name + "/node_modules/bootstrap/dist"));
 
 
 app.use("/employeeImages", express.static(path.join(process.cwd(), "employeeImages")));
 
-/* ================= SESSION (THIS IS THE KEY) ================= */
+/* SESSION (THIS IS THE KEY) */
 app.use(
   session({
     name: "fairdesk.sid",
@@ -59,17 +59,17 @@ app.use(
   })
 );
 
-/* ================= FLASH ================= */
+/* FLASH */
 app.use(flash());
 
-/* ================= GLOBAL LOCALS ================= */
+/* GLOBAL LOCALS */
 app.use((req, res, next) => {
   res.locals.notification = req.session.flash?.notification || [];
   res.locals.error = req.session.flash?.error || [];
   next();
 });
 
-/* ================= ROUTES ================= */
+/* ROUTES */
 app.use("/fairdesk", fairdeskRoute);
 app.use("/fairdesk/payroll", payrollRoute);
 app.use("/fairdesk/loan", loanRoute);
@@ -79,18 +79,18 @@ app.use("/fairdesk/pettycash", pettycashRoute);
 app.use("/fairdesk", tapeBindingRoutes);
 app.use("/fairdesk/tapestock", tapeStockRoutes);
 
-/* ================= 404 ================= */
+/* 404 */
 app.all("*", (req, res) => {
   res.status(404).send("404 - Page Not Found");
 });
 
-/* ================= ERROR HANDLER ================= */
+/* ERROR HANDLER */
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.statusCode || 500).send(err.message || "Something went wrong");
 });
 
-/* ================= START ================= */
+/* START */
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

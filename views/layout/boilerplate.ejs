@@ -41,6 +41,15 @@
         color: #0a3646;
       }
 
+/* Hide page content until JS finishes */
+.page-content {
+  opacity: 0;
+}
+.page-content.ready {
+  opacity: 1;
+  transition: opacity 0.15s ease-in;
+}    
+
       .toast-success {
         background-color: #d1e7dd;
         color: #0a3646;
@@ -294,7 +303,9 @@
       </div>
 
       <!--- Loading Content --->
-      <%- body -%>
+      <div class="page-content" id="pageContent"></div>
+        <%- body -%>
+      </div>
     </div>
 
     <script src="/js/common.js" defer></script>
@@ -304,6 +315,12 @@
     <% if(JS) { %>
     <script src="/js/<%= JS %>" defer></script>
     <% } %>
+<script>
+  window.addEventListener("load", () => {
+    document.getElementById("pageContent")?.classList.add("ready");
+  });
+</script>
+
     <script>
       const toast = document.getElementById("toast");
 
