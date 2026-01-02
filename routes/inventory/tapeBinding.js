@@ -12,11 +12,13 @@ router.get("/form/tape-binding", async (req, res) => {
     const clients = await Client.distinct("clientName");
 
     // Specs from Tape Master (single source of truth)
-    const paperCodes = await Tape.distinct("tapePaperCode", { status: "ACTIVE" });
-    const paperTypes = await Tape.distinct("tapePaperType", { status: "ACTIVE" });
-    const gsms = await Tape.distinct("tapeGsm", { status: "ACTIVE" });
-    const widths = await Tape.distinct("tapeWidth", { status: "ACTIVE" });
-    const mtrsList = await Tape.distinct("tapeMtrs", { status: "ACTIVE" });
+    const paperCodes = await Tape.distinct("tapePaperCode");
+    const paperTypes = await Tape.distinct("tapePaperType");
+    const gsms = await Tape.distinct("tapeGsm");
+    const widths = await Tape.distinct("tapeWidth");
+    const mtrsList = await Tape.distinct("tapeMtrs");
+
+    console.log(paperCodes, paperTypes, gsms, widths, mtrsList);
 
     res.render("inventory/tapeBinding.ejs", {
       title: "Client Tape",

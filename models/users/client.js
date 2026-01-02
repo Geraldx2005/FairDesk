@@ -12,6 +12,8 @@ let clientSchema = new mongoose.Schema({
     // ownerEmail: { type: String, required: true },
     clientGst: { type: String, required: true },
     clientMsme: { type: String, required: true },
+    clientGumasta: { type: String, required: true },
+    clientPan: { type: String, required: true },
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "Username" }],
 });
 let Client = mongoose.model("Client", clientSchema);

@@ -1,54 +1,56 @@
 <!--- Link to boilerplate.ejs -->
 <% layout('/layout/boilerplate') -%>
+
 <style>
-/* Force ONLY this span-dual to be horizontal */
-/* Force ONLY this span-hexa block to be horizontal */
-#die-remark-div {
+/* ================= FLEX ROW FOR IMAGE + INPUT ================= */
+.die-remark-div {
   display: flex !important;
   flex-direction: row !important;
   align-items: center;
   gap: 12px;
 }
 
-/* Image on the LEFT */
-#empPhotoPreview {
+/* ================= IMAGE PREVIEWS (PHOTO / AADHAAR / PAN) ================= */
+#empPhotoPreview,
+#empAadhaarPreview,
+#empPanPreview {
   width: 60px;
   height: 60px;
-  object-fit: cover;          /* fill without distortion */
-  object-position: center 60%;/* optional: shift image down inside frame */
+  object-fit: cover;
+  object-position: center;
   border-radius: 8px;
   border: 1px solid #ccc;
   background-color: #f3f3f3;
   display: none;
-  flex-shrink: 0;             /* keeps it on the left */
+  flex-shrink: 0;
+  cursor: pointer;
+
+  /* smooth UX */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Right side: label above input + full width */
+/* Hover effect */
+#empPhotoPreview:hover,
+#empAadhaarPreview:hover,
+#empPanPreview:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ================= INPUT + LABEL WRAPPER ================= */
 .photo-upload-wrapper {
   display: flex;
   flex-direction: column;
   gap: 4px;
-
-  flex: 1;        /* ⬅️ take remaining width */
-  min-width: 0;   /* ⬅️ required for flex inputs */
+  flex: 1;
+  min-width: 0;
 }
 
-/* Make input stretch fully */
-.photo-upload-wrapper input {
+.photo-upload-wrapper input[type="file"] {
   width: 100%;
 }
 
-/* Clickable image */
-#empPhotoPreview {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-#empPhotoPreview:hover {
-  transform: scale(1.05);
-}
-
-/* Modal overlay */
+/* ================= IMAGE MODAL ================= */
 .image-modal {
   display: none;
   position: fixed;
@@ -57,6 +59,7 @@
   z-index: 9999;
   justify-content: center;
   align-items: center;
+  animation: fadeIn 0.2s ease;
 }
 
 /* Enlarged image */
@@ -64,19 +67,31 @@
   max-width: 90%;
   max-height: 90%;
   border-radius: 10px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
 }
 
 /* Close button */
 .close-btn {
   position: absolute;
-  top: 20px;
-  right: 30px;
+  top: 18px;
+  right: 28px;
   font-size: 36px;
-  color: white;
+  color: #fff;
   cursor: pointer;
+  user-select: none;
 }
 
+/* ================= ANIMATIONS ================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 </style>
+
 
 <div class="main-content">
     <form
@@ -272,45 +287,39 @@
         <h1>Identification</h1>
     </div>    
 
-    <div class="span-eight" id="die-remark-div">  
-      <img id="empPhotoPreview" alt="Preview" />
+    <div class="span-eight die-remark-div">  
+      <img id="empPhotoPreview" alt="Employee Photo Preview" loading="lazy" />
       <div class="photo-upload-wrapper">
         <label for="emp-photo">Photo</label>
-        <input
-          type="file"
-          id="emp-photo"
-          class="form-control input-tag"
-          name="empPhoto"
-          accept="image/*"
-        />
+        <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" accept="image/*" aria-label="Upload employee photo" />
       </div>
     </div>
  
-    <div class="span-six">
+    <div class="span-five">
       <label for="emp-aadhaar">Aadhaar</label>
       <input type="text" inputmode="numeric" id="emp-aadhaar" class="form-control input-tag" name="empAadhaar" value="<%= employee?.empAadhaar || '' %>" placeholder="Enter Aadhaar" />
     </div>
 
-    <div class="span-six" id="die-remark-div">  
-      <!-- <img id="empAadhaarPreview" alt="Preview" /> -->
+    <div class="span-seven die-remark-div">  
+      <img id="empAadhaarPreview" alt="Aadhaar Preview" loading="lazy"/>
       <div class="photo-upload-wrapper">
-        <label for="emp-aadhaar-img">Aadhaar Image</label>
-        <input type="file" id="emp-photo" class="form-control input-tag" name="empPhoto" accept="image/*" />
+        <label for="emp-aadhaar-img">Aadhaar Img</label>
+        <input type="file" name="empAadhaarImg" id="emp-aadhaar-img" class="form-control input-tag" accept="image/*" aria-label="Upload Aadhaar image" />
       </div>
     </div>    
 
-    <div class="span-six">
+    <div class="span-five">
       <label for="emp-pan">PAN</label>
       <input type="text" id="emp-pan" class="form-control input-tag" maxlength="10" name="empPan" value="<%= employee?.empPan || '' %>" placeholder="Enter PAN" required />
     </div>
 
-    <div class="span-six" id="die-remark-div">  
-      <!-- <img id="empAadhaarPreview" alt="Preview" /> -->
+    <div class="span-seven die-remark-div">  
+      <img id="empPanPreview" alt="PAN Preview" loading="lazy" />
       <div class="photo-upload-wrapper">
-        <label for="emp-pan-img">PAN Image</label>
-        <input type="file" id="emp-pan-img" class="form-control input-tag" name="empPanImg" accept="image/*" />
+        <label for="emp-pan-img">PAN Img</label>
+        <input type="file" name="empPanImg" id="emp-pan-img" class="form-control input-tag" accept="image/*" aria-label="Upload PAN image" />
       </div>
-    </div>       
+    </div>      
 
     <div class="span-full form-subheading">
         <h1>Banking</h1>
@@ -450,118 +459,90 @@
   const dependentsData = <%- JSON.stringify(employee?.dependentsDetails || []) %>;
 </script>
 <script>
-  document.getElementById('dependents-count').addEventListener('input', function() {
-    const count = parseInt(this.value) || 0;
-    const container = document.getElementById('dependents-details');
-    
-    // Clear existing content
-    container.innerHTML = '';
-    
-    if (count <= 0 || isNaN(count)) {
-        // Create empty state div
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'dependents-headings';
-        emptyDiv.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
-        
-        emptyDiv.innerHTML = `
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
-            <input type="text" class="form-control" value="-" style="flex: 1; border: 1px solid #1a1a2e;" readonly>
-        `;
-        container.appendChild(emptyDiv);
-    } else {
-        // Create new divs based on the input count
-        for (let i = 0; i < count; i++) {
-            const div = document.createElement('div');
-            div.className = 'dependents-headings';
-            div.style.cssText = 'margin-bottom: 10px; grid-column: span 32; padding: 10px; border-radius: 5px; border: 2px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; gap: 10px;';
-            
-            div.innerHTML = `
-              <h4 style="margin:0;">${i + 1}</h4>
+document.addEventListener("DOMContentLoaded", () => {
 
-              <input
-                type="text"
-                name="dependentsDetails[${i}][dependentsName]"
-                class="form-control"
-                value="${dependentsData[i]?.dependentsName || ''}"
-                style="flex:1;border:1px solid #1a1a2e;"
-              >
-
-              <input
-                type="date"
-                name="dependentsDetails[${i}][dependentsDOB]"
-                class="form-control"
-                value="${dependentsData[i]?.dependentsDOB || ''}"
-                style="flex:1;border:1px solid #1a1a2e;"
-              >
-
-              <input
-                type="text"
-                name="dependentsDetails[${i}][dependentsRelation]"
-                class="form-control"
-                value="${dependentsData[i]?.dependentsRelation || ''}"
-                style="flex:1;border:1px solid #1a1a2e;"
-              >
-            `;
-
-            container.appendChild(div);
-        }
-    }
-  });
-
-  // auto render dependents on edit
-  if (dependentsData.length > 0) {
-  const input = document.getElementById("dependents-count");
-  input.value = dependentsData.length;
-  input.dispatchEvent(new Event("input"));
-  }
-</script>
-
-<script>
-  const input = document.getElementById("emp-photo");
-  const preview = document.getElementById("empPhotoPreview");
-
-  // STEP 3: show existing image when editing
-  <% if (employee?.empPhoto) { %>
-    preview.src = "/employeeImages/<%= employee.empPhoto %>";
-    preview.style.display = "block";
-  <% } else { %>
-    preview.style.display = "none";
-  <% } %>
-
-  // STEP 4: show preview when new image is selected
-  input.addEventListener("change", () => {
-    const file = input.files[0];
-
-    if (!file || !file.type.startsWith("image/")) {
-      preview.style.display = "none";
-      preview.src = "";
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-  });
-</script>
-
-
-<script>
-  const previewImg = document.getElementById("empPhotoPreview");
+  /* ================= MODAL ELEMENTS ================= */
   const modal = document.getElementById("imageModal");
   const modalImg = document.getElementById("modalImage");
   const closeBtn = document.querySelector(".close-btn");
 
-  previewImg.addEventListener("click", () => {
-    if (!previewImg.src) return;
+  /* ================= GENERIC PREVIEW SETUP ================= */
+  function setupImagePreview({ inputId, previewId, existingPath }) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
 
-    modalImg.src = previewImg.src;
-    modal.style.display = "flex";
+    if (!preview) return;
+
+    // show existing image (edit mode)
+    if (existingPath) {
+      preview.src = existingPath;
+      preview.style.display = "block";
+    }
+
+    // live preview on file select
+    if (input) {
+      input.addEventListener("change", () => {
+        const file = input.files[0];
+        if (!file || !file.type.startsWith("image/")) {
+          preview.src = "";
+          preview.style.display = "none";
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          preview.src = reader.result;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // click → open modal
+    preview.addEventListener("click", () => {
+      if (!preview.src) return;
+      modalImg.src = preview.src;
+      modal.style.display = "flex";
+    });
+  }
+
+  /* ================= EMPLOYEE PHOTO ================= */
+  setupImagePreview({
+    inputId: "emp-photo",
+    previewId: "empPhotoPreview",
+    existingPath:
+      <% if (employee?.empPhoto) { %>
+        "/images/empimg/<%= employee.empPhoto %>"
+      <% } else { %>
+        null
+      <% } %>
   });
 
+  /* ================= AADHAAR IMAGE ================= */
+  setupImagePreview({
+    inputId: "emp-aadhaar-img",
+    previewId: "empAadhaarPreview",
+    existingPath:
+      <% if (employee?.empAadhaarImg) { %>
+        "/images/aadhaar/<%= employee.empAadhaarImg %>"
+      <% } else { %>
+        null
+      <% } %>
+  });
+
+  /* ================= PAN IMAGE ================= */
+  setupImagePreview({
+    inputId: "emp-pan-img",
+    previewId: "empPanPreview",
+    existingPath:
+      <% if (employee?.empPanImg) { %>
+        "/images/pan/<%= employee.empPanImg %>"
+      <% } else { %>
+        null
+      <% } %>
+  });
+
+  /* ================= MODAL CLOSE ================= */
   closeBtn.addEventListener("click", () => {
     modal.style.display = "none";
   });
@@ -571,102 +552,6 @@
       modal.style.display = "none";
     }
   });
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  /* ================= MOBILE FORMATTER ================= */
-  function mobileInputFormatter(input) {
-    if (!input) return;
-
-    input.addEventListener("input", () => {
-      const raw = input.value.trim();
-
-      // allow single dash only if empty
-      if (raw === "-") {
-        input.value = "-";
-        return;
-      }
-
-      // if user typed dash + digits, remove dash
-      let digits = raw.replace(/\D/g, "").slice(0, 10);
-
-      // if no digits and user cleared input
-      if (!digits) {
-        input.value = "";
-        return;
-      }
-
-      // space after 5 digits → 98765 43210
-      if (digits.length > 5) {
-        digits = digits.slice(0, 5) + " " + digits.slice(5);
-      }
-
-      input.value = digits;
-    });
-  }
-
-  /* ================= EMAIL FORMATTER ================= */
-  function emailInputFormatter(input) {
-    if (!input) return;
-
-    input.addEventListener("input", () => {
-      input.value = input.value.replace(/\s+/g, "").toLowerCase();
-    });
-  }
-
-  /* ================= APPLY FORMATTERS ================= */
-  [
-    "emp-office-mob",
-    "emp-mobile1",
-    "emp-mobile2",
-    "emp-emergency-no1",
-    "emp-emergency-no2",
-  ].forEach(id => mobileInputFormatter(document.getElementById(id)));
-
-  [
-    "emp-email",
-    "emp-office-email-id",
-  ].forEach(id => emailInputFormatter(document.getElementById(id)));
-
-  /* ================= CLEAN BEFORE SUBMIT ================= */
-  const form = document.querySelector("form");
-
-  form.addEventListener("submit", () => {
-    [
-      "emp-office-mob",
-      "emp-mobile1",
-      "emp-mobile2",
-      "emp-emergency-no1",
-      "emp-emergency-no2",
-      "emp-aadhaar",
-    ].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      // keep dash as-is, clean only numbers
-      if (el.value !== "-") {
-        el.value = el.value.replace(/\s/g, "");
-      }
-    });
-  });
 
 });
-
-/* ================= AADHAAR FORMATTER ================= */
-function aadhaarInputFormatter(input) {
-  if (!input) return;
-
-  input.addEventListener("input", () => {
-    let digits = input.value.replace(/\D/g, "").slice(0, 12);
-    let formatted = digits.match(/.{1,4}/g);
-    input.value = formatted ? formatted.join(" ") : "";
-  });
-}
-
-aadhaarInputFormatter(document.getElementById("emp-aadhaar"));
 </script>
-
-
-

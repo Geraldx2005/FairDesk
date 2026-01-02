@@ -11,11 +11,6 @@ const tapeSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    status: {
-      type: String,
-      enum: ["ACTIVE", "INACTIVE"],
-      default: "ACTIVE",
-    },
 
     /* ================= MATERIAL SPECS ================= */
     tapePaperCode: {
@@ -53,7 +48,7 @@ const tapeSchema = new mongoose.Schema(
 
     tapeFinish: {
       type: String,
-      enum: ["MATTE", "GLOSSY"],
+      enum: ["MATTE", "GLOSSY", "CLEAR"],
       required: true,
     },
 

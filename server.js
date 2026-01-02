@@ -40,7 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(dir_name, "public")));
 app.use("/bootstrap", express.static(dir_name + "/node_modules/bootstrap/dist"));
 
-app.use("/employeeImages", express.static(path.join(process.cwd(), "employeeImages")));
+app.use("/images", express.static("images"));
 
 /* SESSION (THIS IS THE KEY) */
 app.use(

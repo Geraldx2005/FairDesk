@@ -124,21 +124,21 @@
         field: "empPhoto",
         width: 80,
         hozAlign: "center",
-        formatter: function (cell) {
-          const data = cell.getRow().getData();
-        
-          const imgSrc = `/employeeImages/${
-            data.empPhoto
-              ? data.empPhoto
-              : (data.empGender === "FEMALE" ? "female.jpg" : "male.jpg")
-          }`;
-        
+        formatter: function () {
           return `
             <i class="fa-solid fa-image"
-               style="cursor:pointer;color:#1a1a2e;font-size:16px"
-               onclick="openImgModal('${imgSrc}')">
+               style="font-size:16px;color:#1a1a2e">
             </i>
           `;
+        },
+        cellClick: function (e, cell) {
+          const data = cell.getRow().getData();
+        
+          const imgSrc = data.empPhoto
+            ? `/images/empimg/${data.empPhoto}`
+            : `/images/empimg/${data.empGender === "FEMALE" ? "female.jpg" : "male.jpg"}`;
+        
+          openImgModal(imgSrc);
         }
       },
       { title: "Reporting Manager", field: "empReportingManager" },

@@ -94,6 +94,7 @@
     let tableData = [];
     try {
       tableData = JSON.parse('<%- JSON.stringify(jsonData || []) %>');
+      console.log(tableData);
     } catch (err) {
       console.error("Master Disp JSON error", err);
     }

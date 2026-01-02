@@ -53,9 +53,11 @@ const employeeSchema = new mongoose.Schema(
     empHobbies: { type: String },
 
     /* ================= IDENTIFICATION ================= */
-    empPhoto: { type: String }, // filename only
+    empPhoto: { type: String },        // images/empimg
     empAadhaar: { type: String },
+    empAadhaarImg: { type: String },   // images/aadhaar
     empPan: { type: String },
+    empPanImg: { type: String },       // images/pan
 
     /* ================= BANKING ================= */
     empBankName: { type: String },

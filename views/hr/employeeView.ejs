@@ -177,11 +177,9 @@
   <!-- HEADER -->
   <div class="header">
     <img
-      src="/employeeImages/<%= 
-        employee.empPhoto 
-          ? employee.empPhoto 
-          : (employee.empGender === 'FEMALE' ? 'female.jpg' : 'male.jpg') 
-      %>"
+      src="<%= employee.empPhoto
+        ? `/images/empimg/${employee.empPhoto}`
+        : `/images/empimg/${employee.empGender === 'FEMALE' ? 'female.jpg' : 'male.jpg'}` %>"
       class="photo"
       alt="Employee Photo"
     />
