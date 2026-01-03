@@ -24,7 +24,7 @@ router.get("/view", async (req, res) => {
     );
 
     res.render("users/clientsView.ejs", {
-      title: "Clients",
+      title: "Client View",
       jsonData: clients,
       CSS: "tableDisp.css",
       JS: false,

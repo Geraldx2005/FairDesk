@@ -102,16 +102,16 @@
 
     // PDF download
     document.getElementById("download-pdf").addEventListener("click", () => {
-      table.download("pdf", "labels.pdf", {
+      table.download("pdf", "tapes.pdf", {
         orientation: "landscape",
-        title: "Labels Data",
+        title: "Tapes Data",
       });
       selector.classList.remove("download-selector--active");
     });
 
     // Excel download
     document.getElementById("download-xlsx").addEventListener("click", () => {
-      table.download("xlsx", "labels.xlsx", {
+      table.download("xlsx", "tape.xlsx", {
         sheetName: "Labels",
       });
       selector.classList.remove("download-selector--active");

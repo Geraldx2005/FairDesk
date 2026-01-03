@@ -480,7 +480,7 @@ router.get("/ttr/view/:id", async (req, res) => {
   
   // jsonData.push(itemsCount);
   console.log(jsonData);
-  res.render("inventory/ttrDisp.ejs", { jsonData, CSS: false, JS: false, title: "TTR Display", notification: req.flash("notification") });
+  res.render("inventory/ttrDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "TTR Display", notification: req.flash("notification") });
 });
 
 export default router;
