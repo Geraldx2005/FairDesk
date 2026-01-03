@@ -18,7 +18,7 @@ router.get("/form/tape-binding", async (req, res) => {
     const widths = await Tape.distinct("tapeWidth");
     const mtrsList = await Tape.distinct("tapeMtrs");
 
-    console.log(paperCodes, paperTypes, gsms, widths, mtrsList);
+    // console.log(paperCodes, paperTypes, gsms, widths, mtrsList);
 
     res.render("inventory/tapeBinding.ejs", {
       title: "Client Tape",
@@ -119,6 +119,7 @@ router.get("/form/tape-binding/client/:name", async (req, res) => {
 
 /* GET : Resolve Tape from Specifications */
 router.get("/form/tape-binding/resolve-tape", async (req, res) => {
+  console.log("Resolve query:", req.query);
   try {
     const {
       tapePaperCode,
@@ -127,7 +128,7 @@ router.get("/form/tape-binding/resolve-tape", async (req, res) => {
       tapeWidth,
       tapeMtrs,
       tapeCoreId,
-      finish,
+      tapeFinish,
     } = req.query;
 
     if (
@@ -137,7 +138,7 @@ router.get("/form/tape-binding/resolve-tape", async (req, res) => {
       !tapeWidth ||
       !tapeMtrs ||
       !tapeCoreId ||
-      !finish
+      !tapeFinish
     ) {
       return res.status(400).json(null);
     }
@@ -149,8 +150,7 @@ router.get("/form/tape-binding/resolve-tape", async (req, res) => {
       tapeWidth: Number(tapeWidth),
       tapeMtrs: Number(tapeMtrs),
       tapeCoreId: Number(tapeCoreId),
-      tapeFinish: finish,
-      status: "ACTIVE",
+      tapeFinish: tapeFinish,
     });
 
     if (!tape) {
