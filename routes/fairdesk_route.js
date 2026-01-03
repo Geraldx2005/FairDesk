@@ -449,7 +449,7 @@ router.get("/master/view", async (req, res) => {
   let jsonData = await Username.find().sort({ clientName: 1 });
 
   // console.log(jsonData);
-  res.render("users/masterDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Client View", notification: req.flash("notification") });
+  res.render("users/masterDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Master View", notification: req.flash("notification") });
 });
 
 // ----------------------------------Labels display---------------------------------->

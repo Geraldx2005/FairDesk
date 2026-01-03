@@ -9,6 +9,7 @@ import employeeRoute from "./routes/hr/employee.js";
 import pettycashRoute from "./routes/acccounting/pettycash.js";
 import tapeBindingRoutes from "./routes/inventory/tapeBinding.js";
 import tapeStockRoutes from "./routes/stock/tapeStock.js";
+import clientFormRoute from "./routes/users/clients.js";
 import { configDotenv } from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -77,6 +78,7 @@ app.use("/fairdesk/employee", employeeRoute);
 app.use("/fairdesk/pettycash", pettycashRoute);
 app.use("/fairdesk", tapeBindingRoutes);
 app.use("/fairdesk/tapestock", tapeStockRoutes);
+app.use("/fairdesk/client", clientFormRoute);
 
 /* 404 */
 app.all("*", (req, res) => {

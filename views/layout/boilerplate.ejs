@@ -111,10 +111,14 @@
           </div>
 
           <div class="nav-labels-opt">
-            <div title="Master View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/master/view'" style="border-top: 2px solid #ffffff9d; border-bottom: 2px solid #ffffff9d" >
+            <div title="Master View" class="<%= title === 'Master View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/master/view'" style="border-top: 2px solid #ffffff9d;" >
+              <i class="fa-solid fa-eye" style="color: #ffffff"></i>
+              <p class="nav-items-para">Master View</p>
+            </div>
+            <div title="Client View" class="<%= title === 'Client View' ? 'nav-items active' : 'nav-items' %>" onclick="window.location.href = '/fairdesk/client/view'" style="border-bottom: 2px solid #ffffff9d;" >
               <i class="fa-solid fa-eye" style="color: #ffffff"></i>
               <p class="nav-items-para">Client View</p>
-            </div>
+            </div>            
           </div>
         </div>
 
