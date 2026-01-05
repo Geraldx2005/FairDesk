@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/view", async (req, res) => {
   try {
     const clients = await Client.find(
-      { clientStatus: "ACTIVE" },
+      {},
       {
         _id: 0,
         clientId: 1,

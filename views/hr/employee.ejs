@@ -553,5 +553,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+/* ================= DEPENDENTS INPUTS BY COUNT ================= */
+const dependentsCountInput = document.getElementById("dependents-count");
+const dependentsContainer = document.getElementById("dependents-details");
+
+function renderDependents(count) {
+  dependentsContainer.innerHTML = "";
+
+  if (!count || count <= 0) return;
+
+  for (let i = 0; i < count; i++) {
+    dependentsContainer.insertAdjacentHTML("beforeend", `
+      <div class="dependents-details" style="
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 2px solid #1a1a2e;
+        display: flex;
+        gap: 10px;
+      ">
+        <input
+          type="text"
+          name="dependentsDetails[${i}][dependentsName]"
+          class="form-control"
+          placeholder="Name"
+          required
+        />
+        <input
+          type="date"
+          name="dependentsDetails[${i}][dependentsDOB]"
+          class="form-control"
+          required
+        />
+        <input
+          type="text"
+          name="dependentsDetails[${i}][dependentsRelation]"
+          class="form-control"
+          placeholder="Relation"
+          required
+        />
+      </div>
+    `);
+  }
+}
+
+/* listen to count change */
+dependentsCountInput.addEventListener("input", (e) => {
+  const count = parseInt(e.target.value, 10);
+  renderDependents(count);
+});
+
+
 });
 </script>

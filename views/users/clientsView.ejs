@@ -69,7 +69,7 @@
 
     columns: [
       { title: "Client ID", field: "clientId" },
-      { title: "Client Name", field: "clientName", headerFilter: true },
+      { title: "Client Name", field: "clientName", minWidth: 220, headerFilter: true },
       { title: "Type", field: "clientType" },
       { title: "HO Location", field: "hoLocation" },
       { title: "Account Head", field: "accountHead" },
@@ -80,9 +80,17 @@
       {
         title: "Status",
         field: "clientStatus",
-        formatter: (cell) =>
-          `<span style="font-weight:600;color:green;">${cell.getValue()}</span>`,
-      },
+        formatter: (cell) => {
+          const value = cell.getValue();
+        
+          const color =
+            value === "ACTIVE" ? "#28a745" : "#dc3545"; // green : red
+        
+          return `<span style="font-weight:600;color:${color};">
+                    ${value}
+                  </span>`;
+        },
+      }
     ],
   });
 

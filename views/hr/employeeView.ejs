@@ -168,6 +168,36 @@
       color: var(--muted);
     }
   </style>
+
+  <style>
+    .image-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 18px;
+      right: 28px;
+      font-size: 36px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -180,8 +210,9 @@
       src="<%= employee.empPhoto
         ? `/images/empimg/${employee.empPhoto}`
         : `/images/empimg/${employee.empGender === 'FEMALE' ? 'female.jpg' : 'male.jpg'}` %>"
-      class="photo"
+      class="photo click-enlarge"
       alt="Employee Photo"
+      style="cursor:pointer;"
     />
 
     <div class="basic">
@@ -284,8 +315,38 @@
       <div class="empty-text">No dependents available.</div>
     <% } %>
   </div>
+</div>
 
+<!-- Image Preview Modal -->
+<div id="imageModal" class="image-modal">
+  <span class="close-btn">&times;</span>
+  <img id="modalImage" />
 </div>
 
 </body>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  const closeBtn = document.querySelector(".close-btn");
+
+  document.body.addEventListener("click", (e) => {
+    const img = e.target.closest(".click-enlarge");
+    if (!img) return;
+
+    modalImg.src = img.src;
+    modal.style.display = "flex";
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+});
+</script>
+
 </html>
