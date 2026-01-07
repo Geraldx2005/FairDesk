@@ -1,0 +1,135 @@
+<% layout('/layout/boilerplate') -%>
+
+<div class="main-content">
+  <div class="span-full form-subheading gap">
+    <div class="client-switch active">
+      <h1>Edit Client</h1>
+    </div>
+  </div>
+
+  <form
+    class="client-content span-full needs-validation"
+    action="/fairdesk/client/edit/<%= client._id %>"
+    method="post"
+    autocomplete="off"
+    novalidate
+  >
+
+    <div class="span-four">
+      <label>Client Id</label>
+      <input
+        type="text"
+        class="form-control input-tag"
+        value="<%= client.clientId %>"
+        readonly
+      />
+    </div>
+
+    <div class="span-seven">
+      <label>Client Name</label>
+      <input
+        type="text"
+        class="form-control input-tag"
+        name="clientName"
+        value="<%= client.clientName %>"
+        required
+      />
+    </div>
+
+    <div class="span-five">
+      <label>Client Type</label>
+      <select name="clientType" class="form-control select-tag" required>
+        <option value="DEALER" <%= client.clientType === 'DEALER' ? 'selected' : '' %>>DEALER</option>
+        <option value="CLIENT" <%= client.clientType === 'CLIENT' ? 'selected' : '' %>>CLIENT</option>
+      </select>
+    </div>
+
+    <div class="span-five">
+      <label>Client Status</label>
+      <select name="clientStatus" class="form-control select-tag" required>
+        <option value="ACTIVE" <%= client.clientStatus === 'ACTIVE' ? 'selected' : '' %>>ACTIVE</option>
+        <option value="INACTIVE" <%= client.clientStatus === 'INACTIVE' ? 'selected' : '' %>>INACTIVE</option>
+        <option value="FOLLOW UP" <%= client.clientStatus === 'FOLLOW UP' ? 'selected' : '' %>>FOLLOW UP</option>
+        <option value="BLACKLISTED" <%= client.clientStatus === 'BLACKLISTED' ? 'selected' : '' %>>BLACKLISTED</option>
+        <option value="ADVANCED" <%= client.clientStatus === 'ADVANCED' ? 'selected' : '' %>>ADVANCED</option>
+        <option value="OTHERS" <%= client.clientStatus === 'OTHERS' ? 'selected' : '' %>>OTHERS</option>
+      </select>
+    </div>
+
+    <div class="span-five">
+      <label>H/O Location</label>
+      <input
+        type="text"
+        class="form-control input-tag"
+        name="hoLocation"
+        value="<%= client.hoLocation %>"
+        required
+      />
+    </div>
+
+    <div class="span-six">
+      <label>Account Head</label>
+      <input
+        type="text"
+        class="form-control input-tag"
+        name="accountHead"
+        value="<%= client.accountHead %>"
+        required
+      />
+    </div>
+
+    <div class="span-dual">
+      <label>GST</label>
+      <input
+        type="text"
+        class="form-control"
+        name="clientGst"
+        value="<%= client.clientGst %>"
+        required
+      />
+    </div>
+
+    <div class="span-dual">
+      <label>MSME</label>
+      <input
+        type="text"
+        class="form-control"
+        name="clientMsme"
+        value="<%= client.clientMsme %>"
+        required
+      />
+    </div>
+
+    <div class="span-dual">
+      <label>Gumasta</label>
+      <input
+        type="text"
+        class="form-control"
+        name="clientGumasta"
+        value="<%= client.clientGumasta %>"
+        required
+      />
+    </div>
+
+    <div class="span-dual">
+      <label>PAN</label>
+      <input
+        type="text"
+        class="form-control"
+        name="clientPan"
+        value="<%= client.clientPan %>"
+        required
+      />
+    </div>
+
+    <div class="span-full btn-grp">
+      <button class="submit-btn" type="submit">
+        Update Client Details
+      </button>
+      <a href="/fairdesk/client/view" class="cancel-btn">
+        Cancel
+      </a>
+    </div>
+
+  </form>
+</div>

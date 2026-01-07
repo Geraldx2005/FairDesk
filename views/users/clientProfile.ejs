@@ -1,0 +1,140 @@
+<% layout('/layout/boilerplate') -%>
+
+<style>
+  .profile-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .profile-card {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .profile-header h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #e5e7eb;
+  }
+
+  .back-link {
+    color: #38bdf8;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .field {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+
+  .field-label {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .field-value {
+    font-size: 0.95rem;
+    color: #e5e7eb;
+    font-weight: 500;
+  }
+
+  .status-active {
+    color: #22c55e;
+    font-weight: 600;
+  }
+
+  .status-inactive {
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  @media (max-width: 700px) {
+    .profile-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="profile-wrap">
+  <div class="profile-card">
+    <div class="profile-header">
+      <h1><%= client.clientName %></h1>
+      <a href="/fairdesk/client/view" class="back-link">← Back to Clients</a>
+    </div>
+
+    <div class="profile-grid">
+      <div class="field">
+        <div class="field-label">Client ID</div>
+        <div class="field-value"><%= client.clientId %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Client Type</div>
+        <div class="field-value"><%= client.clientType %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Status</div>
+        <div class="field-value <%= client.clientStatus === 'ACTIVE' ? 'status-active' : 'status-inactive' %>">
+          <%= client.clientStatus %>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">H/O Location</div>
+        <div class="field-value"><%= client.hoLocation %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Account Head</div>
+        <div class="field-value"><%= client.accountHead %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">GST</div>
+        <div class="field-value"><%= client.clientGst %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">PAN</div>
+        <div class="field-value"><%= client.clientPan %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">MSME</div>
+        <div class="field-value"><%= client.clientMsme %></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Gumasta</div>
+        <div class="field-value"><%= client.clientGumasta %></div>
+      </div>
+    </div>
+  </div>
+</div>

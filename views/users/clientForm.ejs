@@ -14,8 +14,17 @@
     <form class="client-content span-full needs-validation" action="/fairdesk/form/client" method="post" autocomplete="off" novalidate>
     <div class="span-four">
       <label for="client-id">Client Id</label>
-      <input type="text" value="FS | CLIENT | <%= clientCount + 1 %>" id="client-id" class="form-control input-tag" name="clientId" placeholder="Enter Client ID" readonly required />
-    </div>      
+      <input
+        type="text"
+        id="client-id"
+        class="form-control input-tag"
+        name="clientId"
+        value="<%= editClient ? editClient.clientId : 'FS | CLIENT | AUTO' %>"
+        readonly
+        required
+      />
+    </div>
+     
     <div class="span-seven">
       <label for="client-name">Client Name</label>
       <input type="text" id="client-name" class="form-control input-tag" name="clientName" placeholder="Enter Client Name" required />
@@ -101,8 +110,10 @@
       <label for="userform-client-name">Client Name</label>
       <select name="clientName" id="userform-client-name">
         <option value="" disabled selected hidden>Search</option>        
-        <% for (client of clients) { %>
-          <option value="<%= client %>"><%= client %></option>
+        <% if (clients && clients.length) { %>
+          <% for (client of clients) { %>
+            <option value="<%= client %>"><%= client %></option>
+          <% } %>
         <% } %>
       </select>
     </div>
@@ -110,7 +121,7 @@
     <div class="span-four">
       <label for="user-client-id">Client Id</label>
       <input id="user-client-id" class="form-control input-tag" name="clientId" placeholder="Enter Client ID" readonly required />
-    </div>    
+    </div>  
 
     <div class="span-six">
       <label for="client-name">Client Type</label>
