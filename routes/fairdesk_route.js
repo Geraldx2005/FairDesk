@@ -1,15 +1,21 @@
 import express, { json } from "express";
+import mongoose from "mongoose";
 // import asyncHandler from "express-async-handler";
 import Client from "../models/users/client.js";
 import Username from "../models/users/username.js";
 import Label from "../models/inventory/labels.js";
 import Ttr from "../models/inventory/ttr.js";
 import Tape from "../models/inventory/tape.js";
+import TapeBinding from "../models/inventory/tapeBinding.js";
+import TapeSalesOrder from "../models/inventory/TapeSalesOrder.js";
 import SystemId from "../models/system/systemId.js";
 import Carelead from "../models/carelead.js";
 import Calculator from "../models/utilities/calculator.js";
 import Block from "../models/utilities/block_model.js";
 import Die from "../models/utilities/die_model.js";
+import TapeStock from "../models/inventory/TapeStock.js";
+import TapeStockLog from "../models/inventory/TapeStockLog.js";
+import SalesOrderLog from "../models/inventory/SalesOrderLog.js";
 const router = express.Router();
 
 // ----------------------------------RateCalculator---------------------------------->
@@ -191,7 +197,7 @@ router.post("/form/carequote", async (req, res) => {
 // route for ttr form.
 router.get("/form/ttr", async (req, res) => {
   let clients = await Client.distinct("clientName");
-  let ttrCount = await Ttr.countDocuments() + 1;
+  let ttrCount = (await Ttr.countDocuments()) + 1;
   console.log(ttrCount);
 
   res.render("inventory/ttr.ejs", {
@@ -250,7 +256,7 @@ router.post("/form/ttr", async (req, res) => {
 
 // GET: Tape Master form
 router.get("/form/tape-master", async (req, res) => {
-  const tapeCount = await Tape.countDocuments() + 1;
+  const tapeCount = (await Tape.countDocuments()) + 1;
 
   res.render("inventory/tape.ejs", {
     JS: false,
@@ -289,19 +295,577 @@ router.post("/form/tape-master", async (req, res) => {
   }
 });
 
-// ----------------------------------Sales Order---------------------------------->
-// route for salesorder form.
-router.get("/form/salesorder", async (req, res) => {
-  let clients = await Client.find();
-  res.render("utilities/salesOrder.ejs", { clients });
+// ================= TAPE MASTER LIST VIEW =================
+router.get("/tape/view", async (req, res) => {
+  const tapes = await Tape.find().sort({ tapeProductId: 1 }).lean();
+  res.render("inventory/tapeMasterDisp.ejs", {
+    jsonData: tapes,
+    CSS: "tableDisp.css",
+    JS: false,
+    title: "Tape View",
+    notification: req.flash("notification"),
+  });
 });
 
-// Route to handle salesorder form submission.
-router.post("/form/salesorder", async (req, res) => {
-  let formData = req.body;
+// ================= TAPE PROFILE VIEW =================
+router.get("/tape/profile/:id", async (req, res) => {
+  const tape = await Tape.findById(req.params.id).lean();
 
-  await Carelead.create(formData);
-  res.send("Sales Order created successfully!");
+  if (!tape) {
+    req.flash("notification", "Tape not found");
+    return res.redirect("back");
+  }
+
+  res.render("inventory/tapeView.ejs", { tape });
+});
+
+// ================= TAPE EDIT =================
+router.get("/tape/edit/:id", async (req, res) => {
+  const tape = await Tape.findById(req.params.id).lean();
+  if (!tape) return res.redirect("back");
+
+  res.render("inventory/tapeEdit.ejs", {
+    title: "Edit Tape",
+    CSS: false,
+    JS: false,
+    tape,
+  });
+});
+
+router.post("/tape/edit/:id", async (req, res) => {
+  try {
+    await Tape.findByIdAndUpdate(req.params.id, req.body);
+    res.redirect(`/fairdesk/tape/profile/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.redirect("back");
+  }
+});
+
+// ----------------------------------Sales Order---------------------------------->
+// Centralized Sales Order Form
+router.get("/sales/order", async (req, res) => {
+  const clients = await Client.distinct("clientName");
+  let orderToEdit = null;
+
+  if (req.query.orderId) {
+    try {
+      orderToEdit = await TapeSalesOrder.findById(req.query.orderId).lean();
+    } catch (err) {
+      console.error("Error fetching order to edit:", err);
+    }
+  }
+
+  res.render("inventory/salesOrderForm.ejs", {
+    clients,
+    orderToEdit,
+    CSS: false,
+    JS: false,
+    title: orderToEdit ? "Edit Sales Order" : "Sales Order",
+    notification: req.flash("notification"),
+  });
+});
+
+// API: Get items by type and user
+router.get("/sales/items/:type/:userId", async (req, res) => {
+  try {
+    const { type, userId } = req.params;
+    let items = [];
+
+    if (type === "TAPE") {
+      const user = await Username.findById(userId).populate({
+        path: "tape",
+        populate: { path: "tapeId" },
+      });
+
+      // Get all tape IDs for this user
+      const tapeBindings = user?.tape || [];
+
+      // Fetch stock for all these tapes in one go
+      const tapeIds = tapeBindings.map((b) => b.tapeId?._id).filter(Boolean);
+
+      // 1. Get Physical Stock
+      const stockAggregation = await TapeStock.aggregate([
+        { $match: { tape: { $in: tapeIds } } },
+        {
+          $group: {
+            _id: { tape: "$tape", location: "$location" },
+            totalQty: { $sum: "$quantity" },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.tape",
+            locations: {
+              $push: {
+                location: "$_id.location",
+                qty: "$totalQty",
+              },
+            },
+            totalStock: { $sum: "$totalQty" },
+          },
+        },
+      ]);
+
+      // 2. Get Booked Stock (Pending Orders) — overall AND per-location
+      const bookedAggregation = await TapeSalesOrder.aggregate([
+        { $match: { tapeId: { $in: tapeIds }, status: "PENDING" } },
+        {
+          $group: {
+            _id: { tapeId: "$tapeId", location: "$sourceLocation" },
+            bookedQty: { $sum: "$quantity" },
+          },
+        },
+      ]);
+
+      // Map stock back to bindings
+      const stockMap = {};
+      stockAggregation.forEach((s) => {
+        stockMap[s._id.toString()] = s;
+      });
+
+      // Build per-tape overall booked AND per-location booked
+      const bookedMap = {}; // tapeId -> total booked
+      const bookedLocMap = {}; // tapeId -> { "UNIT 1": N, "UNIT 2": N, ... }
+      bookedAggregation.forEach((b) => {
+        const tid = b._id.tapeId.toString();
+        const loc = b._id.location || "UNKNOWN";
+        bookedMap[tid] = (bookedMap[tid] || 0) + b.bookedQty;
+        if (!bookedLocMap[tid]) bookedLocMap[tid] = {};
+        bookedLocMap[tid][loc] = (bookedLocMap[tid][loc] || 0) + b.bookedQty;
+      });
+
+      items = tapeBindings.map((binding) => {
+        const tapeIdStr = binding.tapeId?._id?.toString();
+        const stockInfo = stockMap[tapeIdStr] || { locations: [], totalStock: 0 };
+        const booked = bookedMap[tapeIdStr] || 0;
+        const locBooked = bookedLocMap[tapeIdStr] || {};
+
+        // Overall balance
+        stockInfo.booked = booked;
+        stockInfo.balance = stockInfo.totalStock - booked;
+
+        // Per-location booked & balance
+        stockInfo.locations = stockInfo.locations.map((loc) => ({
+          ...loc,
+          booked: locBooked[loc.location] || 0,
+          balance: loc.qty - (locBooked[loc.location] || 0),
+        }));
+
+        return {
+          _id: binding._id,
+          displayName: `${binding.tapeId?.tapeProductId || "N/A"} - ${binding.tapeId?.tapePaperCode || ""} ${binding.tapeId?.tapeGsm || ""}gsm`,
+          minOrderQty: binding.tapeMinQty || 0,
+          stock: stockInfo,
+        };
+      });
+    } else if (type === "LABEL") {
+      const user = await Username.findById(userId).populate("label");
+      items = (user?.label || []).map((lbl) => ({
+        _id: lbl._id,
+        displayName: `${lbl.labelId || "N/A"} - ${lbl.labelWidth || ""}x${lbl.labelHeight || ""}`,
+        stock: { locations: [], totalStock: 0 }, // Placeholder for Label stock
+      }));
+    } else if (type === "TTR") {
+      const user = await Username.findById(userId).populate("ttr");
+      items = (user?.ttr || []).map((ttr) => ({
+        _id: ttr._id,
+        displayName: `${ttr.ttrId || "N/A"} - ${ttr.ttrWidth || ""}x${ttr.ttrMtrs || ""}`,
+        stock: { locations: [], totalStock: 0 }, // Placeholder for TTR stock
+      }));
+    }
+
+    res.json(items);
+  } catch (err) {
+    console.error("ITEMS API ERROR:", err);
+    res.json([]);
+  }
+});
+
+// Submit Sales Order (Create or Update)
+router.post("/sales/order", async (req, res) => {
+  try {
+    const { orderId, itemType, userId, itemId, quantity, estimatedDate, remarks, sourceLocation } = req.body;
+
+    if (itemType === "TAPE") {
+      const binding = await TapeBinding.findById(itemId);
+      if (!binding) {
+        req.flash("notification", "Invalid item selected");
+        return res.redirect("back");
+      }
+
+      const data = {
+        tapeBinding: itemId,
+        userId: binding.userId,
+        tapeId: binding.tapeId,
+        sourceLocation, // Allow updating location if needed
+        quantity: Number(quantity),
+        estimatedDate: new Date(estimatedDate),
+        remarks,
+        // createdBy remains same for edits, but tracking modifiedBy could be good
+      };
+
+      if (orderId) {
+        // UPDATE existing order
+        await TapeSalesOrder.findByIdAndUpdate(orderId, data);
+        req.flash("notification", "Sales order updated successfully!");
+        res.redirect("/fairdesk/sales/pending"); // Redirect back to pending list after edit
+      } else {
+        // CREATE new order
+        data.createdBy = req.user?.username || "SYSTEM";
+        const newOrder = await TapeSalesOrder.create(data);
+
+        // Action Log entry for creation
+        await SalesOrderLog.create({
+          orderId: newOrder._id,
+          action: "CREATED",
+          quantity: Number(quantity),
+          performedBy: req.user?.username || "SYSTEM",
+        });
+
+        req.flash("notification", "Sales order created successfully!");
+
+        // Redirect back to form for rapid entry
+        const redirectUrl = `/fairdesk/sales/order?type=${itemType}&client=${encodeURIComponent(req.body.clientName)}&user=${userId}&item=${itemId}`;
+        res.redirect(redirectUrl);
+      }
+    } else {
+      // Placeholder for non-TAPE items (if any logic exists)
+      req.flash("notification", "Only Tape orders supported for now");
+      res.redirect("back");
+    }
+  } catch (err) {
+    console.error("ORDER SUBMIT ERROR:", err);
+    req.flash("notification", "Failed to submit order");
+    res.redirect("back");
+  }
+});
+
+// View Pending Orders
+router.get("/sales/pending", async (req, res) => {
+  try {
+    // For now we only have TapeSalesOrder
+    const pendingOrders = await TapeSalesOrder.find({ status: "PENDING" })
+      .populate("userId")
+      .populate("tapeId")
+      .populate("tapeBinding")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.render("inventory/pendingOrders.ejs", {
+      orders: pendingOrders,
+      title: "Pending Orders",
+      CSS: "tableDisp.css",
+      JS: false,
+      notification: req.flash("notification"),
+    });
+  } catch (err) {
+    console.error("PENDING ORDERS ERROR:", err);
+    res.redirect("back");
+  }
+});
+
+// GET: Confirm Order Page (prefilled sales order form + extra fields)
+router.get("/sales/order/confirm", async (req, res) => {
+  try {
+    const { orderId } = req.query;
+    if (!orderId) {
+      req.flash("notification", "No order specified");
+      return res.redirect("/fairdesk/sales/pending");
+    }
+
+    const order = await TapeSalesOrder.findById(orderId)
+      .populate("userId")
+      .populate("tapeId")
+      .populate("tapeBinding")
+      .lean();
+
+    if (!order) {
+      req.flash("notification", "Order not found");
+      return res.redirect("/fairdesk/sales/pending");
+    }
+
+    // ========== STOCK PRE-CALCULATION FOR CONFIRM PAGE ==========
+    let stockInfo = { totalStock: 0, locations: [], booked: 0, balance: 0 };
+    if (order.tapeId) {
+      const tapeObjectId = order.tapeId._id;
+
+      // 1. Get Physical Stock
+      const stockAgg = await TapeStock.aggregate([
+        { $match: { tape: tapeObjectId } },
+        {
+          $group: {
+            _id: "$location",
+            qty: { $sum: "$quantity" },
+          },
+        },
+      ]);
+
+      // 2. Get Booked Stock (Pending Orders) — overall AND per-location
+      const bookedAgg = await TapeSalesOrder.aggregate([
+        { $match: { tapeId: tapeObjectId, status: "PENDING" } },
+        {
+          $group: {
+            _id: "$sourceLocation",
+            bookedQty: { $sum: "$quantity" },
+          },
+        },
+      ]);
+
+      // Map/Combine
+      const bookedMap = {}; // location -> qty
+      let totalBooked = 0;
+      bookedAgg.forEach((b) => {
+        const loc = b._id || "UNKNOWN";
+        bookedMap[loc] = b.bookedQty;
+        totalBooked += b.bookedQty;
+      });
+
+      let totalPhysical = 0;
+      const locations = stockAgg.map((s) => {
+        const loc = s._id || "UNKNOWN";
+        const booked = bookedMap[loc] || 0;
+        totalPhysical += s.qty;
+        return {
+          location: loc,
+          qty: s.qty,
+          booked: booked,
+          balance: s.qty - booked,
+        };
+      });
+
+      stockInfo = {
+        totalStock: totalPhysical,
+        locations: locations, // array of { location, qty, booked, balance }
+        booked: totalBooked,
+        balance: totalPhysical - totalBooked,
+      };
+    }
+
+    const clients = await Client.distinct("clientName");
+
+    res.render("inventory/salesOrderForm.ejs", {
+      clients,
+      orderToEdit: order,
+      stockInfo, // Pass pre-calculated stock
+      confirmMode: true,
+      CSS: false,
+      JS: false,
+      title: "Confirm & Create Order",
+      notification: req.flash("notification"),
+    });
+  } catch (err) {
+    console.error("CONFIRM ORDER PAGE ERROR:", err);
+    req.flash("notification", "Failed to load confirm page");
+    res.redirect("/fairdesk/sales/pending");
+  }
+});
+
+// GET: Order Logs
+router.get("/sales/order/logs", async (req, res) => {
+  try {
+    const logs = await SalesOrderLog.find()
+      .populate({
+        path: "orderId",
+        populate: [
+          { path: "userId", select: "clientName userName" },
+          { path: "tapeId", select: "tapePaperCode tapeGsm" },
+        ],
+      })
+      .sort({ performedAt: -1 });
+
+    res.render("inventory/orderLogs.ejs", {
+      logs,
+      title: "Order Action Logs",
+      CSS: "tableDisp.css",
+      JS: false,
+      notification: req.flash("notification"),
+    });
+  } catch (err) {
+    console.error("ORDER LOGS ERROR:", err);
+    req.flash("notification", "Failed to load logs");
+    res.redirect("/fairdesk/sales/pending");
+  }
+});
+
+// Update Order Status (with stock deduction / reversal + action logging)
+router.post("/sales/order/status", async (req, res) => {
+  try {
+    const { orderId, status, cancelReason, invoiceNumber, confirmDate, confirmQuantity } = req.body;
+    const order = await TapeSalesOrder.findById(orderId).populate("tapeId");
+
+    if (!order) {
+      req.flash("notification", "Order not found");
+      return res.redirect("back");
+    }
+
+    const previousStatus = order.status;
+    console.log(`[DEBUG] Order ${orderId}: Status change ${previousStatus} -> ${status}`);
+
+    // ========== CONFIRM: Deduct stock ==========
+    if (status === "CONFIRMED" && previousStatus === "PENDING") {
+      const tapeObjectId = new mongoose.Types.ObjectId(order.tapeId._id);
+      const location = order.sourceLocation;
+
+      if (!location) {
+        req.flash("notification", "Cannot confirm: Source location missing on order");
+        return res.redirect("back");
+      }
+
+      const tape = order.tapeId;
+      const qty = Number(confirmQuantity) || order.quantity;
+
+      // Get current stock at this location
+      const bal = await TapeStock.aggregate([
+        { $match: { tape: tapeObjectId, location } },
+        { $group: { _id: null, qty: { $sum: "$quantity" } } },
+      ]);
+      const currentStock = bal[0]?.qty || 0;
+
+      // Validate sufficient stock
+      if (currentStock < qty) {
+        req.flash("notification", `Insufficient stock at ${location}. Available: ${currentStock}, Required: ${qty}`);
+        return res.redirect("/fairdesk/sales/pending");
+      }
+
+      // Insert negative stock entry (outward)
+      await TapeStock.create({
+        tape: tapeObjectId,
+        tapeFinish: tape.tapeFinish,
+        location,
+        quantity: -qty,
+        remarks: `Sales Order Confirmed: ${orderId}`,
+      });
+
+      // Stock Log entry
+      await TapeStockLog.create({
+        tape: tapeObjectId,
+        location,
+        openingStock: currentStock,
+        quantity: qty,
+        closingStock: currentStock - qty,
+        type: "OUTWARD",
+        source: "SYSTEM",
+        remarks: `Sales Order Confirmed: ${orderId}`,
+        createdBy: req.user?.username || "SYSTEM",
+      });
+
+      // Action Log entry
+      await SalesOrderLog.create({
+        orderId,
+        action: "CONFIRMED",
+        invoiceNumber: invoiceNumber || "",
+        quantity: qty,
+        performedBy: req.user?.username || "SYSTEM",
+        performedAt: confirmDate ? new Date(confirmDate) : new Date(),
+      });
+
+      console.log("[DEBUG] Stock deduction + action log successful");
+    } else if (status === "CONFIRMED") {
+      console.log(`[DEBUG] Skipping deduction. Status: ${status}, Previous: ${previousStatus}`);
+    }
+
+    // ========== CANCEL: Log with reason ==========
+    if (status === "CANCELLED" && previousStatus === "PENDING") {
+      // Action Log entry for cancel from PENDING
+      await SalesOrderLog.create({
+        orderId,
+        action: "CANCELLED",
+        cancelReason: cancelReason || "No reason provided",
+        quantity: order.quantity,
+        performedBy: req.user?.username || "SYSTEM",
+      });
+    }
+
+    // ========== CANCEL a CONFIRMED order: Reverse stock ==========
+    if (status === "CANCELLED" && previousStatus === "CONFIRMED") {
+      const tapeObjectId = new mongoose.Types.ObjectId(order.tapeId._id);
+      const location = order.sourceLocation;
+      const tape = order.tapeId;
+      const qty = order.quantity;
+
+      // Get current stock at this location
+      const bal = await TapeStock.aggregate([
+        { $match: { tape: tapeObjectId, location } },
+        { $group: { _id: null, qty: { $sum: "$quantity" } } },
+      ]);
+      const currentStock = bal[0]?.qty || 0;
+
+      // Re-add stock (positive entry)
+      await TapeStock.create({
+        tape: tapeObjectId,
+        tapeFinish: tape.tapeFinish,
+        location,
+        quantity: qty,
+        remarks: `Sales Order Cancelled (reversed): ${orderId}`,
+      });
+
+      // Stock Log entry
+      await TapeStockLog.create({
+        tape: tapeObjectId,
+        location,
+        openingStock: currentStock,
+        quantity: qty,
+        closingStock: currentStock + qty,
+        type: "INWARD",
+        source: "SYSTEM",
+        remarks: `Sales Order Cancelled (reversed): ${orderId}`,
+        createdBy: req.user?.username || "SYSTEM",
+      });
+
+      // Action Log entry for cancel from CONFIRMED
+      await SalesOrderLog.create({
+        orderId,
+        action: "CANCELLED",
+        cancelReason: cancelReason || "No reason provided",
+        quantity: order.quantity,
+        performedBy: req.user?.username || "SYSTEM",
+      });
+    }
+
+    // Update the order status
+    await TapeSalesOrder.findByIdAndUpdate(orderId, { status });
+
+    req.flash("notification", `Order status updated to ${status}`);
+    res.redirect("/fairdesk/sales/pending");
+  } catch (err) {
+    console.error("STATUS UPDATE ERROR:", err);
+    req.flash("notification", "Failed to update status");
+    res.redirect("back");
+  }
+});
+
+// View Order Action Logs
+router.get("/sales/order/logs", async (req, res) => {
+  try {
+    const logs = await SalesOrderLog.find()
+      .populate({
+        path: "orderId",
+        populate: [
+          { path: "userId", model: "Username" },
+          { path: "tapeId", model: "Tape" },
+        ],
+      })
+      .sort({ performedAt: -1 })
+      .lean();
+
+    res.render("inventory/orderLogs.ejs", {
+      logs,
+      title: "Order Logs",
+      CSS: "tableDisp.css",
+      JS: false,
+      notification: req.flash("notification"),
+    });
+  } catch (err) {
+    console.error("ORDER LOGS ERROR:", err);
+    req.flash("notification", "Failed to load order logs");
+    res.redirect("back");
+  }
+});
+
+// Legacy route redirect
+router.get("/form/salesorder", (req, res) => {
+  res.redirect("/fairdesk/sales/order");
 });
 
 // ----------------------------------Sales Calculator---------------------------------->
@@ -323,7 +887,13 @@ router.post("/form/salescalc", async (req, res) => {
 // route for prodcalc form.
 router.get("/form/prodcalc", async (req, res) => {
   let clients = await Client.distinct("clientName");
-  res.render("utilities/prodCalc.ejs", { title: "Production Calculator", CSS: false, JS: "prodCalc.js", clients, notification: req.flash("notification") });
+  res.render("utilities/prodCalc.ejs", {
+    title: "Production Calculator",
+    CSS: false,
+    JS: "prodCalc.js",
+    clients,
+    notification: req.flash("notification"),
+  });
 });
 
 // Route to handle prodcalc form submission.
@@ -420,26 +990,69 @@ router.get("/edit/user/:id", async (req, res) => {
   });
 });
 
-// ----------------------------------Details display---------------------------------->
-// route for details page.
-router.get("/edit/details/:id", async (req, res) => {
+// ----------------------------------CLIENT DETAILS----------------------------------
+router.get("/client/details/:userId", async (req, res) => {
   try {
-    const userData = await Username.findById(req.params.id).populate("label").populate("ttr").populate("tape");
-    console.log(userData);
+    // 1️⃣ Get ONLY the clicked user
+    const user = await Username.findById(req.params.userId)
+      .populate("label")
+      .populate("ttr")
+      .populate({
+        path: "tape",
+        populate: { path: "tapeId" }, // REQUIRED
+      });
 
-    res.render("edit/detailsPage.ejs", { 
-      userData: userData, 
-      labels: userData.label || [], 
-      ttrs: userData.ttr || [], 
-      tapes: userData.tape || [], 
-      CSS: false, 
-      JS: false, 
-      title: "Client Details",
-      notification: req.flash("notification")
+    if (!user) {
+      req.flash("notification", "User not found");
+      return res.redirect("/fairdesk/master/view");
+    }
+
+    // 2️⃣ User + Client info (same as before)
+    const userData = {
+      clientId: user.clientId,
+      clientName: user.clientName,
+      clientType: user.clientType,
+      hoLocation: user.hoLocation,
+      accountHead: user.accountHead,
+
+      userName: user.userName,
+      userContact: user.userContact,
+      userEmail: user.userEmail,
+      userLocation: user.userLocation,
+      userDepartment: user.userDepartment,
+      SelfDispatch: user.SelfDispatch,
+      dispatchAddress: user.dispatchAddress,
+    };
+
+    // 3️⃣ USER-ONLY inventory
+    const labels = user.label || [];
+    const ttrs = user.ttr || [];
+    const tapes = user.tape || [];
+
+    // 4️⃣ STATS (user-only)
+    const stats = {
+      labels: labels.length,
+      ttrs: ttrs.length,
+      tapes: tapes.length,
+    };
+
+    console.log("TAPES FULL OBJECT:", JSON.stringify(user.tape, null, 2));
+
+    res.render("users/clientDetails.ejs", {
+      title: "User Details",
+      CSS: false,
+      JS: false,
+      userData,
+      labels,
+      ttrs,
+      tapes,
+      stats,
+      notification: req.flash("notification"),
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
+    console.error("USER DETAILS ERROR:", err);
+    req.flash("notification", "Failed to load user details");
+    res.redirect("/fairdesk/master/view");
   }
 });
 
@@ -449,18 +1062,53 @@ router.get("/master/view", async (req, res) => {
   let jsonData = await Username.find().sort({ clientName: 1 });
 
   // console.log(jsonData);
-  res.render("users/masterDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Master View", notification: req.flash("notification") });
+  res.render("users/masterDisp.ejs", {
+    jsonData,
+    CSS: "tableDisp.css",
+    JS: false,
+    title: "Client Details",
+    notification: req.flash("notification"),
+  });
 });
 
 // ----------------------------------Labels display---------------------------------->
-// route for details page.
-router.get("/disp/labels", async (req, res) => {
-  let jsonData = await Label.find();
-  
-  res.render("inventory/labelsDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Labels Display", notification: req.flash("notification") });
+// Centralized Sales Order Form
+router.get("/sales/order", async (req, res) => {
+  const clients = await Client.distinct("clientName");
+  let orderToEdit = null;
+
+  if (req.query.orderId) {
+    try {
+      orderToEdit = await TapeSalesOrder.findById(req.query.orderId).lean();
+    } catch (err) {
+      console.error("Error fetching order to edit:", err);
+    }
+  }
+
+  res.render("inventory/salesOrderForm.ejs", {
+    clients,
+    orderToEdit,
+    CSS: false,
+    JS: false,
+    title: orderToEdit ? "Edit Sales Order" : "Sales Order",
+    notification: req.flash("notification"),
+  });
 });
 
 // ----------------------------------Labels display (individual)---------------------------------->
+// route for details page.
+router.get("/disp/labels", async (req, res) => {
+  let jsonData = await Label.find();
+
+  res.render("inventory/labelsDisp.ejs", {
+    jsonData,
+    CSS: "tableDisp.css",
+    JS: false,
+    title: "Labels Display",
+    notification: req.flash("notification"),
+  });
+});
+
 // route for details page.
 router.get("/labels/view/:id", async (req, res) => {
   console.log(req.params.id);
@@ -469,7 +1117,13 @@ router.get("/labels/view/:id", async (req, res) => {
 
   console.log(jsonData);
   // res.send("hello");
-  res.render("inventory/labelsDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "Labels Display", notification: req.flash("notification") });
+  res.render("inventory/labelsDisp.ejs", {
+    jsonData,
+    CSS: "tableDisp.css",
+    JS: false,
+    title: "Labels Display",
+    notification: req.flash("notification"),
+  });
 });
 
 // ----------------------------------TTR display---------------------------------->
@@ -477,10 +1131,16 @@ router.get("/labels/view/:id", async (req, res) => {
 router.get("/ttr/view/:id", async (req, res) => {
   let userData = await Username.findById(req.params.id).populate("ttr");
   let jsonData = userData.ttr;
-  
+
   // jsonData.push(itemsCount);
   console.log(jsonData);
-  res.render("inventory/ttrDisp.ejs", { jsonData, CSS: "tableDisp.css", JS: false, title: "TTR Display", notification: req.flash("notification") });
+  res.render("inventory/ttrDisp.ejs", {
+    jsonData,
+    CSS: "tableDisp.css",
+    JS: false,
+    title: "TTR Display",
+    notification: req.flash("notification"),
+  });
 });
 
 export default router;

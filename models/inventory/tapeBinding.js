@@ -9,83 +9,27 @@ const tapeBindingSchema = new mongoose.Schema(
       required: true,
     },
 
-    /* ================= CLIENT ================= */
-    clientName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    userName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    userContact: {
-      type: String,
-      trim: true,
-    },
-
-    location: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    /* ================= TAPE SNAPSHOT ================= */
-    tapeProductId: {
-      type: String,
-      required: true,
-    },
-
-    tapePaperCode: {
-      type: String,
-      required: true,
-    },
-
-    tapePaperType: {
-      type: String,
-      required: true,
-    },
-
-    tapeGsm: {
-      type: Number,
-      required: true,
-    },
-
-    tapeWidth: {
-      type: Number,
-      required: true,
-    },
-
-    tapeMtrs: {
-      type: Number,
-      required: true,
-    },
-
-    tapeCoreId: {
-      type: Number,
-      required: true,
-    },
-
-    tapeFinish: {
-      type: String,
-      enum: ["MATTE", "GLOSSY"],
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Username",
       required: true,
     },
 
     /* ================= CLIENT OVERRIDES ================= */
+    // Client-specific paper code (can differ from master)
     tapeClientPaperCode: {
       type: String,
       required: true,
+      trim: true,
     },
 
+    // Client-agreed GSM (can differ from master)
     clientTapeGsm: {
       type: Number,
       required: true,
     },
 
+    // Delivered meters (if partial roll etc.)
     tapeMtrsDel: {
       type: Number,
       default: 0,
@@ -115,10 +59,12 @@ const tapeBindingSchema = new mongoose.Schema(
 
     tapeOdrFreq: {
       type: String,
+      trim: true,
     },
 
     tapeCreditTerm: {
       type: String,
+      trim: true,
     },
 
     /* ================= STATUS ================= */
@@ -128,7 +74,9 @@ const tapeBindingSchema = new mongoose.Schema(
       default: "ACTIVE",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  },
 );
 
-export default mongoose.model("TapeBinding", tapeBindingSchema);
+export default mongoose.models.TapeBinding || mongoose.model("TapeBinding", tapeBindingSchema);

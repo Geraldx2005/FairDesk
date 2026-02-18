@@ -45,14 +45,6 @@
     // Render data from Express (passed into EJS)
     const tableData = JSON.parse('<%- JSON.stringify(jsonData) %>');
 
-    tableData.forEach(user => {
-      user.labelCount = user.label?.length || 0;
-      user.ttrCount = user.ttr?.length || 0;
-      user.tapeCount = user.tape?.length || 0;
-    });
-
-    console.log(tableData);
-
     // Initialize Tabulator
     const table = new Tabulator("#master-table", {
       data: tableData,
@@ -63,26 +55,63 @@
       movableColumns: true,
       placeholder: "No data to display",
       columns: [
-        { title: "Tape Product ID", field: "tapeProductId" },
-        { title: "Client Name", field: "clientName" },
-        { title: "User Name", field: "userName" },
-        { title: "User Contact", field: "userContact" },
-        { title: "Location", field: "location" },
-        { title: "Paper Code", field: "tapePaperCode" },
-        { title: "GSM", field: "tapeGsm" },
-        { title: "Client Paper Code", field: "tapeClientPaperCode" },
+        {
+          title: "",
+          formatter: function (cell) {
+            const row = cell.getRow().getData();
+          
+            // tape master object already present
+            const tapeMaster = row.tapeId;
+          
+            if (!tapeMaster || !tapeMaster._id) {
+              return `<span style="color:#999">N/A</span>`;
+            }
+          
+            return `
+              <button 
+                onclick="window.location.href='/fairdesk/tape/profile/${tapeMaster._id}'"
+                style="padding:2px 10px;background:#1a1a2e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            `;
+          }
+        },
+        {
+          title: "Stock",
+          field: "stock",
+          hozAlign: "center",
+          formatter: (cell) => {
+            const row = cell.getRow().getData();
+            const stock = row.stock ?? "-";
+            return `<span style="font-weight:600">${stock}</span>`;
+          }
+        },
+        {
+          title: "Order",
+          hozAlign: "center",
+          formatter: (cell) => {
+            const row = cell.getRow().getData();
+            return `
+              <button 
+                onclick="window.location.href='/fairdesk/sales/order?type=TAPE&client=${encodeURIComponent(row.userId.clientName)}&user=${row.userId._id}&item=${row._id}'"
+                style="padding:2px 10px;background:#1a1a2e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">
+                <i class="fa-solid fa-cart-plus"></i>
+              </button>
+            `;
+          }
+        },
+        { title: "User Name", field: "userId.userName" },
+        { title: "User Contact", field: "userId.userContact" },
+        { title: "Location", field: "userId.hoLocation" },
         { title: "Client GSM", field: "clientTapeGsm" },
-        { title: "Paper Type", field: "tapePaperType" },
-        { title: "Width", field: "tapeWidth" },
-        { title: "Mtrs", field: "tapeMtrs" },
+        { title: "Paper Type", field: "tapeId.tapePaperType" },
+        { title: "Width", field: "tapeId.tapeWidth" },
+        { title: "Mtrs", field: "tapeId.tapeMtrs" },
         { title: "Mtrs Del", field: "tapeMtrsDel" },
-        { title: "Core ID", field: "tapeCoreId" },
+        { title: "Core ID", field: "tapeId.tapeCoreId" },
         { title: "Rate Per Roll", field: "tapeRatePerRoll" },
-        { title: "Sale Cost", field: "tapeSaleCost" },
         { title: "Min Qty", field: "tapeMinQty" },
         { title: "Order Qty", field: "tapeOdrQty" },
-        { title: "Order Freq", field: "tapeOdrFreq" },
-        { title: "Credit Term", field: "tapeCreditTerm" },
       ]
     });
 
@@ -112,7 +141,7 @@
     // Excel download
     document.getElementById("download-xlsx").addEventListener("click", () => {
       table.download("xlsx", "tape.xlsx", {
-        sheetName: "Labels",
+        sheetName: "Tapes",
       });
       selector.classList.remove("download-selector--active");
     });

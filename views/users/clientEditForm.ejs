@@ -7,33 +7,16 @@
     </div>
   </div>
 
-  <form
-    class="client-content span-full needs-validation"
-    action="/fairdesk/client/edit/<%= client._id %>"
-    method="post"
-    autocomplete="off"
-    novalidate
-  >
+  <form class="client-content span-full needs-validation" action="/fairdesk/client/edit/<%= client._id %>" method="post" autocomplete="off" novalidate >
 
     <div class="span-four">
       <label>Client Id</label>
-      <input
-        type="text"
-        class="form-control input-tag"
-        value="<%= client.clientId %>"
-        readonly
-      />
+      <input type="text" class="form-control input-tag" value="<%= client.clientId %>" readonly />
     </div>
 
     <div class="span-seven">
       <label>Client Name</label>
-      <input
-        type="text"
-        class="form-control input-tag"
-        name="clientName"
-        value="<%= client.clientName %>"
-        required
-      />
+      <input type="text" class="form-control input-tag" name="clientName" value="<%= client.clientName %>" required />
     </div>
 
     <div class="span-five">
@@ -58,78 +41,48 @@
 
     <div class="span-five">
       <label>H/O Location</label>
-      <input
-        type="text"
-        class="form-control input-tag"
-        name="hoLocation"
-        value="<%= client.hoLocation %>"
-        required
-      />
+      <input type="text" class="form-control input-tag" name="hoLocation" value="<%= client.hoLocation %>" required />
     </div>
 
     <div class="span-six">
       <label>Account Head</label>
-      <input
-        type="text"
-        class="form-control input-tag"
-        name="accountHead"
-        value="<%= client.accountHead %>"
-        required
-      />
+      <input type="text" class="form-control input-tag" name="accountHead" value="<%= client.accountHead %>" required/>
     </div>
 
     <div class="span-dual">
       <label>GST</label>
-      <input
-        type="text"
-        class="form-control"
-        name="clientGst"
-        value="<%= client.clientGst %>"
-        required
-      />
+      <input type="text" class="form-control" name="clientGst" value="<%= client.clientGst %>" required />
     </div>
 
     <div class="span-dual">
       <label>MSME</label>
-      <input
-        type="text"
-        class="form-control"
-        name="clientMsme"
-        value="<%= client.clientMsme %>"
-        required
-      />
+      <input type="text" class="form-control" name="clientMsme" value="<%= client.clientMsme %>" required />
     </div>
 
     <div class="span-dual">
       <label>Gumasta</label>
-      <input
-        type="text"
-        class="form-control"
-        name="clientGumasta"
-        value="<%= client.clientGumasta %>"
-        required
-      />
+      <input type="text" class="form-control" name="clientGumasta" value="<%= client.clientGumasta %>" required />
     </div>
 
     <div class="span-dual">
       <label>PAN</label>
-      <input
-        type="text"
-        class="form-control"
-        name="clientPan"
-        value="<%= client.clientPan %>"
-        required
-      />
+      <input type="text" class="form-control" name="clientPan" value="<%= client.clientPan %>" required />
     </div>
 
-    <div class="span-full btn-grp">
+    <div class="span-full btn-grp" style="flex-direction: row-reverse;">
       <button class="submit-btn" type="submit">
         Update Client Details
       </button>
-      <a href="/fairdesk/client/view" class="cancel-btn">
-        Cancel
-      </a>
+      <button type="button" id="cancelBtn">
+          Cancel Edit
+      </button>      
     </div>
 
   </form>
 </div>
+
+<script>
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    window.location.href = "/fairdesk/client/view";
+  });
+</script>

@@ -1,0 +1,137 @@
+<% layout('/layout/boilerplate') -%>
+
+<div class="main-content">
+
+  <form
+    class="needs-validation"
+    action="/fairdesk/tape/edit/<%= tape._id %>"
+    method="post"
+    autocomplete="off"
+    novalidate
+  >
+
+    <div class="span-full form-subheading gap">
+        <h1>Edit Tape</h1>
+    </div>
+
+    <!-- PRODUCT ID -->
+    <div class="span-four">
+      <label>Product ID</label>
+      <input
+        type="text"
+        class="form-control input-tag"
+        value="<%= tape.tapeProductId %>"
+        readonly
+      />
+    </div>
+
+    <!-- PAPER CODE -->
+    <div class="span-four">
+      <label>Paper Code</label>
+      <input
+        type="text"
+        name="tapePaperCode"
+        class="form-control"
+        value="<%= tape.tapePaperCode %>"
+        required
+      />
+    </div>
+
+    <!-- PAPER TYPE -->
+    <div class="span-four">
+      <label>Paper Type</label>
+      <input
+        type="text"
+        name="tapePaperType"
+        class="form-control"
+        value="<%= tape.tapePaperType %>"
+        required
+      />
+    </div>
+
+    <!-- GSM -->
+    <div class="span-three">
+      <label>GSM</label>
+      <input
+        type="number"
+        name="tapeGsm"
+        class="form-control"
+        value="<%= tape.tapeGsm %>"
+        required
+      />
+    </div>
+
+    <!-- WIDTH -->
+    <div class="span-three">
+      <label>Width</label>
+      <input
+        type="number"
+        name="tapeWidth"
+        class="form-control"
+        value="<%= tape.tapeWidth %>"
+        required
+      />
+    </div>
+
+    <!-- ADHESIVE GSM -->
+    <div class="span-five">
+      <label>Adhesive GSM</label>
+      <input
+        type="number"
+        name="tapeAdhesiveGsm"
+        class="form-control"
+        value="<%= tape.tapeAdhesiveGsm %>"
+        required
+      />
+    </div>
+
+    <!-- MTRS -->
+    <div class="span-three">
+      <label>MTRS</label>
+      <input
+        type="number"
+        name="tapeMtrs"
+        class="form-control"
+        value="<%= tape.tapeMtrs %>"
+        required
+      />
+    </div>
+
+    <!-- CORE -->
+    <div class="span-three">
+      <label>Core ID</label>
+      <select name="tapeCoreId" class="form-control select-tag" required>
+        <option value="3" <%= tape.tapeCoreId === 3 ? "selected" : "" %>>3</option>
+        <option value="1" <%= tape.tapeCoreId === 1 ? "selected" : "" %>>1</option>
+        <option value="0.5" <%= tape.tapeCoreId === 0.5 ? "selected" : "" %>>0.5</option>
+      </select>
+    </div>
+
+    <!-- FINISH -->
+    <div class="span-three">
+      <label>Finish</label>
+      <select name="tapeFinish" class="form-control select-tag" required>
+        <option value="MATTE" <%= tape.tapeFinish === "MATTE" ? "selected" : "" %>>MATTE</option>
+        <option value="GLOSSY" <%= tape.tapeFinish === "GLOSSY" ? "selected" : "" %>>GLOSSY</option>
+        <option value="CLEAR" <%= tape.tapeFinish === "CLEAR" ? "selected" : "" %>>CLEAR</option>
+      </select>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="span-full btn-grp" style="flex-direction: row-reverse;">
+      <button class="submit-btn" type="submit">
+        Update Tape
+      </button>
+      <button type="button" id="cancelBtn">
+        Cancel
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    window.location.href = "/fairdesk/tape/profile/<%= tape._id %>";
+  });
+</script>

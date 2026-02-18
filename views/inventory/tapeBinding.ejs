@@ -43,7 +43,7 @@
 
           <div id="user-name-div" class="span-six">
             <label>User Name</label>
-            <select name="userId" id="client-user-name" class="form-control select-tag" required>
+            <select id="client-user-name" class="form-control select-tag" required>
               <option value="" disabled selected hidden>Search</option>
             </select>
           </div>
@@ -114,9 +114,9 @@
             <label for="tape-core-id">Core ID</label>
             <select name="tapeCoreId" id="tape-core-id" class="form-control select-tag" required>
               <option value="" disabled selected hidden>Search</option>
-              <option value="3">3</option>
-              <option value="1">1</option>
-              <option value="0.5">0.5</option>
+              <% coreIds?.forEach(c => { %>
+                <option value="<%= c %>"><%= c %></option>
+              <% }) %>
             </select>
           </div>
 
@@ -124,9 +124,9 @@
             <label for="tape-finish">Finish</label>
             <select name="tapeFinish" id="tape-finish" class="form-control select-tag" required>
               <option value="" disabled selected hidden>Search</option>
-              <option value="MATTE">MATTE</option>
-              <option value="GLOSSY">GLOSSY</option>
-              <option value="CLEAR">CLEAR</option>
+              <% finishes?.forEach(f => { %>
+                <option value="<%= f %>"><%= f %></option>
+              <% }) %>
             </select>
           </div>
 
@@ -152,8 +152,8 @@
             <input type="text" id="tape-rate-per-roll" class="form-control" name="tapeRatePerRoll" placeholder="Enter rate per roll" required />
           </div>            
           <div class="span-six">
-            <label for="ttr-sales-cost">Sales sq mtrs Cost</label>
-            <input type="text" id="tape-sale-cost" class="form-control" name="tapeSaleCost" placeholder="Enter Sales Cost" required />
+            <label for="tape-sale-cost">Sales sq mtrs Cost</label>
+            <input type="text" id="tape-sale-cost" class="form-control" name="tapeSaleCost" placeholder="Enter Sales Cost" tabindex="-1" required readonly />
           </div>           
 
           <div class="span-full form-subheading">
@@ -169,8 +169,8 @@
             <input type="text" id="tape-odr-qty" class="form-control" name="tapeOdrQty" placeholder="Enter order qty" required />
           </div>
           <div class="span-dual">
-            <label for="ttr-odr-freq">Repeat Order Freq</label>
-            <input type="text" id="tape-odr-freq" class="form-control" name="tapeOdrFreq" placeholder="Enter repeat order frequecy" required />
+            <label for="tape-odr-freq">Repeat Order Freq</label>
+            <input type="text" id="tape-odr-freq" class="form-control" name="tapeOdrFreq" placeholder="Enter repeat order frequency" required />
           </div>
           <div class="span-dual">
             <label for="tape-credit-term">CR</label>
@@ -178,7 +178,6 @@
           </div>
 
           <input type="hidden" name="tapeId" id="resolved-tape-id">
-          <input type="hidden" name="userName" id="user-name-hidden">
           <input type="hidden" name="userId" id="user-id">
 
           <div class="btn-grp span-full">
@@ -197,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const userSelect = document.getElementById("client-user-name");
 
   const userIdInput = document.getElementById("user-id");
-  const userNameHidden = document.getElementById("user-name-hidden");
   const userContactInput = document.getElementById("user-contact");
   const locationInput = document.getElementById("client-location");
 
@@ -214,6 +212,28 @@ document.addEventListener("DOMContentLoaded", () => {
     "tape-finish",
   ];
 
+  // Map from element ID to the API response key
+  const fieldToApiKey = {
+    "tape-paper-code": "paperCodes",
+    "tape-paper-type": "paperTypes",
+    "tape-gsm": "gsms",
+    "tape-width": "widths",
+    "tape-mtrs": "mtrsList",
+    "tape-core-id": "coreIds",
+    "tape-finish": "finishes",
+  };
+
+  // Map from element ID to the query param name
+  const fieldToParam = {
+    "tape-paper-code": "tapePaperCode",
+    "tape-paper-type": "tapePaperType",
+    "tape-gsm": "tapeGsm",
+    "tape-width": "tapeWidth",
+    "tape-mtrs": "tapeMtrs",
+    "tape-core-id": "tapeCoreId",
+    "tape-finish": "tapeFinish",
+  };
+
   submitBtn.disabled = true;
 
   /* ================= CHOICES INIT ================= */
@@ -229,10 +249,12 @@ document.addEventListener("DOMContentLoaded", () => {
     itemSelectText: "",
   });
 
+  // Store Choices instances for spec fields
+  const specChoices = {};
   tapeFields.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      new Choices(el, {
+      specChoices[id] = new Choices(el, {
         searchEnabled: true,
         shouldSort: false,
         itemSelectText: "",
@@ -243,7 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= HELPERS ================= */
   function resetUserFields() {
     userIdInput.value = "";
-    userNameHidden.value = "";
     userContactInput.value = "";
     locationInput.value = "";
   }
@@ -259,6 +280,54 @@ document.addEventListener("DOMContentLoaded", () => {
     tapeIdDisplay.value = "";
     submitBtn.disabled = true;
     tapeIdDisplay.classList.remove("tape-id-success", "tape-id-error");
+  }
+
+  /* ================= SMART FILTER ================= */
+  let filterTimeout = null;
+
+  async function filterSpecs(changedFieldId) {
+    // Build query params from all currently selected values
+    const params = new URLSearchParams();
+    tapeFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.value) {
+        params.set(fieldToParam[id], el.value);
+      }
+    });
+
+    try {
+      const res = await fetch(`/fairdesk/form/tape-binding/filter-specs?${params}`);
+      const data = await res.json();
+      if (!data) return;
+
+      // Update each dropdown with filtered options (except the one just changed)
+      tapeFields.forEach(id => {
+        const choicesInstance = specChoices[id];
+        if (!choicesInstance) return;
+
+        const apiKey = fieldToApiKey[id];
+        const filteredValues = data[apiKey] || [];
+        const currentValue = document.getElementById(id)?.value || "";
+
+        // Build new choices array
+        const newChoices = filteredValues.map(v => ({
+          value: String(v),
+          label: String(v),
+          selected: String(v) === currentValue,
+        }));
+
+        // Clear and repopulate
+        choicesInstance.clearStore();
+        choicesInstance.setChoices(
+          [{ value: "", label: "Search", disabled: true, selected: !currentValue }, ...newChoices],
+          "value",
+          "label",
+          true
+        );
+      });
+    } catch (err) {
+      console.error("Filter specs error:", err);
+    }
   }
 
   /* ================= CLIENT → USER ================= */
@@ -291,7 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       userIdInput.value = u._id;
-      userNameHidden.value = u.userName;
       userContactInput.value = u.userContact || "";
       locationInput.value = u.userLocation || "";
       return;
@@ -326,7 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!choice) return;
 
     userIdInput.value = choice.value;
-    userNameHidden.value = choice.label;
     userContactInput.value = choice.customProperties?.mobile || "";
     locationInput.value = choice.customProperties?.location || "";
   });
@@ -375,8 +442,12 @@ document.addEventListener("DOMContentLoaded", () => {
       values["tape-gsm"];
   }
 
+  /* ================= SPEC CHANGE HANDLER ================= */
   tapeFields.forEach(id => {
-    document.getElementById(id)?.addEventListener("change", resolveTape);
+    document.getElementById(id)?.addEventListener("change", async () => {
+      await filterSpecs(id);
+      resolveTape();
+    });
   });
 
   /* ================= RATE CALC ================= */
@@ -398,13 +469,49 @@ document.addEventListener("DOMContentLoaded", () => {
   ratePerRollInput.addEventListener("input", calcSaleCost);
 });
 
+/* ================= CUSTOM TOAST ================= */
+function showClientToast(message, isError = true) {
+  // Check if existing toast exists, remove it
+  const existingToast = document.getElementById("client-toast");
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  const toast = document.createElement("div");
+  toast.id = "client-toast";
+  toast.className = `toast-notification ${isError ? 'toast-error' : 'toast-success'}`;
+  toast.innerHTML = `
+    <span>${message}</span>
+    <span class="toast-close" onclick="this.parentElement.remove()">×</span>
+  `;
+
+  document.body.appendChild(toast);
+
+  // Auto remove
+  setTimeout(() => {
+    if (toast.parentElement) {
+       toast.style.animation = "slideOut 0.5s forwards";
+       setTimeout(() => toast.remove(), 500);
+    }
+  }, 5000);
+}
+
 /* ================= FORM GUARD ================= */
 function validateTapeBeforeSubmit() {
   const tapeId = document.getElementById("resolved-tape-id").value;
   if (!tapeId) {
-    alert("Please select valid tape specifications.");
+    showClientToast("Please select valid tape specifications.", true);
     return false;
   }
+
+  const minQty = Number(document.getElementById("tape-min-qty").value);
+  const odrQty = Number(document.getElementById("tape-odr-qty").value);
+
+  if (minQty >= odrQty) {
+    showClientToast("Order Quantity must be greater than Minimum Order Quantity", true);
+    return false;
+  }
+
   return true;
 }
 </script>

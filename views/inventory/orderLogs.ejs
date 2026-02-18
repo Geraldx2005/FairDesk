@@ -1,0 +1,163 @@
+<% layout('/layout/boilerplate') -%>
+
+<!-- Tabulator CSS -->
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
+<link href="https://unpkg.com/tabulator-tables@5.6.2/dist/css/tabulator_modern.min.css" rel="stylesheet" />
+
+<div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
+  <div class="indi-head">
+    <h1>Order Action Logs</h1>
+    <div class="download-btns" style="display: flex; gap: 10px; align-items: center">
+      <a
+        href="/fairdesk/sales/pending"
+        style="
+          padding: 6px 14px;
+          background: #1a1a2e;
+          color: white;
+          border-radius: 6px;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: opacity 0.2s;
+        "
+        onmouseover="this.style.opacity = '0.85'"
+        onmouseout="this.style.opacity = '1'"
+      >
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Pending</span>
+      </a>
+      <div class="download-selector" id="downloadSelector">
+        <button class="download-selector__trigger">
+          <span>
+            <i class="fa-solid fa-file-arrow-down"></i>
+            <span class="download-typo">Download</span>
+          </span>
+          <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
+        </button>
+        <div class="download-selector__menu" id="downloads">
+          <span class="download-selector__option" id="download-pdf">
+            <i class="fas fa-file-pdf download-selector__option-icon"></i>
+            <span>PDF</span>
+          </span>
+          <span class="download-selector__option" id="download-xlsx">
+            <i class="fas fa-file-excel download-selector__option-icon"></i>
+            <span>Excel</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="master-table" class="tabulator tabulator-modern"></div>
+</div>
+
+<!-- Tabulator JS -->
+<script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+  const logsData = <%- JSON.stringify(logs) %>;
+
+  const table = new Tabulator("#master-table", {
+    data: logsData,
+    layout: "fitColumns",
+    responsiveLayout: false,
+    pagination: "local",
+    paginationSize: 30,
+    movableColumns: true,
+    placeholder: "No order logs found",
+    columns: [
+      {
+        title: "Date",
+        field: "performedAt",
+        width: 160,
+        formatter: (cell) => {
+          const d = new Date(cell.getValue());
+          return d.toLocaleDateString("en-IN") + " " + d.toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' });
+        },
+      },
+      {
+        title: "Action",
+        field: "action",
+        width: 120,
+        hozAlign: "center",
+        formatter: (cell) => {
+          const action = cell.getValue();
+          let bg = "#6b7280";
+          let label = action;
+          if (action === "CONFIRMED") { bg = "#10b981"; label = "Confirmed"; }
+          else if (action === "CANCELLED") { bg = "#ef4444"; label = "Cancelled"; }
+          else if (action === "CREATED") { bg = "#3b82f6"; label = "Created"; }
+          return `<span style="display:inline-block; padding:2px 10px; background:${bg}; color:white; border-radius:12px; font-size:11px; font-weight:600; letter-spacing:0.5px;">${label}</span>`;
+        },
+      },
+      {
+        title: "Client",
+        field: "orderId",
+        formatter: (cell) => {
+          const order = cell.getValue();
+          return order?.userId?.clientName || "N/A";
+        },
+      },
+      {
+        title: "Item",
+        field: "orderId",
+        formatter: (cell) => {
+          const order = cell.getValue();
+          if (!order?.tapeId) return "N/A";
+          return `<span style="color:#1a1a2e; font-weight:600; display:block;">
+                    ${order.tapeId.tapePaperCode || ""} ${order.tapeId.tapeGsm || ""}gsm
+                  </span>`;
+        },
+      },
+      {
+        title: "Qty",
+        field: "quantity",
+        hozAlign: "center",
+      },
+      {
+        title: "Invoice #",
+        field: "invoiceNumber",
+        hozAlign: "center",
+        formatter: (cell) => cell.getValue() || "-",
+      },
+      {
+        title: "Cancel Reason",
+        field: "cancelReason",
+        formatter: (cell) => {
+          const val = cell.getValue();
+          if (!val) return "-";
+          return `<span title="${val}" style="color:#ef4444; font-weight:500;">${val}</span>`;
+        },
+      },
+      {
+        title: "By",
+        field: "performedBy",
+      },
+    ],
+  });
+
+  // Dropdown toggle
+  const selector = document.getElementById("downloadSelector");
+  const trigger = selector.querySelector(".download-selector__trigger");
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selector.classList.toggle("download-selector--active");
+  });
+  document.addEventListener("click", () => selector.classList.remove("download-selector--active"));
+
+  // Downloads
+  document.getElementById("download-pdf").addEventListener("click", () => {
+    table.download("pdf", "order_logs.pdf", { orientation: "landscape", title: "Order Action Logs" });
+    selector.classList.remove("download-selector--active");
+  });
+  document.getElementById("download-xlsx").addEventListener("click", () => {
+    table.download("xlsx", "order_logs.xlsx", { sheetName: "OrderLogs" });
+    selector.classList.remove("download-selector--active");
+  });
+</script>

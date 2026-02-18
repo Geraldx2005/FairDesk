@@ -74,10 +74,18 @@
   }
 
   .client-edit-btn {
-    color: #fff;
-    font-size: 13px;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 0px 10px;
+    font-size: 16px;
     cursor: pointer;
-    text-decoration: underline;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .client-edit-btn:hover {
+    opacity: 0.85;
   }
 
   .client-close {
@@ -165,21 +173,20 @@
     paginationSize: 25,
 
     columns: [
-      { title: "Client ID", field: "clientId" },
       {
         title: "Client Name",
         field: "clientName",
         minWidth: 220,
         headerFilter: true,
+
         formatter: (cell) => {
+          cell.getElement().classList.add("client-name-cell");
+          return cell.getValue();
+        },
+      
+        cellClick: (e, cell) => {
           const row = cell.getRow().getData();
-          return `
-            <span
-              style="font-weight:600;color:#1a1a2e;cursor:pointer;text-decoration:underline;"
-              onclick="openClientModal('${row._id}')">
-              ${cell.getValue()}
-            </span>
-          `;
+          openClientModal(row._id);
         },
       },
       { title: "Type", field: "clientType" },
@@ -237,3 +244,56 @@
     document.getElementById("clientModal").style.display = "none";
   }
 </script>
+
+<!-- ================= FLOATING ACTION BUTTONS ================= -->
+<style>
+  .fab-capsule {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #1a1a2e;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+
+  .fab-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 50%;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .fab-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+    color: #fff;
+  }
+
+  .fab-divider {
+    width: 2px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 8px;
+    border-radius: 2px;
+  }
+</style>
+
+<div class="fab-capsule">
+  <div title="Add Client" class="fab-item" onclick="window.location.href='/fairdesk/form/client?tab=client'" style="cursor: pointer;">
+    <i class="fa-solid fa-building"></i>
+  </div>
+  <div class="fab-divider"></div>
+  <div title="Add User" class="fab-item" onclick="window.location.href='/fairdesk/form/client?tab=user'" style="cursor: pointer;">
+    <i class="fa-solid fa-user-plus"></i>
+  </div>
+</div>

@@ -1,0 +1,383 @@
+<% layout('/layout/boilerplate') -%>
+
+<!-- Tabulator CSS -->
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
+<link href="https://unpkg.com/tabulator-tables@5.6.2/dist/css/tabulator_modern.min.css" rel="stylesheet" />
+
+<div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
+  <div class="indi-head">
+    <h1>Pending Orders</h1>
+    <div class="download-btns" style="display: flex; gap: 10px; align-items: center">
+      <a
+        href="/fairdesk/sales/order/logs"
+        style="
+          padding: 6px 14px;
+          background: #1a1a2e;
+          color: white;
+          border-radius: 6px;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: opacity 0.2s;
+        "
+        onmouseover="this.style.opacity = '0.85'"
+        onmouseout="this.style.opacity = '1'"
+      >
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>View Logs</span>
+      </a>
+      <div class="download-selector" id="downloadSelector">
+        <button class="download-selector__trigger">
+          <span>
+            <i class="fa-solid fa-file-arrow-down"></i>
+            <span class="download-typo">Download</span>
+          </span>
+          <i class="fas fa-chevron-down download-selector__trigger-icon"></i>
+        </button>
+        <div class="download-selector__menu" id="downloads">
+          <span class="download-selector__option" id="download-pdf">
+            <i class="fas fa-file-pdf download-selector__option-icon"></i>
+            <span>PDF</span>
+          </span>
+          <span class="download-selector__option" id="download-xlsx">
+            <i class="fas fa-file-excel download-selector__option-icon"></i>
+            <span>Excel</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="master-table" class="tabulator tabulator-modern"></div>
+</div>
+
+<!-- Tabulator JS -->
+<script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+  /* Safe JSON injection without double-parsing */
+  const orderData = <%- JSON.stringify(orders) %>;
+
+  /* Dialog references */
+  let customDialog, dialogMessage, dialogYes, dialogNo, cancelReasonWrap, cancelReasonInput;
+  let currentConfirmCallback = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    customDialog = document.getElementById('custom-confirm-dialog');
+    dialogMessage = document.getElementById('custom-dialog-message');
+    dialogYes = document.getElementById('custom-dialog-yes');
+    dialogNo = document.getElementById('custom-dialog-no');
+    cancelReasonWrap = document.getElementById('cancel-reason-wrap');
+    cancelReasonInput = document.getElementById('cancel-reason-input');
+
+    dialogYes.addEventListener('click', () => {
+      // Validate reason if cancelling
+      if (cancelReasonWrap.style.display !== 'none') {
+        if (!cancelReasonInput.value.trim()) {
+          cancelReasonInput.style.borderColor = '#ef4444';
+          cancelReasonInput.placeholder = 'Please provide a reason...';
+          cancelReasonInput.focus();
+          return;
+        }
+      }
+      if (currentConfirmCallback) currentConfirmCallback();
+      closeCustomDialog();
+    });
+
+    dialogNo.addEventListener('click', closeCustomDialog);
+  });
+
+  function showCustomConfirm(message, onConfirm, showReason = false) {
+    dialogMessage.textContent = message;
+    currentConfirmCallback = onConfirm;
+    cancelReasonWrap.style.display = showReason ? 'block' : 'none';
+    cancelReasonInput.value = '';
+    cancelReasonInput.style.borderColor = '#d1d5db';
+    customDialog.style.display = 'flex';
+  }
+
+  function closeCustomDialog() {
+    customDialog.style.display = 'none';
+    currentConfirmCallback = null;
+    cancelReasonInput.value = '';
+  }
+
+  // Handler for cancel request
+  window.requestCancel = function(orderId) {
+    dialogYes.style.background = '#ef4444';
+    dialogYes.textContent = "Yes, Cancel Order";
+
+    showCustomConfirm(
+      "Are you sure you want to CANCEL this order? This cannot be undone.",
+      () => {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/fairdesk/sales/order/status';
+
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'orderId';
+        idInput.value = orderId;
+        form.appendChild(idInput);
+
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        statusInput.value = 'CANCELLED';
+        form.appendChild(statusInput);
+
+        const reasonInput = document.createElement('input');
+        reasonInput.type = 'hidden';
+        reasonInput.name = 'cancelReason';
+        reasonInput.value = cancelReasonInput.value.trim();
+        form.appendChild(reasonInput);
+
+        document.body.appendChild(form);
+        form.submit();
+      },
+      true
+    );
+  };
+  // Handler for create order request
+  window.checkCreateOrder = function(url) {
+    dialogYes.style.background = '#10b981'; // Green for create
+    dialogYes.textContent = "Yes, Create Order";
+
+    showCustomConfirm(
+      "Are you sure you want to create this order?",
+      () => {
+        window.location.href = url;
+      },
+      false // No reason needed
+    );
+  };
+
+  const table = new Tabulator("#master-table", {
+    data: orderData,
+    layout: "fitColumns",
+    responsiveLayout: false,
+    pagination: "local",
+    paginationSize: 30,
+    movableColumns: true,
+    placeholder: "No pending orders found",
+    columns: [
+      {
+        title: "Actions",
+        hozAlign: "center",
+        headerSort: false,
+        width: 140,
+        formatter: (cell) => {
+          const row = cell.getRow().getData();
+          // Build full URL with prefill params
+          const client = row.userId ? row.userId.clientName : "";
+          const user = row.userId ? row.userId._id : "";
+          const item = row.tapeBinding ? row.tapeBinding._id : "";
+          const confirmUrl = `/fairdesk/sales/order/confirm?orderId=${row._id}&type=TAPE&client=${encodeURIComponent(client)}&user=${user}&item=${item}`;
+          const editUrl = `/fairdesk/sales/order?orderId=${row._id}&type=TAPE&client=${encodeURIComponent(client)}&user=${user}&item=${item}`;
+          return `
+                <div style="display:flex; gap:5px; justify-content:center;">
+                    <a href="javascript:void(0)"
+                        onclick="checkCreateOrder('${confirmUrl}')"
+                        style="height:20px; padding:2px 10px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-size:11px; transition: background 0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:3px; font-weight:500;"
+                        onmouseover="this.style.background='#059669'"
+                        onmouseout="this.style.background='#10b981'"
+                        title="Create Order">
+                        <i class="fa-solid fa-plus"></i>
+                    </a>
+                    <button onclick="requestCancel('${row._id}')"
+                        style="height:20px; padding:2px 10px; background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; transition: background 0.2s;"
+                        onmouseover="this.style.background='#dc2626'"
+                        onmouseout="this.style.background='#ef4444'"
+                        title="Cancel Order">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <a href="${editUrl}"
+                        style="height:20px; padding:2px 10px; background:#3b82f6; color:white; border:none; border-radius:4px; cursor:pointer; font-size:11px; transition: background 0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:3px; font-weight:500;"
+                        onmouseover="this.style.background='#2563eb'"
+                        onmouseout="this.style.background='#3b82f6'"
+                        title="Edit Order">
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
+                </div>
+            `;
+        },
+      },
+      {
+        title: "Date",
+        field: "createdAt",
+        formatter: (cell) => new Date(cell.getValue()).toLocaleDateString("en-IN"),
+      },
+      { title: "Client", field: "userId.clientName" },
+      { title: "User", field: "userId.userName" },
+      {
+        title: "Item Details",
+        field: "tapeId",
+        formatter: (cell) => {
+          const tape = cell.getValue();
+          if (!tape) return "N/A";
+
+          return `<span style="color:#1a1a2e; font-weight:600; display:block;">
+                    ${tape.tapePaperCode} ${tape.tapeGsm}gsm
+                  </span>`;
+        },
+      },
+      { title: "Qty", field: "quantity", hozAlign: "center" },
+      { title: "Source", field: "sourceLocation", hozAlign: "center" },
+      {
+        title: "Est. Delivery",
+        field: "estimatedDate",
+        formatter: (cell) => new Date(cell.getValue()).toLocaleDateString("en-IN"),
+      },
+      { title: "Remarks", field: "remarks" },
+    ],
+  });
+
+  // Dropdown toggle
+  const selector = document.getElementById("downloadSelector");
+  const trigger = selector.querySelector(".download-selector__trigger");
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selector.classList.toggle("download-selector--active");
+  });
+  document.addEventListener("click", () => selector.classList.remove("download-selector--active"));
+
+  // Downloads
+  document.getElementById("download-pdf").addEventListener("click", () => {
+    table.download("pdf", "pending_orders.pdf", { orientation: "landscape", title: "Pending Orders" });
+    selector.classList.remove("download-selector--active");
+  });
+  document.getElementById("download-xlsx").addEventListener("click", () => {
+    table.download("xlsx", "pending_orders.xlsx", { sheetName: "PendingOrders" });
+    selector.classList.remove("download-selector--active");
+  });
+</script>
+
+<!-- Custom Confirm/Cancel Dialog -->
+<div
+  id="custom-confirm-dialog"
+  style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s;
+  "
+>
+  <div
+    style="
+      background: white;
+      border-radius: 8px;
+      width: 440px;
+      max-width: 90%;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      animation: popIn 0.2s ease-out;
+    "
+  >
+    <div style="padding: 25px 20px; text-align: center">
+      <p id="custom-dialog-message" style="margin: 0; color: #333; font-size: 16px; line-height: 1.5">Are you sure?</p>
+      <!-- Cancel Reason Textarea -->
+      <div id="cancel-reason-wrap" style="display: none; margin-top: 15px; text-align: left">
+        <label
+          for="cancel-reason-input"
+          style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block"
+          >Reason for Cancellation <span style="color: #ef4444">*</span></label
+        >
+        <textarea
+          id="cancel-reason-input"
+          rows="3"
+          placeholder="Enter reason for cancellation..."
+          style="
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+          "
+        ></textarea>
+      </div>
+    </div>
+    <div
+      style="
+        padding: 15px 20px;
+        background: #f9fafb;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        border-top: 1px solid #e5e7eb;
+      "
+    >
+      <button
+        id="custom-dialog-no"
+        style="
+          padding: 8px 16px;
+          border: 1px solid #d1d5db;
+          background: white;
+          color: #374151;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: all 0.2s;
+        "
+      >
+        Go Back
+      </button>
+      <button
+        id="custom-dialog-yes"
+        style="
+          padding: 8px 16px;
+          border: none;
+          background: #ef4444;
+          color: white;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: all 0.2s;
+        "
+      >
+        Yes, Cancel Order
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes popIn {
+    0% {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  #custom-dialog-no:hover {
+    background: #f3f4f6;
+  }
+  #custom-dialog-yes:hover {
+    opacity: 0.9;
+  }
+  #cancel-reason-input:focus {
+    outline: none;
+    border-color: #1a1a2e;
+    box-shadow: 0 0 0 2px rgba(26, 26, 46, 0.1);
+  }
+</style>

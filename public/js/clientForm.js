@@ -77,6 +77,15 @@
 
     // Initial state update
     updateInputDisabledState();
+
+    // Handle URL query parameter for tab switching
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get("tab");
+    if (tabParam === "user" && dom.userSwitch) {
+      toggleViews("user");
+    } else if (tabParam === "client" && dom.clientSwitch) {
+      toggleViews("client");
+    }
   }
 
   function toggleTabs(activeTab) {

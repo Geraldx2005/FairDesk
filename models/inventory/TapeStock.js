@@ -18,7 +18,6 @@ const tapeStockSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: true,
-      min: 1, // inward only
     },
 
     remarks: {
@@ -33,7 +32,7 @@ const tapeStockSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 /* ================= EXPORT ================= */

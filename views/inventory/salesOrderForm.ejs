@@ -1,0 +1,600 @@
+<% layout('/layout/boilerplate') -%>
+
+<div class="main-content">
+  <form action="<%= typeof confirmMode !== 'undefined' && confirmMode ? '/fairdesk/sales/order/status' : '/fairdesk/sales/order' %>" method="post" class="needs-validation" autocomplete="off" novalidate>
+    <input type="hidden" name="orderId" value="<%= typeof orderToEdit !== 'undefined' && orderToEdit ? orderToEdit._id : '' %>" />
+    <% if (typeof confirmMode !== 'undefined' && confirmMode) { %>
+      <input type="hidden" name="status" value="CONFIRMED" />
+    <% } %>
+    <div class="span-full form-heading">
+      <h1><%= typeof confirmMode !== 'undefined' && confirmMode ? 'Dispatch Order' : (typeof orderToEdit !== 'undefined' && orderToEdit ? 'Edit Sales Order' : 'Sales Order') %></h1>
+    </div>
+
+    <!-- Stock Status Bar with Location Selection -->
+    <div id="stock-display" class="span-full" style="display: none; padding: 10px 15px; background: #fff; border: 1px solid #1a1a2e; border-radius: 0.5rem; transition: all 0.3s ease;">
+      <!-- Content populated by JS -->
+    </div>
+    <input type="hidden" name="sourceLocation" id="source-location" />
+
+    <!-- ================= ORDER TYPE ================= -->
+    <div class="span-full form-subheading">
+      <h1>Order Details</h1>
+    </div>
+
+    <div class="span-eight">
+      <label for="item-type">Item Type</label>
+      <select name="itemType" id="item-type" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select Item Type</option>
+        <option value="TAPE">Tape</option>
+        <option value="LABEL">Label</option>
+        <option value="TTR">TTR</option>
+      </select>
+    </div>
+
+    <div class="span-eight">
+      <label for="client-name">Client Name</label>
+      <select name="clientName" id="client-name" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select Client</option>
+        <% clients?.forEach(client => { %>
+          <option value="<%= client %>"><%= client %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="span-eight">
+      <label for="user-name">User Name</label>
+      <select name="userId" id="user-name" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select User</option>
+      </select>
+      <input type="hidden" name="userName" id="user-name-hidden" />
+    </div>
+
+    <div class="span-eight">
+      <label for="item-select">Select Item</label>
+      <select name="itemId" id="item-select" class="form-control select-tag" required>
+        <option value="" disabled selected hidden>Select Item</option>
+      </select>
+    </div>
+
+    <!-- ================= QUANTITY & DATE ================= -->
+    <div class="span-full form-subheading">
+      <h1>Order Info</h1>
+    </div>
+
+    <div class="span-eight">
+      <label for="quantity">Order Quantity</label>
+      <input type="number" id="quantity" name="quantity" class="form-control" min="1" placeholder="Enter quantity" required />
+    </div>
+
+    <div class="span-eight">
+      <label for="estimated-date">Estimated Delivery Date</label>
+      <input type="date" id="estimated-date" name="estimatedDate" class="form-control" required />
+    </div>
+
+    <div class="span-half" style="grid-column: span 16;">
+      <label for="remarks">Remarks (Optional)</label>
+      <input type="text" id="remarks" name="remarks" class="form-control" placeholder="Any special instructions..." />
+    </div>
+
+    <!-- Stock Warning -->
+    <div id="stock-warning" class="span-full" style="display: none; padding: 8px 15px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 0.5rem; color: #92400e; font-size: 14px; font-weight: 500;">
+      <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i>
+      <span id="stock-warning-text"></span>
+    </div>
+
+    <!-- ================= CONFIRMATION DETAILS (only in confirm mode) ================= -->
+    <% if (typeof confirmMode !== 'undefined' && confirmMode) { %>
+    <div id="confirmation-section" class="span-full form-subheading">
+      <h1>Confirmation Details</h1>
+    </div>
+
+    <div class="span-penta">
+      <label for="confirm-date">Date</label>
+      <input type="date" id="confirm-date" name="confirmDate" class="form-control" required />
+    </div>
+
+    <div class="span-hexa">
+      <label for="invoice-number">Invoice Number</label>
+      <input type="text" id="invoice-number" name="invoiceNumber" class="form-control" placeholder="Enter invoice number" required />
+    </div>
+
+    <div class="span-penta">
+      <label for="confirm-quantity">Quantity</label>
+      <input type="number" id="confirm-quantity" name="confirmQuantity" class="form-control" min="1" required />
+    </div>
+    <% } %>
+
+    <!-- ================= SUBMIT ================= -->
+    <div class="span-full btn-grp">
+      <button type="submit">
+        <% if (typeof confirmMode !== 'undefined' && confirmMode) { %>
+          <i class="fa-solid fa-check-double"></i> Dispatch Order
+        <% } else { %>
+          <i class="fa-solid fa-check"></i> <%= typeof orderToEdit !== 'undefined' && orderToEdit ? 'Update Order' : 'Create Order' %>
+        <% } %>
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  .location-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 5px;
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 0.4rem;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .location-option:hover {
+    background: #f0f0ff;
+  }
+
+  .location-option.selected {
+    border-color: #1a1a2e;
+    background: #eef0ff;
+  }
+
+  .location-radio {
+    accent-color: #1a1a2e;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  .location-label {
+    color: #1a1a2e;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .location-qty {
+    font-weight: 700;
+    color: #1a1a2e;
+    font-size: 15px;
+  }
+</style>
+
+<script>
+  // Inject data safely
+  const orderToEdit = <%- typeof orderToEdit !== 'undefined' && orderToEdit ? JSON.stringify(orderToEdit) : 'null' %>;
+  const stockInfo = <%- typeof stockInfo !== 'undefined' && stockInfo ? JSON.stringify(stockInfo) : 'null' %>;
+  const confirmMode = <%= typeof confirmMode !== 'undefined' && confirmMode ? 'true' : 'false' %>;
+
+  const clientSelect = document.getElementById("client-name");
+  const userSelect = document.getElementById("user-name");
+  const userNameHidden = document.getElementById("user-name-hidden");
+  const itemTypeSelect = document.getElementById("item-type");
+  const itemSelect = document.getElementById("item-select");
+  const sourceLocationInput = document.getElementById("source-location");
+  const quantityInput = document.getElementById("quantity");
+  const estimatedDateInput = document.getElementById("estimated-date");
+  const remarksInput = document.getElementById("remarks");
+
+  // Load users when client changes
+  async function loadUsers(clientName, targetUserId = null, targetItemId = null) {
+    if (!clientName) return;
+
+    userSelect.innerHTML = '<option value="" disabled selected hidden>Loading...</option>';
+    itemSelect.innerHTML = '<option value="" disabled selected hidden>Select Item</option>';
+
+    try {
+      const res = await fetch(`/fairdesk/form/labels/${encodeURIComponent(clientName)}`);
+      const data = await res.json();
+      const users = data.users || [];
+
+      userSelect.innerHTML = '<option value="" disabled selected hidden>Select User</option>';
+      users.forEach(user => {
+        const opt = document.createElement("option");
+        opt.value = user._id;
+        opt.textContent = user.userName;
+        opt.dataset.name = user.userName;
+        userSelect.appendChild(opt);
+      });
+
+      // Auto-select if targetUserId is provided or if only one user exists
+      if (targetUserId) {
+        userSelect.value = targetUserId;
+        const selected = userSelect.querySelector(`option[value="${targetUserId}"]`);
+        if (selected) {
+          userNameHidden.value = selected.dataset.name || "";
+          await loadItems(targetItemId);
+        }
+      } else if (users.length === 1) {
+        userSelect.value = users[0]._id;
+        userNameHidden.value = users[0].userName;
+        await loadItems();
+      }
+    } catch (err) {
+      console.error("Failed to load users:", err);
+      userSelect.innerHTML = '<option value="" disabled selected hidden>Error loading users</option>';
+    }
+  }
+
+  // Load items based on type and user
+  async function loadItems(targetItemId = null) {
+    const userId = userSelect.value;
+    const itemType = itemTypeSelect.value;
+    if (!userId || !itemType) return;
+
+    itemSelect.innerHTML = '<option value="" disabled selected hidden>Loading...</option>';
+
+    try {
+      const res = await fetch(`/fairdesk/sales/items/${itemType}/${userId}`);
+      const items = await res.json();
+
+      itemSelect.innerHTML = '<option value="" disabled selected hidden>Select Item</option>';
+      if (items.length === 0) {
+        itemSelect.innerHTML = '<option value="" disabled selected hidden>No items found</option>';
+        return;
+      }
+      
+      items.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item._id;
+        opt.textContent = item.displayName;
+        // Store stock data and minQty in dataset
+        opt.dataset.stock = JSON.stringify(item.stock || { totalStock: 0, locations: [] });
+        opt.dataset.minQty = item.minOrderQty || 0;
+        itemSelect.appendChild(opt);
+      });
+
+      // Auto-select if targetItemId is provided or if only one item exists
+      if (targetItemId) {
+        itemSelect.value = targetItemId;
+      } else if (items.length === 1) {
+        itemSelect.value = items[0]._id;
+      }
+      
+      // Trigger change event to update stock display
+      updateStockDisplay();
+    } catch (err) {
+      console.error("Failed to load items:", err);
+      itemSelect.innerHTML = '<option value="" disabled selected hidden>Error loading items</option>';
+    }
+  }
+
+  function updateStockDisplay() {
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+    const stockDisplay = document.getElementById("stock-display");
+    
+    // Reset location selection
+    sourceLocationInput.value = "";
+    hideStockWarning();
+
+    if (selectedOption && selectedOption.dataset.stock) {
+      try {
+        const stock = JSON.parse(selectedOption.dataset.stock);
+        
+        const allLocations = ["UNIT 1", "UNIT 2", "UNIT 3"];
+
+        // Build "ALL" option
+        let locationHtml = `<label class="location-option selected" data-location="ALL" data-qty="${stock.totalStock}" data-booked="${stock.booked || 0}" data-balance="${stock.balance || 0}">
+              <input type="radio" name="locationRadio" class="location-radio" value="ALL" data-qty="${stock.totalStock}" data-booked="${stock.booked || 0}" data-balance="${stock.balance || 0}" checked />
+              <span class="location-label">ALL:</span>
+              <span class="location-qty">${stock.totalStock}</span>
+            </label>`;
+
+        // Build per-location options
+        locationHtml += allLocations.map(locName => {
+          const locData = (stock.locations || []).find(l => l.location === locName);
+          const qty = locData ? locData.qty : 0;
+          const booked = locData ? (locData.booked || 0) : 0;
+          const balance = locData ? (locData.balance || 0) : 0;
+          return `<label class="location-option" data-location="${locName}" data-qty="${qty}" data-booked="${booked}" data-balance="${balance}">
+              <input type="radio" name="locationRadio" class="location-radio" value="${locName}" data-qty="${qty}" data-booked="${booked}" data-balance="${balance}" />
+              <span class="location-label">${locName}:</span>
+              <span class="location-qty">${qty}</span>
+            </label>`;
+        }).join("");
+
+        stockDisplay.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; width: 100%;">
+            <div style="display: flex; flex-wrap: wrap; align-items: center;">${locationHtml}</div>
+            <div id="stock-stats" style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+              <div style="font-weight: 700; color: #1a1a2e; font-size: 16px;">
+                <i class="fa-solid fa-box-open"></i> Total: <span id="stat-total">${stock.totalStock}</span>
+              </div>
+              <div style="font-weight: 700; color: #d97706; font-size: 16px;" title="Pending Orders">
+                <i class="fa-regular fa-clock"></i> Booked: <span id="stat-booked">${stock.booked || 0}</span>
+              </div>
+              <div style="font-weight: 700; color: #059669; font-size: 16px;" title="Available for new orders">
+                <i class="fa-solid fa-scale-balanced"></i> Balance: <span id="stat-balance">${stock.balance || 0}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        stockDisplay.style.display = "block";
+
+        // Attach radio button listeners
+        stockDisplay.querySelectorAll('input[name="locationRadio"]').forEach(radio => {
+          radio.addEventListener("change", function () {
+            // Set source location (empty for ALL so validation catches it)
+            sourceLocationInput.value = this.value === "ALL" ? "" : this.value;
+
+            // Highlight selected
+            stockDisplay.querySelectorAll('.location-option').forEach(el => el.classList.remove('selected'));
+            this.closest('.location-option').classList.add('selected');
+
+            // Update stats display
+            document.getElementById("stat-total").textContent = this.dataset.qty;
+            document.getElementById("stat-booked").textContent = this.dataset.booked;
+            document.getElementById("stat-balance").textContent = this.dataset.balance;
+
+            // Check quantity warning
+            checkStockWarning();
+          });
+        });
+
+        // ================= PRE-SELECT LOCATION FOR EDIT =================
+        if (orderToEdit && orderToEdit.sourceLocation) {
+          const locRadio = stockDisplay.querySelector(`input[name="locationRadio"][value="${orderToEdit.sourceLocation}"]`);
+          if (locRadio) {
+            locRadio.checked = true;
+            // Trigger change event to update UI and hidden input
+            locRadio.dispatchEvent(new Event('change'));
+          }
+        }
+
+      } catch (e) {
+        console.error("Error parsing stock data", e);
+        stockDisplay.style.display = "none";
+      }
+    } else {
+      stockDisplay.style.display = "none";
+    }
+  }
+
+  function checkStockWarning() {
+    const qty = parseInt(quantityInput.value) || 0;
+    const selectedRadio = document.querySelector('input[name="locationRadio"]:checked');
+    
+    if (!selectedRadio || qty <= 0) {
+      hideStockWarning();
+      return;
+    }
+    
+    const availableQty = parseInt(selectedRadio.dataset.qty) || 0;
+    const warningDiv = document.getElementById("stock-warning");
+    const warningText = document.getElementById("stock-warning-text");
+
+    if (qty > availableQty) {
+      warningText.textContent = `Ordered quantity (${qty}) exceeds available stock (${availableQty}) at ${selectedRadio.value}. Order can still be created.`;
+      warningDiv.style.display = "block";
+    } else {
+      hideStockWarning();
+    }
+  }
+
+  function hideStockWarning() {
+    document.getElementById("stock-warning").style.display = "none";
+  }
+
+  // Event Listeners
+  clientSelect.addEventListener("change", () => loadUsers(clientSelect.value));
+
+  userSelect.addEventListener("change", () => {
+    const selected = userSelect.options[userSelect.selectedIndex];
+    userNameHidden.value = selected?.dataset.name || "";
+    loadItems();
+  });
+
+  itemTypeSelect.addEventListener("change", () => {
+    loadItems();
+    document.getElementById("stock-display").style.display = "none";
+  });
+  
+  itemSelect.addEventListener("change", updateStockDisplay);
+  quantityInput.addEventListener("input", checkStockWarning);
+
+  // Form validation — ensure location is selected for TAPE orders and Min Qty met
+  document.querySelector("form").addEventListener("submit", function (e) {
+    const itemType = itemTypeSelect.value;
+    const qty = parseInt(quantityInput.value) || 0;
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+    
+    // Check Source Location
+    if (itemType === "TAPE" && !sourceLocationInput.value) {
+      e.preventDefault();
+      showToast("Please select a source location from the stock display.", "error");
+      return false;
+    }
+
+    // Check Minimum Order Qty
+    if (itemType === "TAPE" && selectedOption) {
+      const minQty = parseInt(selectedOption.dataset.minQty) || 0;
+      if (qty < minQty) {
+        e.preventDefault();
+        showToast(`Order quantity (${qty}) is less than Minimum Order Quantity (${minQty}).`, "error");
+        return false;
+      }
+    }
+  });
+
+  // Toast Function
+  function showToast(message, type = "info") {
+    // Create toast container if not exists
+    let container = document.getElementById("toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "toast-container";
+      container.style.cssText = "position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;";
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    
+    // Style based on type
+    const bg = type === "error" ? "#fee2e2" : "#e0f2fe";
+    const color = type === "error" ? "#991b1b" : "#075985";
+    const border = type === "error" ? "#f87171" : "#38bdf8";
+
+    toast.style.cssText = `
+      padding: 12px 24px;
+      background: ${bg};
+      color: ${color};
+      border-left: 5px solid ${border};
+      border-radius: 4px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-weight: 500;
+      min-width: 300px;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    `;
+
+    container.appendChild(toast);
+
+    // Animate In
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+      toast.style.transform = "translateX(0)";
+    });
+
+    // Remove after 3s
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(100%)";
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+
+  // Pre-fill form from URL params or Order Data
+  window.addEventListener("DOMContentLoaded", async () => {
+    const params = new URLSearchParams(window.location.search);
+    let type = params.get("type");
+    let client = params.get("client");
+    let userId = params.get("user");
+    let itemId = params.get("item");
+
+    // Fallback to orderToEdit if params are missing (Robust Prefill)
+    if (orderToEdit) {
+      if (!type && orderToEdit.tapeBinding) type = "TAPE"; 
+      if (!client && orderToEdit.userId && orderToEdit.userId.clientName) client = orderToEdit.userId.clientName;
+      if (!userId && orderToEdit.userId && orderToEdit.userId._id) userId = orderToEdit.userId._id;
+      // Check if tapeBinding is populated or ID
+      if (!itemId && orderToEdit.tapeBinding && orderToEdit.tapeBinding._id) itemId = orderToEdit.tapeBinding._id;
+      else if (!itemId && orderToEdit.tapeBinding) itemId = orderToEdit.tapeBinding;
+    }
+
+    // ==========================================
+    // CONFIRM MODE OPTIMIZATION (INSTANT LOAD)
+    // ==========================================
+    if (confirmMode && orderToEdit) {
+      if (client) {
+         // 1. Set Client & Type
+         if (type) itemTypeSelect.value = type;
+         clientSelect.value = client; 
+         
+         // 2. Set User (Manually create option)
+         userSelect.innerHTML = '';
+         const userOpt = document.createElement("option");
+         userOpt.value = userId;
+         userOpt.textContent = orderToEdit.userId.userName || "User";
+         userOpt.dataset.name = orderToEdit.userId.userName || "User";
+         userSelect.appendChild(userOpt);
+         userSelect.value = userId;
+         userNameHidden.value = userOpt.textContent;
+
+         // 3. Set Item (Manually create option with injected stock)
+         itemSelect.innerHTML = '';
+         const itemOpt = document.createElement("option");
+         itemOpt.value = itemId;
+         const tapeName = orderToEdit.tapeId ? (orderToEdit.tapeId.tapePaperCode + " " + orderToEdit.tapeId.tapeGsm + "gsm") : "Item";
+         itemOpt.textContent = tapeName;
+         
+         // INJECT STOCK INFO
+         if (stockInfo) {
+            itemOpt.dataset.stock = JSON.stringify(stockInfo);
+         } else {
+            itemOpt.dataset.stock = JSON.stringify({ totalStock: 0, locations: [] });
+         }
+         
+         // Set minQty
+         itemOpt.dataset.minQty = orderToEdit.tapeBinding ? (orderToEdit.tapeBinding.tapeMinQty || 0) : 0;
+         
+         itemSelect.appendChild(itemOpt);
+         itemSelect.value = itemId;
+
+         // 4. Update Stock Display
+         updateStockDisplay();
+
+         // 5. Pre-fill confirm fields
+         const today = new Date();
+         const yyyy = today.getFullYear();
+         const mm = String(today.getMonth() + 1).padStart(2, '0');
+         const dd = String(today.getDate()).padStart(2, '0');
+         const confirmDateInput = document.getElementById('confirm-date');
+         const confirmQtyInput = document.getElementById('confirm-quantity');
+         if (confirmDateInput) confirmDateInput.value = `${yyyy}-${mm}-${dd}`;
+         if (confirmQtyInput) confirmQtyInput.value = orderToEdit.quantity;
+
+         // 6. Pre-fill Original Order Fields
+         if (orderToEdit.quantity) quantityInput.value = orderToEdit.quantity;
+         if (orderToEdit.remarks) remarksInput.value = orderToEdit.remarks;
+         if (orderToEdit.estimatedDate) {
+            const d = new Date(orderToEdit.estimatedDate);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            estimatedDateInput.value = `${yyyy}-${mm}-${dd}`;
+         }
+
+         // 7. Disable fields
+         itemTypeSelect.disabled = true;
+         clientSelect.disabled = true;
+         userSelect.disabled = true;
+         itemSelect.disabled = true;
+         quantityInput.readOnly = true;
+         estimatedDateInput.readOnly = true;
+         remarksInput.readOnly = true;
+
+         // 7. Scroll to Confirmation Details
+         setTimeout(() => {
+            const section = document.getElementById("confirmation-section");
+            if (section) section.scrollIntoView({ behavior: "smooth", block: "center" });
+         }, 300);
+
+         // EXIT early - do not run standard load logic
+         return;
+      }
+    }
+
+    if (type) {
+      itemTypeSelect.value = type;
+    }
+    
+    if (client) {
+      const decodedClient = decodeURIComponent(client);
+      clientSelect.value = decodedClient;
+      
+      if (clientSelect.value) {
+        // Pass itemId to loadUsers to prevent double fetching
+        await loadUsers(decodedClient, userId, itemId);
+      }
+    }
+
+    // Pre-fill specific order fields if editing (STANDARD MODE)
+    if (orderToEdit && !confirmMode) {
+      if (orderToEdit.quantity) quantityInput.value = orderToEdit.quantity;
+      if (orderToEdit.remarks) remarksInput.value = orderToEdit.remarks;
+      if (orderToEdit.estimatedDate) {
+        // Format date to YYYY-MM-DD
+        const d = new Date(orderToEdit.estimatedDate);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        estimatedDateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    }
+
+
+  });
+</script>

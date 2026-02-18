@@ -1,7 +1,12 @@
 <% layout('/layout/boilerplate') -%>
 
 <!-- ================= TABULATOR CSS ================= -->
-<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" /> 
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
+<style>
+  .no-underline .emp-link {
+    text-decoration: none !important;
+  }
+</style>
 
 <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
   <div class="indi-head">
@@ -89,36 +94,47 @@
     movableColumns: true,
     columns: [
   {
-  title: "Employee Name",
-  field: "employeeName",
-  minWidth: 180,
-  maxWidth: 240,
-  formatter: function (cell) {
-    const data = cell.getRow().getData();
-    return `
-      <span
-        class="emp-link"
-        data-id="${data.employeeId}"
-        title="${data.employeeName}"
-        style="
-          cursor:pointer;
-          font-weight:600;
-          text-decoration:underline;
-          display:block;
-          white-space:nowrap;
-          overflow:hidden;
-          text-overflow:ellipsis;
-        "
-      >
-        ${data.employeeName}
-      </span>
-    `;
-  }
-}
-,
-
+    title: "Employee Name",
+    field: "employeeName",
+    minWidth: 180,
+    maxWidth: 240,
+    formatter: function (cell) {
+      const data = cell.getRow().getData();
+      return `
+        <span
+          class="emp-link"
+          data-id="${data.employeeId}"
+          title="${data.employeeName}"
+          style="
+            cursor:pointer;
+            font-weight:600;
+            text-decoration:underline;
+            display:block;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          "
+        >
+          ${data.employeeName}
+        </span>
+      `;
+    }
+  },
   { title: "Employee ID", field: "empId", minWidth: 160 },
-  { title: "Month", field: "month", minWidth: 90 },
+  {
+  title: "Month",
+  field: "month",
+  minWidth: 90,
+  formatter: function (cell) {
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const value = cell.getValue();
+    return months[value - 1] || value;
+  }
+},
   { title: "Year", field: "year", minWidth: 80 },
   { title: "Present", field: "presentDays", minWidth: 80 },
   { title: "Absent", field: "absentDays", minWidth: 80 },
@@ -135,6 +151,8 @@
 
   document.addEventListener("click", async (e) => {
   if (!e.target.classList.contains("emp-link")) return;
+
+  document.body.classList.add("no-underline");
 
   const employeeId = e.target.dataset.id;
 
@@ -156,12 +174,50 @@
   /* ================= DOWNLOAD ACTIONS ================= */
 
   document.getElementById("download-pdf").addEventListener("click", () => {
-    table.download("pdf", "payroll.pdf", {
-      orientation: "landscape",
-      title: "Payroll Data",
-    });
-    downloadSelector.classList.remove("download-selector--active");
+  table.download("pdf", "payroll.pdf", {
+    orientation: "landscape",
+    title: "Payroll Data",
+
+    autoTable: {
+    startY: 40,
+      
+    styles: {
+      fontSize: 9,
+      cellPadding: 4,
+      textColor: [26, 26, 46],
+    
+      lineColor: [210, 210, 210],
+      lineWidth: 0.15,
+    },
+  
+    headStyles: {
+      fillColor: [26, 26, 46],
+      textColor: 255,
+      fontStyle: "bold",
+    
+      lineColor: [200, 200, 200],
+      lineWidth: 0.2,
+    },
+  
+    bodyStyles: {
+      fillColor: [255, 255, 255],
+    },
+  
+    alternateRowStyles: {
+      fillColor: [248, 249, 250],
+    },
+  
+    margin: {
+      top: 20,
+      left: 14,
+      right: 14,
+    },
+  }
   });
+
+  downloadSelector.classList.remove("download-selector--active");
+});
+
 
   document.getElementById("download-xlsx").addEventListener("click", () => {
     table.download("xlsx", "payroll.xlsx", {
@@ -174,6 +230,7 @@
   .getElementById("backToSnapshot")
   .addEventListener("click", () => {
     table.replaceData(snapshotData);
+    document.body.classList.remove("no-underline");
     document.getElementById("backToSnapshot").style.display = "none";
   });
 </script>

@@ -6,6 +6,39 @@
   rel="stylesheet"
 />
 
+<style>
+  .loan-highlight {
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.35rem;
+    font-weight: 600;
+    font-size: 1.15rem;
+  
+    /* IMPORTANT FIX */
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.12);
+  }
+  
+  /* status variations — still subtle */
+  .loan-highlight.active {
+    background-color: rgba(255,255,255,0.16);
+  }
+  
+  .loan-highlight.closed {
+    background-color: rgba(40, 167, 69, 0.25);
+    border-color: rgba(40, 167, 69, 0.8);
+  }
+  
+  .loan-highlight.overdue {
+    background-color: rgba(220, 53, 69, 0.25);
+    border-color: rgba(220, 53, 69, 0.8);
+  }
+
+  .no-underline .emp-link {
+    text-decoration: none !important;
+  }
+</style>
+
 <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
   <div class="indi-head">
     <span style="display:flex;align-items:center;gap:10px">
@@ -85,14 +118,24 @@
       field: "employeeName",
       formatter: function (cell) {
         const data = cell.getRow().getData();
+      
         return `
-          <span
+          <div
             class="emp-link"
             data-id="${data.employeeId}"
-            style="cursor:pointer;font-weight:600;text-decoration:underline"
+            style="
+              width:100%;
+              height:100%;
+              cursor:pointer;
+              font-weight:600;
+              text-decoration:underline;
+              display:flex;
+              align-items:center;
+            "
+            title="${data.employeeName}"
           >
             ${data.employeeName}
-          </span>
+          </div>
         `;
       }
     },
@@ -136,9 +179,15 @@
 
     table.setColumns(logColumns);
     table.replaceData(history);
+    document.body.classList.add("no-underline");
 
-    document.querySelector(".indi-head h1").innerText =
-      `Advance — Outstanding: ₹${summary.currentBalance} (${summary.status})`;
+    const statusClass = summary.status.toLowerCase();
+
+    document.querySelector(".indi-head h1").innerHTML =
+      `Advance — Outstanding:
+       <span class="loan-highlight ${statusClass}">
+         ₹${summary.currentBalance} (${summary.status})
+       </span>`;
 
     document.getElementById("backToSnapshot").style.display = "inline-flex";
   });
@@ -148,6 +197,7 @@
     .addEventListener("click", () => {
       table.setColumns(baseColumns);
       table.replaceData(snapshotData);
+      document.body.classList.remove("no-underline");
 
       document.querySelector(".indi-head h1").innerText = "Advance";
       document.getElementById("backToSnapshot").style.display = "none";

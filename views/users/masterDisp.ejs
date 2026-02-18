@@ -10,7 +10,7 @@
 <body>
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
     <div class="indi-head">
-      <h1>Master View</h1>
+      <h1>Client Details</h1>
       <div class="download-btns">
         <div class="download-selector" id="downloadSelector">
           <button class="download-selector__trigger">
@@ -119,6 +119,14 @@
         {
           title: "Client Name",
           field: "clientName",
+          headerSort: false,
+          headerFilter: "input",
+          headerFilterPlaceholder: "Search",
+        },
+        {
+          title: "Client ID",
+          field: "clientId",
+          headerSort: false,
           headerFilter: "input",
           headerFilterPlaceholder: "Search",
         },
@@ -146,6 +154,17 @@
         {
           title: "User Name",
           field: "userName",
+          formatter: (cell) => {
+            return `
+              <span style="cursor:pointer;font-weight:600;text-decoration:underline">
+                ${cell.getValue()}
+              </span>
+            `;
+          },
+          cellClick: (e, cell) => {
+            const row = cell.getRow().getData();
+            window.location.href = `/fairdesk/client/details/${row._id}`;
+          },
           headerSort: false,
           headerFilter: "input",
           headerFilterPlaceholder: "Search",
@@ -193,7 +212,7 @@
           field: "labelCount",
           formatter: (cell) => {
             const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;color:blue;text-decoration:underline;">${row.labelCount}</span>`;
+            return `<span style="cursor:pointer;text-decoration:underline;">${row.labelCount}</span>`;
           },
           cellClick: (e, cell) => {
             const row = cell.getRow().getData();
@@ -205,7 +224,7 @@
           field: "ttrCount",
           formatter: (cell) => {
             const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;color:blue;text-decoration:underline;">${row.ttrCount}</span>`;
+            return `<span style="cursor:pointer;text-decoration:underline;">${row.ttrCount}</span>`;
           },
           cellClick: (e, cell) => {
             const row = cell.getRow().getData();
@@ -217,7 +236,7 @@
           field: "tapeCount",
           formatter: (cell) => {
             const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;color:blue;text-decoration:underline;">${row.tapeCount}</span>`;
+            return `<span style="cursor:pointer;text-decoration:underline;">${row.tapeCount}</span>`;
           },
           cellClick: (e, cell) => {
             const row = cell.getRow().getData();
@@ -256,4 +275,55 @@
   });
 </script>
 
+<!-- ================= FLOATING ACTION BUTTONS ================= -->
+<style>
+  .fab-capsule {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #1a1a2e;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+
+  .fab-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 50%;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .fab-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+
+  .fab-divider {
+    width: 2px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 8px;
+    border-radius: 2px;
+  }
+</style>
+
+<div class="fab-capsule">
+  <div title="Add Client" class="fab-item" onclick="window.location.href='/fairdesk/form/client?tab=client'" style="cursor: pointer;">
+    <i class="fa-solid fa-building"></i>
+  </div>
+  <div class="fab-divider"></div>
+  <div title="Add User" class="fab-item" onclick="window.location.href='/fairdesk/form/client?tab=user'" style="cursor: pointer;">
+    <i class="fa-solid fa-user-plus"></i>
+  </div>
+</div>
 </body>

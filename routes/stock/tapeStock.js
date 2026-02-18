@@ -7,14 +7,77 @@ import TapeStockLog from "../../models/inventory/TapeStockLog.js";
 const router = express.Router();
 
 /* RENDER */
-router.get("/", (req, res) => {
-  res.render("stock/tapeStock", { title: "Tape Stock", CSS: false, JS: false, notification: req.flash("notification") });
+/* RENDER */
+router.get("/", async (req, res) => {
+  try {
+    const [paperCodes, paperTypes, gsms, widths, mtrsList, coreIds, finishes] = await Promise.all([
+      Tape.distinct("tapePaperCode"),
+      Tape.distinct("tapePaperType"),
+      Tape.distinct("tapeGsm"),
+      Tape.distinct("tapeWidth"),
+      Tape.distinct("tapeMtrs"),
+      Tape.distinct("tapeCoreId"),
+      Tape.distinct("tapeFinish"),
+    ]);
+
+    res.render("stock/tapeStock", {
+      title: "Tape Stock",
+      CSS: false,
+      JS: false,
+      notification: req.flash("notification"),
+      paperCodes,
+      paperTypes,
+      gsms,
+      widths,
+      mtrsList,
+      coreIds, // though hardcoded in view, good to have
+      finishes, // though hardcoded in view
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/fairdesk");
+  }
+});
+
+/* FILTER SPECS */
+router.get("/filter-specs", async (req, res) => {
+  try {
+    const { tapePaperCode, tapePaperType, tapeGsm, tapeWidth, tapeMtrs, tapeCoreId, tapeFinish } = req.query;
+
+    // Helper to build filter excluding one key so user can change selection
+    const buildFilter = (excludeKey) => {
+      const f = {};
+      if (tapePaperCode && excludeKey !== "tapePaperCode") f.tapePaperCode = tapePaperCode;
+      if (tapePaperType && excludeKey !== "tapePaperType") f.tapePaperType = tapePaperType;
+      if (tapeGsm && excludeKey !== "tapeGsm") f.tapeGsm = Number(tapeGsm);
+      if (tapeWidth && excludeKey !== "tapeWidth") f.tapeWidth = Number(tapeWidth);
+      if (tapeMtrs && excludeKey !== "tapeMtrs") f.tapeMtrs = Number(tapeMtrs);
+      if (tapeCoreId && excludeKey !== "tapeCoreId") f.tapeCoreId = Number(tapeCoreId);
+      if (tapeFinish && excludeKey !== "tapeFinish") f.tapeFinish = tapeFinish;
+      return f;
+    };
+
+    const [paperCodes, paperTypes, gsms, widths, mtrsList, coreIds, finishes] = await Promise.all([
+      Tape.distinct("tapePaperCode", buildFilter("tapePaperCode")),
+      Tape.distinct("tapePaperType", buildFilter("tapePaperType")),
+      Tape.distinct("tapeGsm", buildFilter("tapeGsm")),
+      Tape.distinct("tapeWidth", buildFilter("tapeWidth")),
+      Tape.distinct("tapeMtrs", buildFilter("tapeMtrs")),
+      Tape.distinct("tapeCoreId", buildFilter("tapeCoreId")),
+      Tape.distinct("tapeFinish", buildFilter("tapeFinish")),
+    ]);
+
+    res.json({ paperCodes, paperTypes, gsms, widths, mtrsList, coreIds, finishes });
+  } catch (err) {
+    console.error("FILTER ERROR:", err);
+    res.status(500).json({});
+  }
 });
 
 /* RESOLVE TAPE */
 router.post("/resolve", async (req, res) => {
   try {
-    const { paperCode, gsm, paperType, width, mtrs, coreId, finish, } = req.body;
+    const { paperCode, gsm, paperType, width, mtrs, coreId, finish } = req.body;
 
     const tape = await Tape.findOne({
       tapePaperCode: paperCode?.trim(),
@@ -35,7 +98,6 @@ router.post("/resolve", async (req, res) => {
       tapeId: tape._id.toString(),
       TapeProductId: tape.tapeProductId,
     });
-
   } catch (err) {
     console.error("Resolve error ❌", err);
     return res.json({ found: false });
@@ -57,20 +119,20 @@ router.get("/balance/:tapeId/:location", async (req, res) => {
 /* CREATE (INWARD ONLY) */
 router.post("/create", async (req, res) => {
   try {
-
-    const { tapeId, location, quantity, remarks } = req.body;
+    const { tapeId, tapeFinish, location, quantity, remarks } = req.body;
     const qty = Number(quantity);
 
-    if (!tapeId || !location || qty <= 0) {
+    // STRONG VALIDATION
+    if (!tapeId || !tapeFinish || !location || qty <= 0) {
       req.flash("error", "Invalid stock entry");
-      return res.redirect("back");
+      return res.redirect(req.get("Referrer") || "/");
     }
 
     const tapeObjectId = new mongoose.Types.ObjectId(tapeId);
 
     /* CURRENT STOCK */
     const bal = await TapeStock.aggregate([
-      { $match: { tape: tapeObjectId, location } },
+      { $match: { tape: tapeObjectId, location, tapeFinish } },
       { $group: { _id: null, qty: { $sum: "$quantity" } } },
     ]);
 
@@ -80,6 +142,7 @@ router.post("/create", async (req, res) => {
     /* INSERT STOCK */
     await TapeStock.create({
       tape: tapeObjectId,
+      tapeFinish, // REQUIRED FIELD FIXED
       location,
       quantity: qty,
       remarks,
@@ -88,6 +151,7 @@ router.post("/create", async (req, res) => {
     /* LOG ENTRY */
     await TapeStockLog.create({
       tape: tapeObjectId,
+      tapeFinish, // KEEP LOG CONSISTENT
       location,
       openingStock,
       quantity: qty,
@@ -99,12 +163,12 @@ router.post("/create", async (req, res) => {
     });
 
     req.flash("success", "Tape stock added successfully");
+    console.log("FLASH SUCCESS:", req.flash("success"));
     res.redirect("/fairdesk/tapestock");
-
   } catch (err) {
     console.error(err);
     req.flash("error", "Failed to add tape stock");
-    res.redirect("back");
+    res.redirect(req.get("Referrer") || "/");
   }
 });
 
