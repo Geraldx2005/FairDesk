@@ -2,10 +2,7 @@
 <% layout('/layout/boilerplate') -%>
 
 <!-- Tabulator CSS -->
-<link
-  href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css"
-  rel="stylesheet"
-/>
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet" />
 
 <body>
   <div class="contain" style="flex-direction: column; padding: 10px; gap: 10px">
@@ -45,285 +42,279 @@
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <script>
-  // ================= DOWNLOAD DROPDOWN UI =================
+    // ================= DOWNLOAD DROPDOWN UI =================
 
-  const downloadSelector = document.getElementById("downloadSelector");
-  const triggerBtn = downloadSelector.querySelector(
-    ".download-selector__trigger"
-  );
+    const downloadSelector = document.getElementById("downloadSelector");
+    const triggerBtn = downloadSelector.querySelector(".download-selector__trigger");
 
-  // Toggle dropdown
-  triggerBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    downloadSelector.classList.toggle("download-selector--active");
+    // Toggle dropdown
+    triggerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      downloadSelector.classList.toggle("download-selector--active");
 
-    const icon = triggerBtn.querySelector(
-      ".download-selector__trigger-icon"
-    );
-    icon.style.transform = downloadSelector.classList.contains(
-      "download-selector--active"
-    )
-      ? "rotate(180deg)"
-      : "rotate(0deg)";
-  });
+      const icon = triggerBtn.querySelector(".download-selector__trigger-icon");
+      icon.style.transform = downloadSelector.classList.contains("download-selector--active")
+        ? "rotate(180deg)"
+        : "rotate(0deg)";
+    });
 
-  // Close dropdown when clicking outside
-  document.addEventListener("click", () => {
-    downloadSelector.classList.remove("download-selector--active");
-    const icon = triggerBtn.querySelector(
-      ".download-selector__trigger-icon"
-    );
-    icon.style.transform = "rotate(0deg)";
-  });
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
+      downloadSelector.classList.remove("download-selector--active");
+      const icon = triggerBtn.querySelector(".download-selector__trigger-icon");
+      icon.style.transform = "rotate(0deg)";
+    });
 
-  // Prevent close when clicking inside dropdown
-  downloadSelector
-    .querySelector(".download-selector__menu")
-    .addEventListener("click", (e) => {
+    // Prevent close when clicking inside dropdown
+    downloadSelector.querySelector(".download-selector__menu").addEventListener("click", (e) => {
       e.stopPropagation();
     });
 
-  // ================= TABULATOR DATA =================
+    // ================= TABULATOR DATA =================
 
     // Render data from Express (passed into EJS)
     let tableData = [];
     try {
-      tableData = JSON.parse('<%- JSON.stringify(jsonData || []) %>');
+      tableData = <%- JSON.stringify(jsonData || []) %>;
       console.log(tableData);
     } catch (err) {
       console.error("Master Disp JSON error", err);
     }
 
-  tableData.forEach((user) => {
-    user.labelCount = user.labelCount ?? 0;
-    user.ttrCount = user.ttr?.length || 0;
-    user.tapeCount = user.tape?.length || 0;
-  });
+    tableData.forEach((user) => {
+      user.labelCount = user.labelCount ?? 0;
+      user.ttrCount = user.ttr?.length || 0;
+      user.tapeCount = user.tape?.length || 0;
+    });
 
-  // ================= TABULATOR INIT =================
+    // ================= TABULATOR INIT =================
 
-  let table; // MUST be global for download to work
+    let table; // MUST be global for download to work
 
-  function initTable() {
-
-    table = new Tabulator("#master-table", {
-      data: tableData,
-      layout: "fitColumns",
-      virtualDom: true,
-      responsiveLayout: false,
-      pagination: "local",
-      paginationSize: 30,
-      movableColumns: true,
-      placeholder: "No data to display",
-      columns: [
-        {
-          title: "Client Name",
-          field: "clientName",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "Client ID",
-          field: "clientId",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "Client Type",
-          field: "clientType",
-          headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: {
-            values: {
-              "": "All",
-              DEALER: "DEALER",
-              CLIENT: "CLIENT",
-            },
-            clearable: true,
+    function initTable() {
+      table = new Tabulator("#master-table", {
+        data: tableData,
+        layout: "fitColumns",
+        virtualDom: true,
+        responsiveLayout: false,
+        pagination: "local",
+        paginationSize: 30,
+        movableColumns: true,
+        placeholder: "No data to display",
+        columns: [
+          {
+            title: "Name",
+            field: "clientName",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
           },
-        },
-        {
-          title: "Account Head",
-          field: "accountHead",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "User Name",
-          field: "userName",
-          formatter: (cell) => {
-            return `
+          {
+            title: "Type",
+            field: "clientType",
+            headerSort: false,
+            headerFilter: "select",
+            headerFilterParams: {
+              values: {
+                "": "All",
+                DEALER: "DEALER",
+                CLIENT: "CLIENT",
+              },
+              clearable: true,
+            },
+          },
+          {
+            title: "Account Head",
+            field: "accountHead",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
+          },
+          {
+            title: "User Name",
+            field: "userName",
+            formatter: (cell) => {
+              return `
               <span style="cursor:pointer;font-weight:600;text-decoration:underline">
                 ${cell.getValue()}
               </span>
             `;
-          },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/client/details/${row._id}`;
-          },
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "Location",
-          field: "userLocation",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "Department",
-          field: "userDepartment",
-          headerSort: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search",
-        },
-        {
-          title: "Contact",
-          field: "userContact",
-          headerSort: false,
-        },
-        {
-          title: "Email",
-          field: "userEmail",
-          headerSort: false,
-        },
-        {
-          title: "Self Dispatch",
-          field: "SelfDispatch",
-          headerSort: false,
-          headerFilter: "select",
-          headerFilterParams: {
-            values: {
-              "": "All",
-              "SELF DISPATCH": "SELF DISPATCH",
-              "THIRD PARTY": "THIRD PARTY",
             },
-            clearable: true,
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/client/details/${row._id}`;
+            },
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
           },
-        },
-        {
-          title: "Labels",
-          field: "labelCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;text-decoration:underline;">${row.labelCount}</span>`;
+          {
+            title: "Location",
+            field: "userLocation",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
           },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/labels/view/${row._id}`;
+          {
+            title: "Department",
+            field: "userDepartment",
+            headerSort: false,
+            headerFilter: "input",
+            headerFilterPlaceholder: "Search",
           },
-        },
-        {
-          title: "TTR's",
-          field: "ttrCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;text-decoration:underline;">${row.ttrCount}</span>`;
+          {
+            title: "Contact",
+            field: "userContact",
+            headerSort: false,
           },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/ttr/view/${row._id}`;
+          {
+            title: "Email",
+            field: "userEmail",
+            headerSort: false,
           },
-        },
-        {
-          title: "Tapes",
-          field: "tapeCount",
-          formatter: (cell) => {
-            const row = cell.getRow().getData();
-            return `<span style="cursor:pointer;text-decoration:underline;">${row.tapeCount}</span>`;
+          {
+            title: "Self Dispatch",
+            field: "SelfDispatch",
+            headerSort: false,
+            headerFilter: "select",
+            headerFilterParams: {
+              values: {
+                "": "All",
+                "SELF DISPATCH": "SELF DISPATCH",
+                "THIRD PARTY": "THIRD PARTY",
+              },
+              clearable: true,
+            },
           },
-          cellClick: (e, cell) => {
-            const row = cell.getRow().getData();
-            window.location.href = `/fairdesk/tape/view/${row._id}`;
+          {
+            title: "Labels",
+            field: "labelCount",
+            formatter: (cell) => {
+              const row = cell.getRow().getData();
+              return `<span style="cursor:pointer;text-decoration:underline;">${row.labelCount}</span>`;
+            },
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/labels/view/${row._id}`;
+            },
           },
-        },
-      ],
+          {
+            title: "TTR's",
+            field: "ttrCount",
+            formatter: (cell) => {
+              const row = cell.getRow().getData();
+              return `<span style="cursor:pointer;text-decoration:underline;">${row.ttrCount}</span>`;
+            },
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/ttr/view/${row._id}`;
+            },
+          },
+          {
+            title: "Tapes",
+            field: "tapeCount",
+            formatter: (cell) => {
+              const row = cell.getRow().getData();
+              return `<span style="cursor:pointer;text-decoration:underline;">${row.tapeCount}</span>`;
+            },
+            cellClick: (e, cell) => {
+              const row = cell.getRow().getData();
+              window.location.href = `/fairdesk/tape/view/${row._id}`;
+            },
+          },
+        ],
+      });
+    }
+
+    window.addEventListener("load", initTable);
+
+    // ================= DOWNLOAD ACTIONS =================
+
+    // PDF
+    document.getElementById("download-pdf").addEventListener("click", () => {
+      if (!table) return;
+
+      table.download("pdf", "master-data.pdf", {
+        orientation: "landscape",
+        title: "Master Data",
+      });
+
+      downloadSelector.classList.remove("download-selector--active");
     });
-  }
 
-  window.addEventListener("load", initTable);
+    // Excel
+    document.getElementById("download-xlsx").addEventListener("click", () => {
+      if (!table) return;
 
-  // ================= DOWNLOAD ACTIONS =================
+      table.download("xlsx", "master-data.xlsx", {
+        sheetName: "Master Data",
+      });
 
-  // PDF
-  document.getElementById("download-pdf").addEventListener("click", () => {
-    if (!table) return;
-
-    table.download("pdf", "master-data.pdf", {
-      orientation: "landscape",
-      title: "Master Data",
+      downloadSelector.classList.remove("download-selector--active");
     });
+  </script>
 
-    downloadSelector.classList.remove("download-selector--active");
-  });
+  <!-- ================= FLOATING ACTION BUTTONS ================= -->
+  <style>
+    .fab-capsule {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #1a1a2e;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
 
-  // Excel
-  document.getElementById("download-xlsx").addEventListener("click", () => {
-    if (!table) return;
+    .fab-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 18px;
+      border-radius: 50%;
+      transition:
+        background 0.2s,
+        transform 0.2s;
+    }
 
-    table.download("xlsx", "master-data.xlsx", {
-      sheetName: "Master Data",
-    });
+    .fab-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
 
-    downloadSelector.classList.remove("download-selector--active");
-  });
-</script>
+    .fab-divider {
+      width: 2px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 8px;
+      border-radius: 2px;
+    }
+  </style>
 
-<!-- ================= FLOATING ACTION BUTTONS ================= -->
-<style>
-  .fab-capsule {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    background: #1a1a2e;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    padding: 6px 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-  }
-
-  .fab-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    color: #fff;
-    text-decoration: none;
-    font-size: 18px;
-    border-radius: 50%;
-    transition: background 0.2s, transform 0.2s;
-  }
-
-  .fab-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-  }
-
-  .fab-divider {
-    width: 2px;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.2);
-    margin: 0 8px;
-    border-radius: 2px;
-  }
-</style>
-
-<div class="fab-capsule">
-  <div title="Add Client" class="fab-item" onclick="window.location.href='/fairdesk/form/client?tab=client'" style="cursor: pointer;">
-    <i class="fa-solid fa-building"></i>
+  <div class="fab-capsule">
+    <div
+      title="Add Client"
+      class="fab-item"
+      onclick="window.location.href = '/fairdesk/form/client?tab=client'"
+      style="cursor: pointer"
+    >
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <div class="fab-divider"></div>
+    <div
+      title="Add User"
+      class="fab-item"
+      onclick="window.location.href = '/fairdesk/form/client?tab=user'"
+      style="cursor: pointer"
+    >
+      <i class="fa-solid fa-user-plus"></i>
+    </div>
   </div>
-  <div class="fab-divider"></div>
-  <div title="Add User" class="fab-item" onclick="window.location.href='/fairdesk/form/client?tab=user'" style="cursor: pointer;">
-    <i class="fa-solid fa-user-plus"></i>
-  </div>
-</div>
 </body>

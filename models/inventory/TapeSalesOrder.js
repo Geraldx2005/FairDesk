@@ -35,6 +35,11 @@ const tapeSalesOrderSchema = new mongoose.Schema(
       min: 1,
     },
 
+    dispatchedQuantity: {
+      type: Number,
+      default: 0,
+    },
+
     estimatedDate: {
       type: Date,
       required: true,

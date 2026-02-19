@@ -147,10 +147,10 @@
   // Handler for create order request
   window.checkCreateOrder = function(url) {
     dialogYes.style.background = '#10b981'; // Green for create
-    dialogYes.textContent = "Yes, Create Order";
+    dialogYes.textContent = "Yes, Proceed Order";
 
     showCustomConfirm(
-      "Are you sure you want to create this order?",
+      "Are you sure you want to proceed with this order?",
       () => {
         window.location.href = url;
       },
@@ -188,7 +188,7 @@
                         onmouseover="this.style.background='#059669'"
                         onmouseout="this.style.background='#10b981'"
                         title="Create Order">
-                        <i class="fa-solid fa-plus"></i>
+                        <i class="fa-solid fa-truck-moving""></i>
                     </a>
                     <button onclick="requestCancel('${row._id}')"
                         style="height:20px; padding:2px 10px; background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; transition: background 0.2s;"
@@ -227,7 +227,26 @@
                   </span>`;
         },
       },
-      { title: "Qty", field: "quantity", hozAlign: "center" },
+      {
+        title: "Qty",
+        field: "quantity",
+        hozAlign: "center",
+        formatter: (cell) => {
+          const row = cell.getRow().getData();
+          const quantity = row.quantity;
+          const dispatched = row.dispatchedQuantity || 0;
+          if (dispatched > 0) {
+            const remaining = quantity - dispatched;
+            return `
+              <div style="display:flex; flex-direction:column; align-items:center; line-height:1.2;">
+                <span style="font-weight:600; color:#1a1a2e;">${remaining} left</span>
+                <span style="font-size:10px; color:#6b7280; font-weight:500;">(${dispatched} sent)</span>
+              </div>
+            `;
+          }
+          return quantity;
+        },
+      },
       { title: "Source", field: "sourceLocation", hozAlign: "center" },
       {
         title: "Est. Delivery",

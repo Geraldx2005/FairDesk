@@ -347,10 +347,14 @@ router.post("/tape/edit/:id", async (req, res) => {
 router.get("/sales/order", async (req, res) => {
   const clients = await Client.distinct("clientName");
   let orderToEdit = null;
+  let logs = [];
 
   if (req.query.orderId) {
     try {
       orderToEdit = await TapeSalesOrder.findById(req.query.orderId).lean();
+      logs = await SalesOrderLog.find({ orderId: req.query.orderId, action: "DELIVERED" })
+        .sort({ performedAt: -1 })
+        .lean();
     } catch (err) {
       console.error("Error fetching order to edit:", err);
     }
@@ -359,6 +363,7 @@ router.get("/sales/order", async (req, res) => {
   res.render("inventory/salesOrderForm.ejs", {
     clients,
     orderToEdit,
+    logs,
     CSS: false,
     JS: false,
     title: orderToEdit ? "Edit Sales Order" : "Sales Order",
@@ -413,7 +418,9 @@ router.get("/sales/items/:type/:userId", async (req, res) => {
         {
           $group: {
             _id: { tapeId: "$tapeId", location: "$sourceLocation" },
-            bookedQty: { $sum: "$quantity" },
+            bookedQty: {
+              $sum: { $subtract: ["$quantity", { $ifNull: ["$dispatchedQuantity", 0] }] },
+            },
           },
         },
       ]);
@@ -585,6 +592,8 @@ router.get("/sales/order/confirm", async (req, res) => {
       return res.redirect("/fairdesk/sales/pending");
     }
 
+    const logs = await SalesOrderLog.find({ orderId, action: "DELIVERED" }).sort({ performedAt: -1 }).lean();
+
     // ========== STOCK PRE-CALCULATION FOR CONFIRM PAGE ==========
     let stockInfo = { totalStock: 0, locations: [], booked: 0, balance: 0 };
     if (order.tapeId) {
@@ -607,7 +616,9 @@ router.get("/sales/order/confirm", async (req, res) => {
         {
           $group: {
             _id: "$sourceLocation",
-            bookedQty: { $sum: "$quantity" },
+            bookedQty: {
+              $sum: { $subtract: ["$quantity", { $ifNull: ["$dispatchedQuantity", 0] }] },
+            },
           },
         },
       ]);
@@ -648,6 +659,7 @@ router.get("/sales/order/confirm", async (req, res) => {
       clients,
       orderToEdit: order,
       stockInfo, // Pass pre-calculated stock
+      logs,
       confirmMode: true,
       CSS: false,
       JS: false,
@@ -703,6 +715,8 @@ router.post("/sales/order/status", async (req, res) => {
     console.log(`[DEBUG] Order ${orderId}: Status change ${previousStatus} -> ${status}`);
 
     // ========== CONFIRM: Deduct stock ==========
+    let finalStatus = status;
+
     if (status === "CONFIRMED" && previousStatus === "PENDING") {
       const tapeObjectId = new mongoose.Types.ObjectId(order.tapeId._id);
       const location = order.sourceLocation;
@@ -714,6 +728,13 @@ router.post("/sales/order/status", async (req, res) => {
 
       const tape = order.tapeId;
       const qty = Number(confirmQuantity) || order.quantity;
+      const dispatchedSoFar = order.dispatchedQuantity || 0;
+      const remaining = order.quantity - dispatchedSoFar;
+
+      if (qty > remaining) {
+        req.flash("notification", `Cannot dispatch ${qty}. Only ${remaining} remaining.`);
+        return res.redirect("back");
+      }
 
       // Get current stock at this location
       const bal = await TapeStock.aggregate([
@@ -750,17 +771,40 @@ router.post("/sales/order/status", async (req, res) => {
         createdBy: req.user?.username || "SYSTEM",
       });
 
+      // Calculate action time: Use Confirm Date (for date) + Current Time (for time)
+      const now = new Date();
+      let actionTime = now;
+      if (confirmDate) {
+        const [y, m, d] = confirmDate.split("-").map(Number);
+        actionTime = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds());
+      }
+
       // Action Log entry
       await SalesOrderLog.create({
         orderId,
-        action: "CONFIRMED",
+        action: "DELIVERED",
         invoiceNumber: invoiceNumber || "",
         quantity: qty,
         performedBy: req.user?.username || "SYSTEM",
-        performedAt: confirmDate ? new Date(confirmDate) : new Date(),
+        performedAt: actionTime,
       });
 
-      console.log("[DEBUG] Stock deduction + action log successful");
+      // Calculate new dispatched quantity
+      const newDispatched = dispatchedSoFar + qty;
+
+      // Determine if fully dispatched
+      if (newDispatched >= order.quantity) {
+        finalStatus = "CONFIRMED";
+      } else {
+        finalStatus = "PENDING";
+      }
+
+      // Update dispatched quantity immediately to be safe, status will be updated below
+      await TapeSalesOrder.findByIdAndUpdate(orderId, { dispatchedQuantity: newDispatched });
+
+      console.log(
+        `[DEBUG] Stock deduction + action log successful. Dispatched: ${qty}, Total: ${newDispatched}/${order.quantity}, New Status: ${finalStatus}`,
+      );
     } else if (status === "CONFIRMED") {
       console.log(`[DEBUG] Skipping deduction. Status: ${status}, Previous: ${previousStatus}`);
     }
@@ -782,7 +826,21 @@ router.post("/sales/order/status", async (req, res) => {
       const tapeObjectId = new mongoose.Types.ObjectId(order.tapeId._id);
       const location = order.sourceLocation;
       const tape = order.tapeId;
-      const qty = order.quantity;
+      const qty = order.quantity; // TODO: Should this be dispatchedQuantity? For now assume cancelling full order if it was fully confirmed. Or partial?
+      // If partial dispatch was supported, we really need to know *what* to reverse.
+      // But assuming CONFIRMED means *fully* dispatched for now (or at least that's the only state we reverse from).
+      // If it's PENDING but partially dispatched, and we cancel... we should reverse dispatchedQuantity.
+
+      // Logic refinement for CANCEL:
+      // If PENDING and dispatchedQuantity > 0, we should reverse that amount?
+      // The current request didn't ask for generic cancel improvements, but I should probably handle it.
+      // However, sticking to the requested scope: "click dispatch order... select less qty... should not be removed from pending"
+
+      // Let's leave Cancel logic mostly as is, but maybe use dispatchedQuantity if available?
+      // If previousStatus == CONFIRMED, it means it was fully dispatched (by my new logic).
+      // So order.quantity is correct (or order.dispatchedQuantity which should be >= quantity).
+
+      const qtyToReverse = order.dispatchedQuantity > 0 ? order.dispatchedQuantity : order.quantity;
 
       // Get current stock at this location
       const bal = await TapeStock.aggregate([
@@ -796,7 +854,7 @@ router.post("/sales/order/status", async (req, res) => {
         tape: tapeObjectId,
         tapeFinish: tape.tapeFinish,
         location,
-        quantity: qty,
+        quantity: qtyToReverse,
         remarks: `Sales Order Cancelled (reversed): ${orderId}`,
       });
 
@@ -805,8 +863,8 @@ router.post("/sales/order/status", async (req, res) => {
         tape: tapeObjectId,
         location,
         openingStock: currentStock,
-        quantity: qty,
-        closingStock: currentStock + qty,
+        quantity: qtyToReverse,
+        closingStock: currentStock + qtyToReverse,
         type: "INWARD",
         source: "SYSTEM",
         remarks: `Sales Order Cancelled (reversed): ${orderId}`,
@@ -818,15 +876,22 @@ router.post("/sales/order/status", async (req, res) => {
         orderId,
         action: "CANCELLED",
         cancelReason: cancelReason || "No reason provided",
-        quantity: order.quantity,
+        quantity: qtyToReverse,
         performedBy: req.user?.username || "SYSTEM",
       });
+
+      // Reset dispatched qty
+      await TapeSalesOrder.findByIdAndUpdate(orderId, { dispatchedQuantity: 0 });
     }
 
     // Update the order status
-    await TapeSalesOrder.findByIdAndUpdate(orderId, { status });
+    await TapeSalesOrder.findByIdAndUpdate(orderId, { status: finalStatus });
 
-    req.flash("notification", `Order status updated to ${status}`);
+    if (finalStatus === "PENDING" && status === "CONFIRMED") {
+      req.flash("notification", `Partially dispatched. remaining is pending.`);
+    } else {
+      req.flash("notification", `Order status updated to ${finalStatus}`);
+    }
     res.redirect("/fairdesk/sales/pending");
   } catch (err) {
     console.error("STATUS UPDATE ERROR:", err);

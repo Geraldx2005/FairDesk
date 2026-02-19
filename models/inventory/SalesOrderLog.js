@@ -11,7 +11,7 @@ const salesOrderLogSchema = new mongoose.Schema(
 
     action: {
       type: String,
-      enum: ["CREATED", "CONFIRMED", "CANCELLED"],
+      enum: ["CREATED", "CONFIRMED", "CANCELLED", "DELIVERED"],
       required: true,
     },
 
